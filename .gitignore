@@ -45,3 +45,6 @@ Thumbs.db
 # otherfiles
 .agents/
 .cursor/
+.claude/**/10x-*
+.github/**/10x-*
+.agents/**/10x-*
