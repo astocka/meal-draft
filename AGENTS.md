@@ -47,7 +47,6 @@ Pre-commit hook (husky + lint-staged) runs `eslint --fix` on `*.{ts,tsx,astro}` 
 
 ## Coding Style
 
-- Path alias `@/*` maps to `./src/*`
 - ESLint 9 flat config — see @eslint.config.js
 - Prettier — see @.prettierrc.json
 - Astro components for static content; React components only when interactivity is required
@@ -67,3 +66,4 @@ Pre-commit hook (husky + lint-staged) runs `eslint --fix` on `*.{ts,tsx,astro}` 
 - Local Supabase: `npx supabase start` (requires Docker)
 - Cloudflare local dev: secrets go in `.dev.vars` (gitignored)
 - Deploy: `npx wrangler deploy`
+
