@@ -36,12 +36,14 @@ Full server-side rendering (`output: "server"` in astro.config.mjs). All pages a
 
 ## Commands
 
-- `npm run dev` — local dev server (Cloudflare workerd runtime)
-- `npm run build` — production SSR build
-- `npm run preview` — preview production build
-- `npm run lint` — ESLint with strict type-checked rules
-- `npm run lint:fix` — auto-fix lint issues
-- `npm run format` — Prettier (includes astro + tailwindcss plugins)
+- `pnpm run dev` — local dev server (Cloudflare workerd runtime)
+- `pnpm run build` — production SSR build
+- `pnpm run preview` — preview production build (local workerd/Miniflare)
+- `pnpm run preview:wrangler` — build + run local workerd via wrangler dev
+- `pnpm run deploy` — build + deploy to Cloudflare Workers
+- `pnpm run lint` — ESLint with strict type-checked rules
+- `pnpm run lint:fix` — auto-fix lint issues
+- `pnpm run format` — Prettier (includes astro + tailwindcss plugins)
 
 Pre-commit hook (husky + lint-staged) runs `eslint --fix` on `*.{ts,tsx,astro}` and `prettier --write` on `*.{json,css,md}`.
 
@@ -59,11 +61,19 @@ Pre-commit hook (husky + lint-staged) runs `eslint --fix` on `*.{ts,tsx,astro}` 
 - CI gate (see @.github/workflows/ci.yml): lint + build must pass on every push/PR to `main`
 - No test suite configured yet — CI does not run tests
 
+## Cloudflare
+
+- Bump `compatibility_date` in `wrangler.jsonc` quarterly. Current: 2026-05-26.
+- Always run `pnpm run build && pnpm run preview` before deploying to catch workerd-only failures.
+- Never trust `astro dev` alone for runtime correctness — it runs on Node.js, not workerd.
+- Production auto-deploys on push to `main` via Cloudflare Git integration.
+- Manual deploy: `pnpm run deploy`.
+
 ## Environment
 
 - Node version pinned in @.nvmrc
 - Secrets: `SUPABASE_URL`, `SUPABASE_KEY` — copy `.env.example` to `.env` for Node, or `.dev.vars` for Cloudflare local dev
 - Local Supabase: `npx supabase start` (requires Docker)
 - Cloudflare local dev: secrets go in `.dev.vars` (gitignored)
-- Deploy: `npx wrangler deploy`
+- Deploy: `pnpm run deploy`
 
