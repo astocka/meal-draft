@@ -2,6 +2,7 @@
   "name": "10x-astro-starter",
   "type": "module",
   "version": "0.0.1",
+  "packageManager": "pnpm@11.2.2",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -9,7 +10,9 @@
     "astro": "astro",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "preview:wrangler": "astro build && wrangler dev",
+    "deploy": "astro build && wrangler deploy"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",
