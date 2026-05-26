@@ -79,7 +79,7 @@ The solo developer deployed MealDraft on Cloudflare Pages. Initial pages rendere
 - **Preview deploys**: Every push to a non-production branch creates a preview URL at `<commit-hash>.<project>.pages.dev`. Preview URLs are public by default — add Cloudflare Access (free, 50 users) to restrict access if needed. Fork PRs also get previews unless disabled in Pages settings.
 - **Secrets**: Runtime secrets via `wrangler secret put <KEY>` (stored in Cloudflare's encrypted vault, never visible after set). Build-time env vars via Pages project settings (dashboard or `wrangler pages project edit`). Rotation: `wrangler secret put <KEY>` overwrites immediately, next deploy picks it up. GitHub Secrets used for CI deploy tokens.
 - **Rollback**: `wrangler rollback` (or `wrangler pages deployment rollback <deployment-id>`) — instant, atomic, <5s. Rolls back code only — database migrations (Supabase) are not reverted automatically. Always deploy migrations as backwards-compatible.
-- **Approval**: Production deploys via `wrangler deploy` or Pages git integration (auto-deploy on push to `master`). No built-in approval gate — add branch protection + required reviews in GitHub to gate production. Agent can deploy to preview branches unattended; production requires a merged PR.
+- **Approval**: Production deploys via `wrangler deploy` or Pages git integration (auto-deploy on push to `main`). No built-in approval gate — add branch protection + required reviews in GitHub to gate production. Agent can deploy to preview branches unattended; production requires a merged PR.
 - **Logs**: `wrangler tail` streams real-time logs (filter by status, method, path). `wrangler pages deployment tail <id>` for specific deployments. MCP server provides structured log access. Historical logs via Cloudflare Logpush (paid, not needed at MVP).
 
 ## Risk Register
@@ -101,25 +101,21 @@ The solo developer deployed MealDraft on Cloudflare Pages. Initial pages rendere
 
 These steps assume the project is already scaffolded with `@astrojs/cloudflare@^13.5.0` and `wrangler@^4.90.0` (confirmed in `package.json`).
 
-1. **Create a Cloudflare Pages project:**
+1. **Set runtime secrets for production (after first deploy creates the Worker):**
   ```bash
-   pnpm wrangler pages project create mealdraft
+   pnpm wrangler secret put SUPABASE_URL
+   pnpm wrangler secret put SUPABASE_KEY
   ```
-2. **Set runtime secrets for production:**
-  ```bash
-   pnpm wrangler pages secret put SUPABASE_URL
-   pnpm wrangler pages secret put SUPABASE_KEY
-  ```
-3. **Verify local workerd compatibility (replaces `astro dev` for runtime testing):**
+2. **Verify local workerd compatibility (replaces `astro dev` for runtime testing):**
   ```bash
    pnpm build && pnpm preview
   ```
    This runs Astro's preview command which, with the Cloudflare adapter, starts a local Miniflare (workerd) server — true production parity.
-4. **Deploy to production:**
+3. **Deploy to production:**
   ```bash
-   pnpm wrangler pages deploy dist/
+   pnpm wrangler deploy
   ```
-   Or connect the GitHub repo in Cloudflare Pages dashboard for auto-deploy on push to `master`.
+   The Worker is auto-created on first deploy. Or connect the GitHub repo in the Cloudflare dashboard for auto-deploy on push to `main`.
 5. **Set compatibility_date in `wrangler.toml`:**
   ```toml
    compatibility_date = "2026-05-24"

@@ -1,6 +1,6 @@
 # Cloudflare Integration and Deployment Plan
 
-This plan implements the deployment strategy from [infrastructure.md](../../foundation/infrastructure.md) for the stack defined in [tech-stack.md](../../foundation/tech-stack.md) (Astro 6 SSR, Cloudflare Pages, Supabase, pnpm, GitHub Actions CI).
+This plan implements the deployment strategy from [infrastructure.md](../../foundation/infrastructure.md) for the stack defined in [tech-stack.md](../../foundation/tech-stack.md) (Astro 6 SSR, Cloudflare Workers, Supabase, pnpm, GitHub Actions CI).
 
 ---
 
@@ -27,14 +27,20 @@ The scaffolding is mostly in place:
 
 ### 0A. Cloudflare Account
 
-- [x] **0A.1** Create a free Cloudflare account ~~(done)~~
-- [x] **0A.2** Note your **Account ID**
+- [x] **0A.1** Create a free Cloudflare account at [dash.cloudflare.com](https://dash.cloudflare.com/)
+- [x] **0A.2** Note your **Account ID** (found in the Cloudflare dashboard sidebar, or via `npx wrangler whoami`)
 
 ### 0B. Wrangler CLI Authentication
 
-- [x] **0B.1** Wrangler CLI available locally
-- [x] **0B.2** Authenticated with Cloudflare account
-- [x] **0B.3** Verified with `npx wrangler whoami`
+- [x] **0B.1** Wrangler CLI available locally (`npx wrangler --version`)
+- [x] **0B.2** Authenticated with Cloudflare account:
+  ```bash
+  npx wrangler login
+  ```
+- [x] **0B.3** Verified with:
+  ```bash
+  npx wrangler whoami
+  ```
 
 **Edge case -- `wrangler login` fails behind corporate proxy or VPN:**
 Use a manual API token instead. Generate one at [dash.cloudflare.com/profile/api-tokens](https://dash.cloudflare.com/profile/api-tokens) using the **"Edit Cloudflare Workers"** template. Then export it:
@@ -47,9 +53,11 @@ $env:CLOUDFLARE_API_TOKEN = "your-token-here"
 
 ### 0C. Supabase Cloud Project
 
-- [x] **0C.1** Supabase account created
-- [x] **0C.2** Supabase project provisioned
-- [x] **0C.3** Project credentials retrieved (`SUPABASE_URL`, `SUPABASE_KEY`)
+- [x] **0C.1** Supabase account created at [supabase.com/dashboard](https://supabase.com/dashboard)
+- [x] **0C.2** Supabase project provisioned (dashboard > New Project)
+- [x] **0C.3** Project credentials retrieved from **Project Settings > API**:
+  - `SUPABASE_URL` = Project URL (e.g. `https://abcdefg.supabase.co`)
+  - `SUPABASE_KEY` = `anon` `public` key
 
 **Deferred -- Supabase CLI linking (not needed for deployment):**
 Linking the local Supabase CLI (`npx supabase link`) and pushing migrations (`npx supabase db push`) are only required when you need to manage the remote database schema from the CLI. They are not prerequisites for Cloudflare deployment. Defer until your first migration is ready.
@@ -59,7 +67,7 @@ Cloudflare Workers run at the edge closest to the user, but every Supabase call 
 
 ### 0D. Node.js Toolchain
 
-- [ ] **0D.1** Switch to Node.js 22 LTS to match `.nvmrc` (`22.14.0`) and ensure parity across local, CI, and Cloudflare builds:
+- [x] **0D.1** Switch to Node.js 22 LTS to match `.nvmrc` (`22.14.0`) and ensure parity across local, CI, and Cloudflare builds:
   ```bash
   nvm install 22.14.0
   nvm use
@@ -104,9 +112,9 @@ The existing `.github/workflows/ci.yml` uses `npm`, but the project uses **pnpm*
 
   on:
     push:
-      branches: [master]
+      branches: [main]
     pull_request:
-      branches: [master]
+      branches: [main]
 
   jobs:
     ci:
@@ -130,32 +138,22 @@ The existing `.github/workflows/ci.yml` uses `npm`, but the project uses **pnpm*
 
 ---
 
-## Phase 1 -- Cloudflare Project Setup and Secrets
+## Phase 1 -- Cloudflare Worker Setup and Secrets
 
-**Goal:** Create the Cloudflare Pages project and configure production secrets.
+**Goal:** Configure the Cloudflare Worker project name and production secrets. The Worker is auto-created on first `wrangler deploy` -- no manual project creation step needed.
 
-- **1.1** Rename `"name"` in `wrangler.jsonc` from `"10x-astro-starter"` to `"meal-draft"`
-- **1.2** Create the Cloudflare Pages project:
+- [x] **1.1** Rename `"name"` in `wrangler.jsonc` from `"10x-astro-starter"` to `"meal-draft"`
+- [ ] **1.2** Set production runtime secrets (deferred to Phase 3.2 -- Worker must exist first):
   ```bash
-  npx wrangler pages project create meal-draft
-  ```
-- **1.3** Set production runtime secrets (interactive prompt for each value):
-  ```bash
-  npx wrangler pages secret put SUPABASE_URL
-  npx wrangler pages secret put SUPABASE_KEY
+  npx wrangler secret put SUPABASE_URL
+  npx wrangler secret put SUPABASE_KEY
   ```
   Use the same values from Phase 0C.3. These are encrypted at rest and never visible after being set.
-- **1.4** Create a `.dev.vars.example` file mirroring `.env.example` so developers know where to put Cloudflare-local secrets:
+- [x] **1.3** Create a `.dev.vars.example` file mirroring `.env.example` so developers know where to put Cloudflare-local secrets:
   ```
   SUPABASE_URL=###
   SUPABASE_KEY=###
   ```
-
-**Edge case -- "pages project create" fails or is deprecated:**
-Cloudflare is converging Workers and Pages into a single product. If the command errors, use one of these alternatives:
-
-1. Run `npx wrangler deploy` directly -- it auto-creates the project on first deploy
-2. Create through the dashboard: Workers and Pages > Create > Create Pages project (Direct Upload for now; Git integration comes in Phase 3)
 
 ---
 
@@ -171,15 +169,7 @@ Cloudflare is converging Workers and Pages into a single product. If the command
   - `preview:wrangler` -- builds then runs local workerd via wrangler (true production parity)
   - `deploy` -- builds then deploys to Cloudflare (manual deploy path)
   - The existing `"preview": "astro preview"` already runs Miniflare via the Cloudflare adapter, so keep it
-- **2.2** Enable `platformProxy` in the Cloudflare adapter in `astro.config.mjs`:
-  ```js
-  adapter: cloudflare({
-    platformProxy: {
-      enabled: true,
-    },
-  }),
-  ```
-  This makes `astro dev` load bindings from `wrangler.jsonc` and secrets from `.dev.vars`, improving dev/prod parity without needing a full build cycle.
+- ~~**2.2**~~ *(Skipped)* `platformProxy` does not exist in `@astrojs/cloudflare` v13.5+. The adapter already integrates `@cloudflare/vite-plugin` which provides workerd parity during `astro dev` automatically. No config change needed.
 - **2.3** Verify Supabase SSR works on workerd locally:
   ```bash
   pnpm run build && pnpm run preview
@@ -196,74 +186,84 @@ This is the most common Supabase + Workers failure ([supabase/supabase#37592](ht
 
 ---
 
-## Phase 3 -- Cloudflare Git Integration (Auto-Deploy)
+## Phase 3 -- First Production Deploy
 
-**Goal:** Connect the GitHub repository to Cloudflare Pages so every push to `master` triggers an automatic production build and deploy -- handled entirely by Cloudflare, not GitHub Actions.
+**Goal:** Create the Worker on Cloudflare via the first manual deploy, set runtime secrets, and verify the live site works.
+
+**Pre-requisite:** Merge all deployment-related changes to `main` before deploying. The first deploy should reflect the final state of the codebase (CI fix, wrangler rename, new scripts).
+
+- **3.1** Deploy to Cloudflare (this auto-creates the Worker named `meal-draft`):
+  ```bash
+  pnpm run deploy
+  ```
+  This runs `astro build && wrangler deploy`. On first run, wrangler creates the Worker automatically.
+- **3.2** Set production runtime secrets (now that the Worker exists):
+  ```bash
+  npx wrangler secret put SUPABASE_URL
+  npx wrangler secret put SUPABASE_KEY
+  ```
+  Use the same values from Phase 0C.3. These are encrypted at rest and never visible after being set.
+- **3.3** Verify the deploy succeeded:
+  - Cloudflare dashboard > Workers and Pages > meal-draft > Deployments -- should show a successful deployment
+  - Visit `https://meal-draft.<account-subdomain>.workers.dev` (or whatever subdomain Cloudflare assigned)
+- **3.4** Smoke-test the live site:
+  - Home page renders
+  - `/auth/signin` page loads (confirms Supabase SSR client initializes on workerd)
+  - Sign up / sign in flow works (confirms runtime secrets `SUPABASE_URL` and `SUPABASE_KEY` are available)
+  - Protected route (`/dashboard`) redirects to signin when unauthenticated
+- **3.5** Check `wrangler tail` for any runtime errors:
+  ```bash
+  npx wrangler tail
+  ```
+
+**Edge case -- 500 errors on live site but local preview works:**
+Most likely a missing runtime secret. Verify secrets are set with `npx wrangler secret list`. Remember: build-time env vars (set in dashboard under Build settings) and runtime secrets (set via `wrangler secret put`) are **different mechanisms**. The Astro env schema (`astro:env/server`) reads runtime secrets, not build-time vars. You need both:
+
+- Build-time vars in dashboard (for the `astro build` step inside Cloudflare's builder)
+- Runtime secrets via `wrangler secret put` (for the deployed Worker)
+
+---
+
+## Phase 4 -- Cloudflare Git Integration (Auto-Deploy)
+
+**Goal:** Connect the GitHub repository to Cloudflare Workers so every push to `main` triggers an automatic production build and deploy -- handled entirely by Cloudflare, not GitHub Actions. The Worker must already exist (created in Phase 3).
 
 Two deploy paths will be available after this phase:
 
-- **Auto-deploy**: push/merge to `master` --> Cloudflare builds and deploys automatically
+- **Auto-deploy**: push/merge to `main` --> Cloudflare builds and deploys automatically
 - **Manual deploy**: run `pnpm run deploy` from the local CLI
 
 The existing `.github/workflows/ci.yml` remains a **lint + build gate only** -- it does **not** deploy. Cloudflare's own build pipeline handles deploy independently.
 
 ### Steps
 
-- **3.1** In the Cloudflare dashboard, go to **Workers and Pages > meal-draft > Settings > Builds and deployments** (or during initial project creation, select "Connect to Git")
-- **3.2** Connect your GitHub account and select the `mealdraft` repository
-- **3.3** Configure build settings:
-  - **Production branch**: `master`
+- **4.1** In the Cloudflare dashboard, go to **Workers and Pages > meal-draft > Settings > Builds and deployments**
+- **4.2** Connect your GitHub account and select the `meal-draft` repository
+- **4.3** Configure build settings:
+  - **Production branch**: `main`
   - **Build command**: `pnpm run build`
   - **Build output directory**: `dist`
   - **Root directory**: `/` (default)
-- **3.4** Set environment variables in the Cloudflare Pages build settings (these are **build-time** env vars, separate from the runtime secrets set in Phase 1.3):
+- **4.4** Set environment variables in the Cloudflare build settings (these are **build-time** env vars, separate from the runtime secrets set in Phase 3.2):
   - `SUPABASE_URL` = your Supabase project URL
   - `SUPABASE_KEY` = your Supabase anon key
   - `NODE_VERSION` = `22.14.0` (matches `.nvmrc`; Cloudflare defaults to Node 12 without this)
-- **3.5** Disable preview deployments (production-only for now):
+- **4.5** Disable preview deployments (production-only for now):
   - In **Settings > Builds and deployments**, set **Preview deployments** to **None** (or "Disable automatic preview deployments")
-  - This ensures only pushes to `master` trigger deploys -- no per-branch preview URLs
-- **3.6** Save and trigger the first build to verify the pipeline works
+  - This ensures only pushes to `main` trigger deploys -- no per-branch preview URLs
+- **4.6** Save and trigger a build to verify the auto-deploy pipeline works
 
 **Edge case -- Cloudflare build vs. GitHub Actions CI race:**
-Both Cloudflare and GHA will trigger on push to `master`. This is fine -- they are independent. GHA runs lint + build as a quality gate (fails the check, blocks future PRs). Cloudflare runs its own build + deploy. They do not conflict. If you want GHA to remain a required status check before merging PRs, configure branch protection rules in GitHub (Settings > Branches > `master` > Require status checks).
+Both Cloudflare and GHA will trigger on push to `main`. This is fine -- they are independent. GHA runs lint + build as a quality gate (fails the check, blocks future PRs). Cloudflare runs its own build + deploy. They do not conflict. If you want GHA to remain a required status check before merging PRs, configure branch protection rules in GitHub (Settings > Branches > `main` > Require status checks).
 
 **Edge case -- Cloudflare build fails but GHA CI passes (or vice versa):**
-The most likely cause is environment variable differences. Cloudflare's build uses env vars set in its dashboard (step 3.4), while GHA uses GitHub Secrets. Ensure both have identical `SUPABASE_URL` and `SUPABASE_KEY` values. The Node.js version can also diverge -- Cloudflare defaults to Node 12 unless `NODE_VERSION` is set.
+The most likely cause is environment variable differences. Cloudflare's build uses env vars set in its dashboard (step 4.4), while GHA uses GitHub Secrets. Ensure both have identical `SUPABASE_URL` and `SUPABASE_KEY` values. The Node.js version can also diverge -- Cloudflare defaults to Node 12 unless `NODE_VERSION` is set.
 
 **Edge case -- Cloudflare does not detect pnpm automatically:**
-Cloudflare Pages detects the package manager from the lock file. If `pnpm-lock.yaml` is present, it should use pnpm. If the build fails with npm-related errors, explicitly set the build command to `npx pnpm install --frozen-lockfile && pnpm run build`, or set the environment variable `NPM_FLAGS` to `--version` (a no-op that prevents npm install) and prepend `pnpm install &&` to the build command.
+Cloudflare detects the package manager from the lock file. If `pnpm-lock.yaml` is present, it should use pnpm. If the build fails with npm-related errors, explicitly set the build command to `npx pnpm install --frozen-lockfile && pnpm run build`, or set the environment variable `NPM_FLAGS` to `--version` (a no-op that prevents npm install) and prepend `pnpm install &&` to the build command.
 
-**Edge case -- first deploy creates wrong production branch:**
-When connecting Git, Cloudflare asks for the production branch. If you accidentally set it to `main` instead of `master` (or vice versa), fix it in Settings > Builds and deployments > Production branch. The project uses `master`.
-
----
-
-## Phase 4 -- First Production Deploy and Verification
-
-**Goal:** Confirm the live production site works end-to-end.
-
-- **4.1** Trigger the first deploy via one of:
-  - **Auto**: push a commit to `master` (Cloudflare picks it up automatically)
-  - **Manual**: run `pnpm run deploy` from local CLI
-- **4.2** Verify the deploy succeeded:
-  - Cloudflare dashboard > Workers and Pages > meal-draft > Deployments -- should show a successful deployment
-  - Visit `https://meal-draft.pages.dev` (or whatever subdomain Cloudflare assigned)
-- **4.3** Smoke-test the live site:
-  - Home page renders
-  - `/auth/signin` page loads (confirms Supabase SSR client initializes on workerd)
-  - Sign up / sign in flow works (confirms runtime secrets `SUPABASE_URL` and `SUPABASE_KEY` are available)
-  - Protected route (`/dashboard`) redirects to signin when unauthenticated
-- **4.4** Check `wrangler tail` for any runtime errors:
-  ```bash
-  npx wrangler pages deployment tail
-  ```
-
-**Edge case -- 500 errors on live site but local preview works:**
-Most likely a missing runtime secret. Verify secrets are set with `npx wrangler pages secret list`. Remember: build-time env vars (set in dashboard under Build settings) and runtime secrets (set via `wrangler pages secret put`) are **different mechanisms**. The Astro env schema (`astro:env/server`) reads runtime secrets, not build-time vars. You need both:
-
-- Build-time vars in dashboard (for the `astro build` step inside Cloudflare's builder)
-- Runtime secrets via `wrangler pages secret put` (for the deployed Worker)
+**Edge case -- first auto-deploy creates wrong production branch:**
+When connecting Git, Cloudflare asks for the production branch. If you accidentally set it to `master` instead of `main` (or vice versa), fix it in Settings > Builds and deployments > Production branch. The project uses `main`.
 
 ---
 
@@ -279,13 +279,13 @@ Most likely a missing runtime secret. Verify secrets are set with `npx wrangler 
   - Bump `compatibility_date` in `wrangler.jsonc` quarterly. Current: 2026-05-25.
   - Always run `pnpm run build && pnpm run preview` before deploying to catch workerd-only failures.
   - Never trust `astro dev` alone for runtime correctness -- it runs on Node.js, not workerd.
-  - Production auto-deploys on push to `master` via Cloudflare Git integration.
+  - Production auto-deploys on push to `main` via Cloudflare Git integration.
   - Manual deploy: `pnpm run deploy`.
   ```
 - **5.3** Consider adding `"global_fetch_strictly_public"` to `compatibility_flags` -- the app makes no internal service-binding fetches (all fetches go to external Supabase/OpenRouter APIs). This is optional but is becoming a recommended default.
 
 **Edge case -- `compatibility_date` regression after dependency update:**
-If `pnpm update` pulls in a package that uses a Node.js API not available at the current `compatibility_date`, the build succeeds but `preview` crashes. Mitigation: always run `pnpm run preview` before pushing to `master` (which triggers auto-deploy). If a specific API is missing, bump `compatibility_date` to a more recent date.
+If `pnpm update` pulls in a package that uses a Node.js API not available at the current `compatibility_date`, the build succeeds but `preview` crashes. Mitigation: always run `pnpm run preview` before pushing to `main` (which triggers auto-deploy). If a specific API is missing, bump `compatibility_date` to a more recent date.
 
 ---
 
@@ -295,22 +295,19 @@ If `pnpm update` pulls in a package that uses a Node.js API not available at the
 
 - **6.1** Verify rollback works: after at least 2 production deploys, test rollback:
   ```bash
-  npx wrangler pages deployment list
-  npx wrangler pages deployment rollback <deployment-id>
+  npx wrangler deployments list
+  npx wrangler rollback
   ```
   Rollback is instant and atomic. Note: rollback is code-only -- Supabase schema migrations are **not** reverted.
 - **6.2** Set up production log streaming:
   ```bash
-  npx wrangler pages deployment tail
+  npx wrangler tail
   ```
   Filter by status, method, or path as needed.
-- **6.3** (When ready) Add a custom domain in Cloudflare Pages dashboard > Custom domains. Cloudflare auto-provisions SSL. Alternatively via CLI:
-  ```bash
-  npx wrangler pages project edit meal-draft --production-branch=master
-  ```
+- **6.3** (When ready) Add a custom domain in the Cloudflare dashboard under **Workers and Pages > meal-draft > Settings > Domains and Routes**. Cloudflare auto-provisions SSL.
 
 **Edge case -- Supabase migration + code deploy ordering:**
-Always deploy backwards-compatible migrations first (`npx supabase db push`), then push the code that depends on them to `master`. If a rollback is needed, the old code must still work with the new schema. Never deploy breaking schema changes and code in the same commit.
+Always deploy backwards-compatible migrations first (`npx supabase db push`), then push the code that depends on them to `main`. If a rollback is needed, the old code must still work with the new schema. Never deploy breaking schema changes and code in the same commit.
 
 ---
 
@@ -323,9 +320,9 @@ Always deploy backwards-compatible migrations first (`npx supabase db push`), th
   - Prerequisites (accounts, CLI auth, Supabase project)
   - Local environment setup (`.env`, `.dev.vars`)
   - Manual deploy command (`pnpm run deploy`)
-  - Auto-deploy flow (push to `master` = Cloudflare production deploy)
+  - Auto-deploy flow (push to `main` = Cloudflare production deploy)
   - Rollback procedure
-  - Secret rotation procedure (`wrangler pages secret put` overwrites immediately)
+  - Secret rotation procedure (`wrangler secret put` overwrites immediately)
 - **7.3** Verify `.dev.vars` and `.wrangler/` remain in `.gitignore` (already done)
 
 ---
@@ -333,7 +330,7 @@ Always deploy backwards-compatible migrations first (`npx supabase db push`), th
 ## Files Changed Summary
 
 - `wrangler.jsonc` -- rename project to `meal-draft`, bump `compatibility_date`
-- `astro.config.mjs` -- add `platformProxy: { enabled: true }`
+- `astro.config.mjs` -- no changes needed (platformProxy not applicable in v13.5+)
 - `package.json` -- add `deploy` and `preview:wrangler` scripts
 - `.github/workflows/ci.yml` -- fix pnpm: add `pnpm/action-setup@v4`, switch cache/install/run commands
 - `.dev.vars.example` -- new file (2 lines, mirrors `.env.example`)
@@ -352,13 +349,13 @@ flowchart LR
   end
 
   subgraph github [GitHub]
-    PUSH["push to master"]
+    PUSH["push to main"]
     GHA["GHA CI<br/>(lint + build gate)"]
   end
 
   subgraph cloudflare [Cloudflare]
     CF_BUILD["Cloudflare Build<br/>(pnpm run build)"]
-    CF_PROD["Production<br/>meal-draft.pages.dev"]
+    CF_PROD["Production<br/>meal-draft.workers.dev"]
   end
 
   PUSH --> GHA
@@ -377,17 +374,17 @@ flowchart LR
 flowchart TD
   P0[Phase 0: Prerequisites] --> P1[Phase 1: Project Setup]
   P1 --> P2[Phase 2: Local Dev Parity]
-  P2 --> P3[Phase 3: Cloudflare Git Integration]
-  P3 --> P4[Phase 4: First Deploy + Verify]
-  P4 --> P5[Phase 5: Config Hardening]
+  P2 --> P3[Phase 3: First Deploy + Secrets]
+  P3 --> P4[Phase 4: Git Integration]
+  P3 --> P5[Phase 5: Config Hardening]
   P5 --> P6[Phase 6: Production Readiness]
   P5 --> P7[Phase 7: Documentation]
 
   P0 -.->|"needs accounts"| EXT["Cloudflare + Supabase + GitHub"]
-  P3 -.->|"needs dashboard access"| CF[Cloudflare Dashboard]
-  P6 -.->|"needs 2+ deploys"| P4
+  P4 -.->|"needs dashboard access"| CF[Cloudflare Dashboard]
+  P6 -.->|"needs 2+ deploys"| P3
 ```
 
 
 
-Phases 0-4 are the critical path for the first deploy. Phase 5-7 can follow iteratively. Phase 6 and 7 can run in parallel.
+Phases 0-3 are the critical path for the first deploy. Phase 4-7 can follow iteratively. Phase 4, 6, and 7 can run in parallel after Phase 5.

@@ -56,7 +56,7 @@ Pre-commit hook (husky + lint-staged) runs `eslint --fix` on `*.{ts,tsx,astro}` 
 ## Commit & PR Guidelines
 
 - Conventional Commits: `type: description` (lowercase type, no scope required)
-- CI gate (see @.github/workflows/ci.yml): lint + build must pass on every push/PR to `master`
+- CI gate (see @.github/workflows/ci.yml): lint + build must pass on every push/PR to `main`
 - No test suite configured yet — CI does not run tests
 
 ## Environment
