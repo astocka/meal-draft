@@ -103,23 +103,23 @@ These steps assume the project is already scaffolded with `@astrojs/cloudflare@^
 
 1. **Set runtime secrets for production (after first deploy creates the Worker):**
   ```bash
-   pnpm wrangler secret put SUPABASE_URL
-   pnpm wrangler secret put SUPABASE_KEY
+   npx wrangler secret put SUPABASE_URL
+   npx wrangler secret put SUPABASE_KEY
   ```
 2. **Verify local workerd compatibility (replaces `astro dev` for runtime testing):**
   ```bash
-   pnpm build && pnpm preview
+   pnpm run build && pnpm run preview
   ```
    This runs Astro's preview command which, with the Cloudflare adapter, starts a local Miniflare (workerd) server — true production parity.
 3. **Deploy to production:**
   ```bash
-   pnpm wrangler deploy
+   pnpm run deploy
   ```
    The Worker is auto-created on first deploy. Or connect the GitHub repo in the Cloudflare dashboard for auto-deploy on push to `main`.
-5. **Set compatibility_date in `wrangler.toml`:**
-  ```toml
-   compatibility_date = "2026-05-24"
-   compatibility_flags = ["nodejs_compat"]
+4. **Ensure compatibility settings in `wrangler.jsonc`:**
+  ```jsonc
+   "compatibility_date": "2026-05-26",
+   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"]
   ```
    The `nodejs_compat` flag enables the broadest Node.js API surface available on workerd.
 

@@ -1,8 +1,8 @@
-# 10x Astro Starter
+# MealDraft
 
 ![](./public/template.png)
 
-A modern, opinionated starter template for building fast, accessible web applications.
+A meal-suggestion web app with AI-powered meal generation, built with Astro 6 SSR and deployed to Cloudflare Workers.
 
 ## Tech Stack
 
@@ -15,127 +15,93 @@ A modern, opinionated starter template for building fast, accessible web applica
 
 ## Prerequisites
 
-- Node.js v22.14.0 (as specified in `.nvmrc`)
-- npm (comes with Node.js)
+- Node.js v22 LTS (pinned in `.nvmrc`)
+- pnpm (declared in `package.json` `packageManager` field)
+- Cloudflare account + `wrangler` CLI authenticated (`npx wrangler login`)
+- Supabase project (cloud or local via Docker)
 
 ## Getting Started
 
-1. Clone the repository:
+1. Install dependencies:
 
 ```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
+pnpm install
 ```
 
-2. Install dependencies:
+2. Create environment files from the templates:
 
 ```bash
-npm install
-```
-
-3. Set up Supabase and configure environment variables — see [Supabase Configuration](#supabase-configuration) below.
-
-4. Create a `.dev.vars` file for local Cloudflare dev secrets:
-
-```bash
+cp .env.example .env
 cp .env.example .dev.vars
 ```
 
-5. Run the development server:
+Fill in `SUPABASE_URL` and `SUPABASE_KEY` in both files. See [Supabase Configuration](#supabase-configuration) for where to find these values.
+
+- `.env` is used by `astro dev` (Node.js runtime)
+- `.dev.vars` is used by `astro preview` / `wrangler dev` (workerd runtime)
+
+3. Run the development server:
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 ## Available Scripts
 
-- `npm run dev` - Start development server (Cloudflare workerd runtime)
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint with type-checked rules
-- `npm run lint:fix` - Auto-fix ESLint issues
-- `npm run format` - Run Prettier
+- `pnpm run dev` - Start development server (Cloudflare workerd runtime via Vite plugin)
+- `pnpm run build` - Build for production
+- `pnpm run preview` - Preview production build (local workerd/Miniflare)
+- `pnpm run preview:wrangler` - Build + run local workerd via wrangler dev
+- `pnpm run deploy` - Build + deploy to Cloudflare Workers
+- `pnpm run lint` - Run ESLint with type-checked rules
+- `pnpm run lint:fix` - Auto-fix ESLint issues
+- `pnpm run format` - Run Prettier
 
 ## Project Structure
 
-```md
+```
 .
 ├── src/
-│ ├── layouts/ # Astro layouts
-│ ├── pages/ # Astro pages
-│ │ └── api/ # API endpoints
-│ ├── components/ # UI components (Astro & React)
-│ └── assets/ # Static assets
-├── public/ # Public assets
-├── wrangler.jsonc # Cloudflare Workers config
+│   ├── layouts/        # Astro layouts
+│   ├── pages/          # Astro pages and API endpoints
+│   │   └── api/        # API endpoints
+│   ├── components/     # UI components (Astro & React)
+│   │   ├── hooks/      # React hooks
+│   │   └── ui/         # shadcn/ui components
+│   ├── lib/            # Supabase client, utilities, services
+│   └── types.ts        # Shared entity types and DTOs
+├── supabase/           # Database migrations and config
+├── public/             # Public assets
+├── wrangler.jsonc      # Cloudflare Workers config
+└── astro.config.mjs    # Astro config
 ```
 
 ## Supabase Configuration
 
 This project uses [Supabase](https://supabase.com/) for authentication. Environment variables are declared via Astro's `astro:env` schema and are treated as **server-only secrets** — they are never exposed to the client.
 
-### First-time setup (local, no cloud project needed)
+### Using a cloud Supabase project
 
-Requires [Docker](https://www.docker.com/) and ~7 GB RAM.
-
-1. Create your `.env` file:
-
-```bash
-cp .env.example .env
-```
-
-2. Initialize the local Supabase project (creates a `supabase/` config folder):
-
-```bash
-npx supabase init
-```
-
-3. Start the local stack (downloads Docker images on first run):
-
-```bash
-npx supabase start
-```
-
-4. Copy the credentials printed by the CLI into your `.env` and `.dev.vars`:
-
-```
-SUPABASE_URL=http://127.0.0.1:54321
-SUPABASE_KEY=<anon key from CLI output>
-```
-
-5. To stop the stack when done:
-
-```bash
-npx supabase stop
-```
-
-The local Studio UI is available at `http://localhost:54323`.
-
-No database tables or migrations are required — this project uses Supabase Auth's built-in `auth.users` table only.
-
-### Using a cloud Supabase project instead
-
-If you prefer to use a hosted Supabase project, add these variables to your `.env` and `.dev.vars` files:
+Add these variables to your `.env` and `.dev.vars` files:
 
 | Variable       | Description                                                |
 | -------------- | ---------------------------------------------------------- |
-| `SUPABASE_URL` | Project URL from Supabase dashboard → Settings → API       |
-| `SUPABASE_KEY` | `anon` public key from Supabase dashboard → Settings → API |
+| `SUPABASE_URL` | Project URL from Supabase dashboard > Settings > API       |
+| `SUPABASE_KEY` | `anon` public key from Supabase dashboard > Settings > API |
 
 ```
 SUPABASE_URL=https://<project-ref>.supabase.co
 SUPABASE_KEY=<anon-key>
 ```
 
-### Email confirmation in local development
+### Local Supabase (requires Docker)
 
-By default Supabase requires email confirmation before a user can sign in. To skip this during local development:
+1. Initialize the local project: `npx supabase init`
+2. Start the stack: `npx supabase start`
+3. Copy credentials from CLI output into `.env` and `.dev.vars`
+4. Stop when done: `npx supabase stop`
 
-1. Open the Supabase dashboard for your project
-2. Go to **Authentication → Email → Confirm email**
-3. Toggle it **off**
-
-Users can then sign in immediately after sign-up without clicking a confirmation link.
+Local Studio UI: `http://localhost:54323`
 
 ### Auth routes
 
@@ -146,29 +112,53 @@ Users can then sign in immediately after sign-up without clicking a confirmation
 | `/auth/confirm-email` | Post-signup "check your inbox" page                                     |
 | `/dashboard`          | Example protected page (redirects to `/auth/signin` if unauthenticated) |
 
-Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array there to require authentication.
+Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array to require authentication.
 
 ## Deployment
 
-This project deploys to [Cloudflare Workers](https://workers.cloudflare.com/).
+This project deploys to [Cloudflare Workers](https://workers.cloudflare.com/). Production auto-deploys on push to `main` via Cloudflare Git integration.
 
-1. Build the project:
-
-```bash
-npm run build
-```
-
-2. Deploy with Wrangler:
+### Manual deploy
 
 ```bash
-npx wrangler deploy
+pnpm run deploy
 ```
 
-Set `SUPABASE_URL` and `SUPABASE_KEY` as secrets in your Cloudflare dashboard or via `npx wrangler secret put`.
+### Auto-deploy
+
+Push or merge to `main` — Cloudflare builds and deploys automatically.
+
+### Runtime secrets
+
+Set once (or to rotate):
+
+```bash
+npx wrangler secret put SUPABASE_URL
+npx wrangler secret put SUPABASE_KEY
+```
+
+### Rollback
+
+```bash
+npx wrangler deployments list
+npx wrangler rollback
+```
+
+Rollback is instant and atomic. It reverts code only — Supabase schema migrations are not reverted.
+
+### Production log streaming
+
+```bash
+npx wrangler tail
+```
+
+### Important: dev/prod parity
+
+`astro dev` runs on Node.js, not workerd. Always run `pnpm run build && pnpm run preview` before deploying to catch workerd-only failures. See `AGENTS.md` for the full Cloudflare operations checklist.
 
 ## CI
 
-GitHub Actions runs lint + build on every push and PR to `master`. Configure `SUPABASE_URL` and `SUPABASE_KEY` as repository secrets in GitHub for the build step.
+GitHub Actions runs lint + build on every push and PR to `main`. Configure `SUPABASE_URL` and `SUPABASE_KEY` as repository secrets in GitHub for the build step.
 
 ## License
 
