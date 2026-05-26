@@ -242,15 +242,12 @@ The existing `.github/workflows/ci.yml` remains a **lint + build gate only** -- 
 - **4.3** Configure build settings:
   - **Production branch**: `main`
   - **Build command**: `pnpm run build`
-  - **Build output directory**: `dist`
-  - **Root directory**: `/` (default)
-- **4.4** Set environment variables in the Cloudflare build settings (these are **build-time** env vars, separate from the runtime secrets set in Phase 3.2):
-  - `SUPABASE_URL` = your Supabase project URL
-  - `SUPABASE_KEY` = your Supabase anon key
-  - `NODE_VERSION` = `22.14.0` (matches `.nvmrc`; Cloudflare defaults to Node 12 without this)
-- **4.5** Disable preview deployments (production-only for now):
-  - In **Settings > Builds and deployments**, set **Preview deployments** to **None** (or "Disable automatic preview deployments")
-  - This ensures only pushes to `main` trigger deploys -- no per-branch preview URLs
+  - Build output directory is read from `wrangler.jsonc` (`"directory": "./dist"`) -- no dashboard setting needed for Workers
+- **4.4** Set build variables in the Cloudflare build settings (these are **build-time** env vars, separate from the runtime secrets set in Phase 3.2):
+  - `SUPABASE_URL` = your Supabase project URL (encrypt)
+  - `SUPABASE_KEY` = your Supabase anon key (encrypt)
+  - `NODE_VERSION` = `22.14.0` (matches `.nvmrc`; Cloudflare defaults to an old Node version without this)
+- ~~**4.5**~~ *(Skipped)* Preview deployments are a Cloudflare Pages concept. Workers Git integration only deploys the configured production branch (`main`) -- no per-branch preview URLs.
 - **4.6** Save and trigger a build to verify the auto-deploy pipeline works
 
 **Edge case -- Cloudflare build vs. GitHub Actions CI race:**
