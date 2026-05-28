@@ -274,28 +274,28 @@ Replace `<user-a-uuid>` / `<user-b-uuid>` with IDs from **Authentication → Use
 
 #### Automated
 
-- [x] 1.1 Project linked: `npx supabase link`
-- [x] 1.2 Migration applies cleanly: `npx supabase db push`
-- [x] 1.3 Linting passes: `pnpm run lint`
-- [x] 1.4 Production build passes: `pnpm run build`
+- [x] 1.1 Project linked: `npx supabase link` — 896dce6
+- [x] 1.2 Migration applies cleanly: `npx supabase db push` — 896dce6
+- [x] 1.3 Linting passes: `pnpm run lint` — 896dce6
+- [x] 1.4 Production build passes: `pnpm run build` — 896dce6
 
 #### Manual
 
-- [x] 1.5 Table Editor shows all three domain tables
-- [x] 1.6 Pantry duplicate name rejected (case-insensitive)
-- [x] 1.7 History prunes to 20 rows per user
-- [x] 1.8 Favorite duplicate dish name rejected
-- [x] 1.9 RLS policies present on all three tables
-- [x] 1.10 RLS isolation verified (authenticated role simulation, two users)
-- [x] 1.11 History UPDATE/DELETE denied for authenticated role
+- [x] 1.5 Table Editor shows all three domain tables — 896dce6
+- [x] 1.6 Pantry duplicate name rejected (case-insensitive) — 896dce6
+- [x] 1.7 History prunes to 20 rows per user — 896dce6
+- [x] 1.8 Favorite duplicate dish name rejected — 896dce6
+- [x] 1.9 RLS policies present on all three tables — 896dce6
+- [x] 1.10 RLS isolation verified (authenticated role simulation, two users) — 896dce6
+- [x] 1.11 History UPDATE/DELETE denied for authenticated role — 896dce6
 
 ### Phase 2: TypeScript Domain Types
 
 #### Automated
 
-- [ ] 2.1 Linting passes: `pnpm run lint`
-- [ ] 2.2 Production build passes: `pnpm run build`
+- [x] 2.1 Linting passes: `pnpm run lint`
+- [x] 2.2 Production build passes: `pnpm run build`
 
 #### Manual
 
-- [ ] 2.3 Types align with migration columns (spot-check)
+- [x] 2.3 Types align with migration columns (spot-check)
