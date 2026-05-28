@@ -1,0 +1,5 @@
+# Normalize text files to LF so Prettier/ESLint match CI (ubuntu-latest).
+* text=auto eol=lf
+
+# Windows-only scripts keep CRLF.
+*.{cmd,bat} text eol=crlf

@@ -274,20 +274,20 @@ Replace `<user-a-uuid>` / `<user-b-uuid>` with IDs from **Authentication → Use
 
 #### Automated
 
-- [ ] 1.1 Project linked: `npx supabase link`
-- [ ] 1.2 Migration applies cleanly: `npx supabase db push`
-- [ ] 1.3 Linting passes: `pnpm run lint`
-- [ ] 1.4 Production build passes: `pnpm run build`
+- [x] 1.1 Project linked: `npx supabase link`
+- [x] 1.2 Migration applies cleanly: `npx supabase db push`
+- [x] 1.3 Linting passes: `pnpm run lint`
+- [x] 1.4 Production build passes: `pnpm run build`
 
 #### Manual
 
-- [ ] 1.5 Table Editor shows all three domain tables
-- [ ] 1.6 Pantry duplicate name rejected (case-insensitive)
-- [ ] 1.7 History prunes to 20 rows per user
-- [ ] 1.8 Favorite duplicate dish name rejected
-- [ ] 1.9 RLS policies present on all three tables
-- [ ] 1.10 RLS isolation verified (authenticated role simulation, two users)
-- [ ] 1.11 History UPDATE/DELETE denied for authenticated role
+- [x] 1.5 Table Editor shows all three domain tables
+- [x] 1.6 Pantry duplicate name rejected (case-insensitive)
+- [x] 1.7 History prunes to 20 rows per user
+- [x] 1.8 Favorite duplicate dish name rejected
+- [x] 1.9 RLS policies present on all three tables
+- [x] 1.10 RLS isolation verified (authenticated role simulation, two users)
+- [x] 1.11 History UPDATE/DELETE denied for authenticated role
 
 ### Phase 2: TypeScript Domain Types
 
