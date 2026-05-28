@@ -293,9 +293,9 @@ Replace `<user-a-uuid>` / `<user-b-uuid>` with IDs from **Authentication → Use
 
 #### Automated
 
-- [x] 2.1 Linting passes: `pnpm run lint`
-- [x] 2.2 Production build passes: `pnpm run build`
+- [x] 2.1 Linting passes: `pnpm run lint` — 77e7ed6
+- [x] 2.2 Production build passes: `pnpm run build` — 77e7ed6
 
 #### Manual
 
-- [x] 2.3 Types align with migration columns (spot-check)
+- [x] 2.3 Types align with migration columns (spot-check) — 77e7ed6
