@@ -213,15 +213,15 @@ No database migrations required. Supabase project settings: ensure the site URL 
 
 #### Automated
 
-- [ ] 1.1 `pnpm run lint` passes with no new errors
-- [ ] 1.2 `pnpm run build` completes without errors
+- [x] 1.1 `pnpm run lint` passes with no new errors
+- [x] 1.2 `pnpm run build` completes without errors
 
 #### Manual
 
-- [ ] 1.3 Sign in with valid credentials → lands on `/dashboard`
-- [ ] 1.4 Sign in with invalid credentials → sign-in page with error message
-- [ ] 1.5 Sign out → lands on `/auth/signin`
-- [ ] 1.6 Register with valid email + password → lands on `/auth/confirm-email`
+- [x] 1.3 Sign in with valid credentials → lands on `/dashboard`
+- [x] 1.4 Sign in with invalid credentials → sign-in page with error message
+- [x] 1.5 Sign out → lands on `/auth/signin`
+- [x] 1.6 Register with valid email + password → lands on `/auth/confirm-email`
 
 ### Phase 2: Middleware — Authenticated-User Guard for Auth Pages
 
