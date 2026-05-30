@@ -3,7 +3,7 @@ project: MealDraft
 version: 1
 status: draft
 created: 2026-05-27
-updated: 2026-05-27
+updated: 2026-05-30
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -29,8 +29,8 @@ Busy working adults waste time and food every day because opening the fridge tri
 
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 |---|---|---|---|---|---|
-| F-01 | domain-data-schema | (foundation) pantry, favorites, and generation-history tables exist with per-user RLS | — | NFR (privacy), Access Control | ready |
-| F-02 | ai-meal-generation | (foundation) server-side meal generation returns one strict-pantry recipe from pantry + constraints | F-01 | NFR (feedback >1s), Business Logic | proposed |
+| F-01 | domain-data-schema | (foundation) pantry, favorites, and generation-history tables exist with per-user RLS | — | NFR (privacy), Access Control | done |
+| F-02 | ai-meal-generation | (foundation) server-side meal generation returns one strict-pantry recipe from pantry + constraints | F-01 | NFR (feedback >1s), Business Logic | ready |
 | S-01 | auth-flow-for-mvp | register, log in, log out, and reach a protected core screen after authentication | — | US-05, FR-001, FR-002 | ready |
 | S-02 | pantry-crud | add, view, edit, and remove pantry products with immediate UI updates and session persistence | F-01, S-01 | US-02, FR-003, FR-004, FR-005, FR-006 | proposed |
 | S-03 | strict-pantry-meal-generation | set time and meal-type constraints, tap Generate, and see exactly one compliant meal suggestion | F-01, F-02, S-02 | US-01, FR-007, FR-008, FR-009 | proposed |
@@ -73,7 +73,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Sequenced first because every vertical slice depends on persisted user data; without RLS the privacy NFR cannot be met.
-- **Status:** ready
+- **Status:** done
 
 ### F-02: AI meal generation integration
 
@@ -87,7 +87,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Which LLM provider and model for v1? — Owner: user. Block: no.
 - **Risk:** Sequenced before the north-star slice because generation quality and strict-pantry compliance are the product's riskiest assumption; surfacing failures early beats polishing pantry UI first.
-- **Status:** proposed
+- **Status:** ready
 
 ## Slices
 
@@ -170,9 +170,9 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
 |---|---|---|---|---|
-| F-01 | domain-data-schema | Add pantry, favorites, and history schema with RLS | yes | Run `/10x-plan domain-data-schema` |
-| F-02 | ai-meal-generation | Integrate server-side strict-pantry meal generation | no | Needs F-01 |
-| S-01 | auth-flow-for-mvp | Complete MVP auth flow and route protection | yes | Run `/10x-plan auth-flow-for-mvp` — parallel with F-01 |
+| F-01 | domain-data-schema | Add pantry, favorites, and history schema with RLS | no | Done — see ## Done |
+| F-02 | ai-meal-generation | Integrate server-side strict-pantry meal generation | yes | Run `/10x-plan ai-meal-generation` |
+| S-01 | auth-flow-for-mvp | Complete MVP auth flow and route protection | yes | Run `/10x-plan auth-flow-for-mvp` — parallel with F-02 |
 | S-02 | pantry-crud | Build pantry add/view/edit/remove UI and API | no | Needs F-01, S-01 |
 | S-03 | strict-pantry-meal-generation | Ship first strict-pantry meal generation (north star) | no | Needs F-01, F-02, S-02 |
 | S-04 | try-another-suggestion | Add Try another with session exclusion | no | Needs S-03 |
@@ -201,4 +201,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ## Done
 
-(Empty on first generation. `/10x-archive` appends entries here when changes are archived.)
+- **F-01** domain-data-schema — pantry, favorites, and generation-history tables with per-user RLS (2026-05-29)
