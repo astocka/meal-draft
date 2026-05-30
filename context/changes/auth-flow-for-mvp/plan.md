@@ -227,14 +227,14 @@ No database migrations required. Supabase project settings: ensure the site URL 
 
 #### Automated
 
-- [ ] 2.1 `pnpm run lint` passes
-- [ ] 2.2 `pnpm run build` completes without errors
+- [x] 2.1 `pnpm run lint` passes
+- [x] 2.2 `pnpm run build` completes without errors
 
 #### Manual
 
-- [ ] 2.3 While signed in, navigate to `/auth/signin` → redirected to `/dashboard`
-- [ ] 2.4 While signed in, navigate to `/auth/signup` → redirected to `/dashboard`
-- [ ] 2.5 While signed out, navigating to `/auth/signin` → page loads normally
+- [x] 2.3 While signed in, navigate to `/auth/signin` → redirected to `/dashboard`
+- [x] 2.4 While signed in, navigate to `/auth/signup` → redirected to `/dashboard`
+- [x] 2.5 While signed out, navigating to `/auth/signin` → page loads normally
 
 ### Phase 3: Email Confirmation Callback Route
 
