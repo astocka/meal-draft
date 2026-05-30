@@ -213,37 +213,37 @@ No database migrations required. Supabase project settings: ensure the site URL 
 
 #### Automated
 
-- [x] 1.1 `pnpm run lint` passes with no new errors
-- [x] 1.2 `pnpm run build` completes without errors
+- [x] 1.1 `pnpm run lint` passes with no new errors — eac9e72
+- [x] 1.2 `pnpm run build` completes without errors — eac9e72
 
 #### Manual
 
-- [x] 1.3 Sign in with valid credentials → lands on `/dashboard`
-- [x] 1.4 Sign in with invalid credentials → sign-in page with error message
-- [x] 1.5 Sign out → lands on `/auth/signin`
-- [x] 1.6 Register with valid email + password → lands on `/auth/confirm-email`
+- [x] 1.3 Sign in with valid credentials → lands on `/dashboard` — eac9e72
+- [x] 1.4 Sign in with invalid credentials → sign-in page with error message — eac9e72
+- [x] 1.5 Sign out → lands on `/auth/signin` — eac9e72
+- [x] 1.6 Register with valid email + password → lands on `/auth/confirm-email` — eac9e72
 
 ### Phase 2: Middleware — Authenticated-User Guard for Auth Pages
 
 #### Automated
 
-- [x] 2.1 `pnpm run lint` passes
-- [x] 2.2 `pnpm run build` completes without errors
+- [x] 2.1 `pnpm run lint` passes — 5778f1d
+- [x] 2.2 `pnpm run build` completes without errors — 5778f1d
 
 #### Manual
 
-- [x] 2.3 While signed in, navigate to `/auth/signin` → redirected to `/dashboard`
-- [x] 2.4 While signed in, navigate to `/auth/signup` → redirected to `/dashboard`
-- [x] 2.5 While signed out, navigating to `/auth/signin` → page loads normally
+- [x] 2.3 While signed in, navigate to `/auth/signin` → redirected to `/dashboard` — 5778f1d
+- [x] 2.4 While signed in, navigate to `/auth/signup` → redirected to `/dashboard` — 5778f1d
+- [x] 2.5 While signed out, navigating to `/auth/signin` → page loads normally — 5778f1d
 
 ### Phase 3: Email Confirmation Callback Route
 
 #### Automated
 
-- [ ] 3.1 `pnpm run lint` passes
-- [ ] 3.2 `pnpm run build` completes without errors
+- [x] 3.1 `pnpm run lint` passes
+- [x] 3.2 `pnpm run build` completes without errors
 
 #### Manual
 
-- [ ] 3.3 Email confirmation link → `/auth/callback` → `/dashboard` (requires hosted Supabase with email confirm enabled)
-- [ ] 3.4 `/auth/callback` with no `code` param → `/auth/signin` with error message
+- [x] 3.3 Email confirmation link → `/auth/callback` → `/dashboard` (requires hosted Supabase with email confirm enabled)
+- [x] 3.4 `/auth/callback` with no `code` param → `/auth/signin` with error message
