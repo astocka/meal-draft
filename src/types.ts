@@ -29,5 +29,5 @@ export interface GenerationHistoryEntry {
   meal_type: MealType;
   generated_at: string;
   recipe: MealRecipe | null;
-  seq: number;
+  readonly seq?: number;
 }

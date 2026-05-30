@@ -266,6 +266,24 @@ Replace `<user-a-uuid>` / `<user-b-uuid>` with IDs from **Authentication → Use
 - Plan review: `context/changes/domain-data-schema/reviews/plan-review.md`
 - AGENTS.md — RLS and migration naming conventions
 
+## Addendum: History Prune Tie-Breaking (discovered during implementation)
+
+**Migration**: `supabase/migrations/20260528140000_fix_history_prune_ordering.sql` — applied in commit 896dce6 alongside Phase 1.
+
+**Problem discovered**: When multiple `generation_history` rows for the same user share the same `generated_at` timestamp (e.g. bulk inserts in tests), PostgreSQL's `ORDER BY generated_at DESC LIMIT 20` sub-select is non-deterministic — it may keep an arbitrary 20 rows and delete the wrong one, violating the "last N" guarantee.
+
+**Fix applied**:
+- Added `seq bigint GENERATED ALWAYS AS IDENTITY` to `generation_history` as an insert-order tie-breaker.
+- Replaced the old `(user_id, generated_at DESC)` index with `(user_id, generated_at DESC, seq DESC)`.
+- Rewrote `prune_generation_history()` to `ORDER BY generated_at DESC, seq DESC LIMIT 20`.
+- `seq` was also added to `GenerationHistoryEntry` in `src/types.ts` as `seq: number`.
+
+**Scope note**: The `seq` column is an internal implementation detail, not a domain property. Downstream slices should treat it as opaque; see F3 in the impl-review for the follow-up decision on whether to hide it from the TS type.
+
+**Also discovered**: A `favorite_meals_recipe_shape_check` CHECK constraint was added to `favorite_meals` to validate recipe JSON structure at the DB layer (key presence + array types for `ingredients`/`steps`). This was not in the original plan but is additive and consistent with the PRD intent.
+
+---
+
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands.
