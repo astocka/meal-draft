@@ -1,0 +1,1 @@
+-- No seed data for domain schema (F-01). Reserved for future local dev fixtures.
