@@ -77,7 +77,7 @@ Add `prerender = false` to all three API routes, introduce zod input validation 
 
 **Intent**: Add `prerender = false`, parse and validate form fields with zod, and redirect to `/dashboard` on success instead of `/`.
 
-**Contract**: Export `const prerender = false` at the top. Define a zod schema `z.object({ email: z.string().email(), password: z.string().min(1) })`. Use `safeParse` on the raw form data; on failure, redirect to `/auth/signin?error=<first zod message>`. On Supabase success, redirect to `/dashboard`.
+**Contract**: Export `const prerender = false` at the top. Define a zod schema `z.object({ email: z.email(), password: z.string().min(1) })`. Use `safeParse` on the raw form data; on failure, redirect to `/auth/signin?error=<first zod message>`. On Supabase success, redirect to `/dashboard`.
 
 #### 2. `src/pages/api/auth/signup.ts`
 
@@ -85,7 +85,7 @@ Add `prerender = false` to all three API routes, introduce zod input validation 
 
 **Intent**: Add `prerender = false`, validate with zod, and set `emailRedirectTo` so Supabase confirmation emails point to the app's `/auth/callback` route.
 
-**Contract**: Export `const prerender = false`. Schema: `z.object({ email: z.string().email(), password: z.string().min(6) })`. Pass `options: { emailRedirectTo: \`${new URL(context.request.url).origin}/auth/callback\` }` to `supabase.auth.signUp`. Redirect target on success stays `/auth/confirm-email`.
+**Contract**: Export `const prerender = false`. Schema: `z.object({ email: z.email(), password: z.string().min(10) })`. Pass `options: { emailRedirectTo: \`${SITE_URL}/auth/callback\` }` to `supabase.auth.signUp`. Redirect target on success stays `/auth/confirm-email`.
 
 #### 3. `src/pages/api/auth/signout.ts`
 
@@ -163,6 +163,8 @@ Create `src/pages/auth/callback.astro` to handle the Supabase PKCE email-confirm
 **Contract**: Server-side Astro frontmatter only (no client-side slot content). Get `code` from `Astro.url.searchParams`. Create the Supabase client via `createClient`. If `supabase` is `null`, `return Astro.redirect('/auth/signin?error=Supabase+is+not+configured')` before proceeding. Call `await supabase.auth.exchangeCodeForSession(code)`. On success: `return Astro.redirect("/dashboard")`. On error or missing `code`: `return Astro.redirect(\`/auth/signin?error=${encodeURIComponent(error?.message ?? "Invalid confirmation link")}\`)`.
 
 The `createClient` cookie `setAll` handler already writes session cookies on `exchangeCodeForSession` — no extra wiring needed.
+
+**Implementation addendum**: During implementation, the callback logic was extracted to `src/lib/auth/resolve-email-callback-redirect.ts` — a pure async function that returns a redirect URL string. `callback.astro` delegates to it entirely. This deviates from the contract's inline-frontmatter approach but is architecturally correct: `src/lib/` is the designated home for auth business logic (per AGENTS.md), and the extraction also narrowed the ESLint `no-misused-promises` suppression to a smaller surface.
 
 ### Success Criteria
 
