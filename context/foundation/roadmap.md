@@ -128,6 +128,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:**
   - What are the exact time budget presets? — Owner: user. Block: no.
+- **UX (mobile):** On viewports &lt; 768px, use tab navigation (`Pantry` | `Meal Generator`) instead of stacked columns — see @context/foundation/dashboard-layout.md (decided during S-02; placeholder hidden on mobile until this ships).
 - **Risk:** This is the north star — the validation milestone that proves MealDraft is not another recipe list app; strict-pantry zero-tolerance is the hardest contract to satisfy.
 - **Status:** proposed
 
