@@ -7,10 +7,19 @@ import { createClient } from "@/lib/supabase";
 import type { PantryProduct } from "@/types";
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
+const user = Astro.locals.user;
 let initialItems: PantryProduct[] = [];
 
-if (supabase) {
-  const { data } = await supabase.from("pantry_products").select("*").order("name", { ascending: true });
+if (supabase && user) {
+  const { data, error } = await supabase
+    .from("pantry_products")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("name", { ascending: true });
+  if (error) {
+    // TODO: pass loadError prop to PantryWidget to show "We're having trouble loading your pantry, please refresh the page"
+    console.error("[dashboard] pantry prefetch failed:", error.message);
+  }
   initialItems = (data as PantryProduct[] | null) ?? [];
 }
 ---

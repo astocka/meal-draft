@@ -30,6 +30,7 @@ export default function PantryWidget({ initialItems }: Props) {
   const [editName, setEditName] = useState("");
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   async function handleAdd() {
     const trimmed = newName.trim();
@@ -90,6 +91,7 @@ export default function PantryWidget({ initialItems }: Props) {
     const removedIndex = items.indexOf(removedItem);
 
     setItems((prev) => prev.filter((i) => i.id !== id));
+    setDeleteError(null);
 
     try {
       const res = await fetch(`/api/pantry/${id}`, { method: "DELETE" });
@@ -99,6 +101,7 @@ export default function PantryWidget({ initialItems }: Props) {
           next.splice(removedIndex, 0, removedItem);
           return next;
         });
+        setDeleteError("Failed to delete item — please try again");
       }
     } catch {
       setItems((prev) => {
@@ -106,6 +109,7 @@ export default function PantryWidget({ initialItems }: Props) {
         next.splice(removedIndex, 0, removedItem);
         return next;
       });
+      setDeleteError("Failed to delete item — please try again");
     }
   }
 
@@ -204,6 +208,12 @@ export default function PantryWidget({ initialItems }: Props) {
 
       {/* List area */}
       <div className="min-h-0 flex-1 overflow-y-auto">
+        {deleteError && (
+          <p className="flex items-center gap-1 px-4 pt-3 text-xs text-red-300">
+            <CircleAlert className="size-3 shrink-0" />
+            {deleteError}
+          </p>
+        )}
         {items.length === 0 ? (
           <p className="p-6 text-center text-sm text-white/40">
             Your pantry is empty — add your first ingredient above

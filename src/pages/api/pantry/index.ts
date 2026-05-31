@@ -21,7 +21,11 @@ export const GET: APIRoute = async (context) => {
     return Response.json({ error: "Service unavailable" }, { status: 503 });
   }
 
-  const listResult = await supabase.from("pantry_products").select("*").order("name", { ascending: true });
+  const listResult = await supabase
+    .from("pantry_products")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("name", { ascending: true });
 
   if (listResult.error) {
     return Response.json({ error: "Failed to fetch pantry" }, { status: 500 });

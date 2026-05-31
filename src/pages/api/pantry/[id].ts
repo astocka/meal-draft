@@ -48,11 +48,10 @@ export const PATCH: APIRoute = async (context) => {
     if (patchResult.error.code === "23505") {
       return Response.json({ error: "already-in-pantry" }, { status: 409 });
     }
+    if (patchResult.error.code === "PGRST116") {
+      return Response.json({ error: "Not found" }, { status: 404 });
+    }
     return Response.json({ error: "Failed to rename item" }, { status: 500 });
-  }
-
-  if (!patchResult.data) {
-    return Response.json({ error: "Not found" }, { status: 404 });
   }
 
   return Response.json({ item: patchResult.data as PantryProduct }, { status: 200 });
