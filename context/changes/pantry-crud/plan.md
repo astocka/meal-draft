@@ -326,19 +326,19 @@ Deferred — no test runner configured.
 
 #### Automated
 
-- [ ] 2.1 Linting passes: `pnpm run lint`
-- [ ] 2.2 Production build passes: `pnpm run build`
+- [x] 2.1 Linting passes: `pnpm run lint`
+- [x] 2.2 Production build passes: `pnpm run build`
 
 #### Manual
 
-- [ ] 2.3 Adding item appears immediately at correct alphabetical position
-- [ ] 2.4 Adding duplicate name shows inline error; list unchanged
-- [ ] 2.5 Clicking item name enters inline edit mode
-- [ ] 2.6 Renaming to existing name shows inline error in edit field
-- [ ] 2.7 Renaming to new name updates list and re-sorts
-- [ ] 2.8 Delete removes item immediately
-- [ ] 2.9 Empty-state message shown when pantry is empty
-- [ ] 2.10 List scrolls independently; add zone stays fixed
+- [x] 2.3 Adding item appears immediately at correct alphabetical position
+- [x] 2.4 Adding duplicate name shows inline error; list unchanged
+- [x] 2.5 Clicking item name enters inline edit mode
+- [x] 2.6 Renaming to existing name shows inline error in edit field
+- [x] 2.7 Renaming to new name updates list and re-sorts
+- [x] 2.8 Delete removes item immediately
+- [x] 2.9 Empty-state message shown when pantry is empty
+- [x] 2.10 List scrolls independently; add zone stays fixed
 
 ### Phase 3: Dashboard App Shell Redesign
 

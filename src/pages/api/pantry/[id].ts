@@ -1,12 +1,13 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
+import { pantryNameSchema } from "@/lib/pantry-name";
 import { createClient } from "@/lib/supabase";
 import type { PantryProduct } from "@/types";
 
 export const prerender = false;
 
 const renameSchema = z.object({
-  name: z.string().min(1).max(100),
+  name: pantryNameSchema,
 });
 
 export const PATCH: APIRoute = async (context) => {
@@ -32,7 +33,7 @@ export const PATCH: APIRoute = async (context) => {
     return Response.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
   }
 
-  const trimmedName = parsed.data.name.trim();
+  const trimmedName = parsed.data.name;
   const { id } = context.params;
 
   const patchResult = await supabase
