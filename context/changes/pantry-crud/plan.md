@@ -310,17 +310,17 @@ Deferred — no test runner configured.
 
 #### Automated
 
-- [ ] 1.1 Linting passes: `pnpm run lint`
-- [ ] 1.2 Production build passes: `pnpm run build`
+- [x] 1.1 Linting passes: `pnpm run lint`
+- [x] 1.2 Production build passes: `pnpm run build`
 
 #### Manual
 
-- [ ] 1.3 GET /api/pantry returns 200 with empty items for a fresh user
-- [ ] 1.4 POST /api/pantry adds item; appears in subsequent GET
-- [ ] 1.5 POST /api/pantry with duplicate name (case-insensitive) returns 409
-- [ ] 1.6 PATCH /api/pantry/[id] renames item and returns updated item
-- [ ] 1.7 DELETE /api/pantry/[id] returns 204; item absent from subsequent GET
-- [ ] 1.8 All endpoints return 401 for unauthenticated requests
+- [x] 1.3 GET /api/pantry returns 200 with empty items for a fresh user
+- [x] 1.4 POST /api/pantry adds item; appears in subsequent GET
+- [x] 1.5 POST /api/pantry with duplicate name (case-insensitive) returns 409
+- [x] 1.6 PATCH /api/pantry/[id] renames item and returns updated item
+- [x] 1.7 DELETE /api/pantry/[id] returns 204; item absent from subsequent GET
+- [x] 1.8 All endpoints return 401 for unauthenticated requests
 
 ### Phase 2: PantryWidget React Island
 

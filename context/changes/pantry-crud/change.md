@@ -1,7 +1,7 @@
 ---
 change_id: pantry-crud
 title: Build pantry add/view/edit/remove UI and API
-status: plan_reviewed
+status: implementing
 created: 2026-05-31
 updated: 2026-05-31
 archived_at: null
