@@ -10,9 +10,8 @@ Production URL: **`https://meal-draft.bluemoon-labs.workers.dev`**
 
 These were done during impl review triage — no further code changes needed before merge:
 
-- `SITE_URL` added to `astro.config.mjs` env schema
-- `SITE_URL` added to `wrangler.jsonc` `vars` (production value)
-- `SITE_URL` added to `.dev.vars`, `.dev.vars.example`, `.env.example` (local value)
+- `SITE_URL` added to `astro.config.mjs` env schema (`access: "secret"`, `optional: true`)
+- `SITE_URL` in `.dev.vars`, `.dev.vars.example`, `.env.example` (local value)
 - `signup.ts` uses `SITE_URL` for `emailRedirectTo`
 - Auth hardening: guarded `formData()`, error logging, `auth-error-message.ts`, password min 10
 
@@ -36,45 +35,41 @@ SITE_URL=http://localhost:4321
 
 Restart dev/preview after changing these.
 
-### Step 2: Production `SITE_URL` via `wrangler.jsonc` ✅
+### Step 2: Set `SITE_URL` for production runtime ⚠️ mandatory
 
-Runtime value is set in `wrangler.jsonc`:
+Astro reads `SITE_URL` via `astro:env/server` as a **secret** (same as `SUPABASE_URL`).
+Local/preview: `.dev.vars`. Production: Cloudflare Worker secret.
 
-```jsonc
-"vars": {
-  "SITE_URL": "https://meal-draft.bluemoon-labs.workers.dev"
-}
-```
+**Do not** use `context.locals.runtime.env` — removed in Astro v6 and throws at runtime.
 
-**Build vs runtime:** Cloudflare Git integration runs `astro build` *before* Wrangler injects `vars`.
-`SITE_URL` is `optional: true` in the Astro schema so the build succeeds without it.
-At runtime the Worker reads `SITE_URL` from `wrangler.jsonc` `vars`.
-
-You do **not** need `SITE_URL` as a Cloudflare secret. Secrets are runtime-only and do not
-help the build step. Plain-text dashboard variables are optional if `wrangler.jsonc` is deployed.
-
-### Step 3: Verify Worker secrets
-
-Confirm `SUPABASE_URL` and `SUPABASE_KEY` exist for the deployed Worker.
-
-**Via dashboard (recommended if Wrangler CLI auth fails):**
+**Add Worker secret (dashboard):**
 
 1. [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages** → **meal-draft**
-2. **Settings** → **Variables and Secrets**
-3. Confirm encrypted secrets: `SUPABASE_URL`, `SUPABASE_KEY`
+2. **Settings** → **Variables and Secrets** → **Secrets**
+3. Add encrypted secret:
+   - **Name:** `SITE_URL`
+   - **Value:** `https://meal-draft.bluemoon-labs.workers.dev`
 
 **Via CLI (optional):**
 
 ```powershell
-npx wrangler secret list
+npx wrangler secret put SITE_URL
 ```
 
-If CLI fails with authentication error, use the dashboard instead — the secrets were set during original deployment.
+### Step 3: Verify all Worker secrets
+
+Confirm these **encrypted secrets** exist:
+
+| Name | Value |
+|------|--------|
+| `SUPABASE_URL` | `https://xxx.supabase.co` |
+| `SUPABASE_KEY` | Supabase anon public key |
+| `SITE_URL` | `https://meal-draft.bluemoon-labs.workers.dev` |
 
 ### Step 4: GitHub Actions — not needed ❌
 
 Do **not** add `SITE_URL` to GitHub Actions for CI. With `optional: true`, the build passes
-without it. Runtime value comes from `wrangler.jsonc` on Cloudflare.
+without it. Runtime value comes from Cloudflare Worker secrets.
 
 ### Step 5: Deploy and smoke-test production
 
@@ -156,7 +151,8 @@ Troubleshooting:
 |---------|-------|
 | `/auth/callback` returns 404 | Auth branch not deployed to production yet |
 | Supabase error on signup | Callback URL not in Redirect URLs allowlist |
-| Email link points to localhost on production | `SITE_URL` wrong in `wrangler.jsonc` |
+| "Site URL is not configured" on signup | `SITE_URL` Worker secret missing — add in dashboard |
+| Email link points to localhost on production | `SITE_URL` secret has wrong value |
 | "Invalid confirmation link" | Link expired (~10 min) or already used |
 | Password rejected by Supabase | Supabase min still at 6, needs to be 10 |
 
@@ -167,9 +163,8 @@ Troubleshooting:
 | Item | Where | Required? | Status |
 |------|-------|-----------|--------|
 | `SITE_URL` local | `.dev.vars`, `.env` | Yes | ✅ Done |
-| `SITE_URL` production | `wrangler.jsonc` `vars` | Yes | ✅ Done |
-| `SITE_URL` Cloudflare dashboard | Workers → Settings | No | Skip / remove if added |
-| `SUPABASE_*` Worker secrets | Cloudflare dashboard | Yes | ✅ Done (verify in dashboard) |
+| `SITE_URL` production | Cloudflare Worker **secret** | Yes | ⚠️ Add in dashboard |
+| `SUPABASE_*` Worker secrets | Cloudflare dashboard | Yes | ✅ Done |
 | GitHub Actions secrets | GitHub repo settings | No | Skip |
 | Supabase Redirect URLs | Auth → URL Configuration | Yes | ✅ Done (local test passed) |
 | Supabase Site URL field | Auth → URL Configuration | No | Optional |
@@ -181,7 +176,6 @@ Troubleshooting:
 
 ## Suggested order (remaining work)
 
-1. **Commit** all uncommitted changes on `feat/auth-flow-for-mvp`
-2. **Merge** to `main` → Cloudflare auto-deploys
-3. **Verify** `/auth/callback` works on production (no 404)
-4. **Test** signup → email → dashboard on production
+1. **Add** `SITE_URL` secret in Cloudflare dashboard (see Step 2)
+2. **Commit/push** schema fix (`access: "secret"`) if not on `main` yet
+3. **Test** signup → email → dashboard on production
