@@ -1,9 +1,11 @@
 ---
 change_id: pantry-crud
 title: Build pantry add/view/edit/remove UI and API
-status: implemented
+status: impl_reviewed
 created: 2026-05-31
 updated: 2026-05-31
+reviewed: 2026-05-31
+triaged: 2026-05-31
 archived_at: null
 ---
 
@@ -26,3 +28,7 @@ US-02, FR-003, FR-004, FR-005, FR-006
 ### Dashboard mobile UX (deferred to S-03)
 
 Phase 3 hides the meal-generator placeholder on mobile and keeps pantry full-width. Tab-based switching (`Pantry` | `Meal Generator`) on small viewports is documented for S-03 — see @context/foundation/dashboard-layout.md.
+
+### Review triage (2026-05-31)
+
+All 6 impl-review findings fixed. One follow-up deferred: user-visible `loadError` prop for dashboard prefetch failures — see `follow-ups/review-fixes.md`.
