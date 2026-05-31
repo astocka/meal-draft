@@ -290,7 +290,7 @@ export default function PantryWidget({ initialItems }: Props) {
                     variant="ghost"
                     onClick={() => void handleDelete(item.id)}
                     disabled={item.id.startsWith("temp-")}
-                    className="shrink-0 text-white/40 opacity-0 transition-all group-hover:opacity-100 hover:bg-white/10 hover:text-red-400"
+                    className="shrink-0 text-white/40 opacity-100 transition-all hover:bg-white/10 hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100"
                     aria-label={`Delete ${item.name}`}
                   >
                     <Trash2 className="size-4" />

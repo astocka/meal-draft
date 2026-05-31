@@ -344,13 +344,13 @@ Deferred — no test runner configured.
 
 #### Automated
 
-- [ ] 3.1 Linting passes: `pnpm run lint`
-- [ ] 3.2 Production build passes: `pnpm run build`
+- [x] 3.1 Linting passes: `pnpm run lint`
+- [x] 3.2 Production build passes: `pnpm run build`
 
 #### Manual
 
-- [ ] 3.3 Dashboard shows two-column layout after sign-in
-- [ ] 3.4 Server-rendered pantry items appear instantly on load
-- [ ] 3.5 Sign-out button in top bar works correctly
-- [ ] 3.6 Mobile viewport: columns stack vertically
-- [ ] 3.7 Full CRUD round-trip persists across logout/login
+- [x] 3.3 Dashboard shows two-column layout after sign-in
+- [x] 3.4 Server-rendered pantry items appear instantly on load
+- [x] 3.5 Sign-out button in top bar works correctly
+- [x] 3.6 Mobile viewport: pantry full-width; generator column hidden (tabs in S-03)
+- [x] 3.7 Full CRUD round-trip persists across logout/login
