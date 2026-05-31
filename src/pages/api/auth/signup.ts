@@ -30,6 +30,10 @@ export const POST: APIRoute = async (context) => {
 
   const { email, password } = parsed.data;
 
+  if (!SITE_URL) {
+    return context.redirect(`/auth/signup?error=${encodeURIComponent("Site URL is not configured")}`);
+  }
+
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
     return context.redirect(`/auth/signup?error=${encodeURIComponent("Supabase is not configured")}`);

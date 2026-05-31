@@ -36,11 +36,9 @@ SITE_URL=http://localhost:4321
 
 Restart dev/preview after changing these.
 
-### Step 2: Production `SITE_URL` ✅ Done via `wrangler.jsonc`
+### Step 2: Production `SITE_URL` via `wrangler.jsonc` ✅
 
-`SITE_URL` is read at **runtime** by the Worker (full SSR app — not baked at build time).
-
-It is already set in `wrangler.jsonc`:
+Runtime value is set in `wrangler.jsonc`:
 
 ```jsonc
 "vars": {
@@ -48,7 +46,12 @@ It is already set in `wrangler.jsonc`:
 }
 ```
 
-**Do not** add `SITE_URL` separately in the Cloudflare dashboard — `wrangler.jsonc` is authoritative. If you already added it there, you can remove it (harmless either way, but redundant).
+**Build vs runtime:** Cloudflare Git integration runs `astro build` *before* Wrangler injects `vars`.
+`SITE_URL` is `optional: true` in the Astro schema so the build succeeds without it.
+At runtime the Worker reads `SITE_URL` from `wrangler.jsonc` `vars`.
+
+You do **not** need `SITE_URL` as a Cloudflare secret. Secrets are runtime-only and do not
+help the build step. Plain-text dashboard variables are optional if `wrangler.jsonc` is deployed.
 
 ### Step 3: Verify Worker secrets
 
@@ -70,9 +73,8 @@ If CLI fails with authentication error, use the dashboard instead — the secret
 
 ### Step 4: GitHub Actions — not needed ❌
 
-Do **not** add `SITE_URL`, `SUPABASE_URL`, or `SUPABASE_KEY` to GitHub Actions. CI only runs lint + build; runtime vars are not evaluated at build time, and Supabase vars are `optional: true` in the Astro schema.
-
-If you already added them, they are harmless — leave or remove.
+Do **not** add `SITE_URL` to GitHub Actions for CI. With `optional: true`, the build passes
+without it. Runtime value comes from `wrangler.jsonc` on Cloudflare.
 
 ### Step 5: Deploy and smoke-test production
 
