@@ -12,4 +12,7 @@
   "observability": {
     "enabled": true,
   },
+  "vars": {
+    "SITE_URL": "https://meal-draft.bluemoon-labs.workers.dev"
+  }
 }
