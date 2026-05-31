@@ -1,27 +1,44 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import DashboardTopbar from "@/components/dashboard/DashboardTopbar.astro";
+import MealGeneratorPlaceholder from "@/components/meal/MealGeneratorPlaceholder.astro";
+import PantryWidget from "@/components/pantry/PantryWidget.tsx";
+import { createClient } from "@/lib/supabase";
+import type { PantryProduct } from "@/types";
 
-const { user } = Astro.locals;
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const user = Astro.locals.user;
+let initialItems: PantryProduct[] = [];
+
+if (supabase && user) {
+  const { data, error } = await supabase
+    .from("pantry_products")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("name", { ascending: true });
+  if (error) {
+    // TODO: pass loadError prop to PantryWidget to show "We're having trouble loading your pantry, please refresh the page"
+    console.error("[dashboard] pantry prefetch failed:", error.message);
+  }
+  initialItems = (data as PantryProduct[] | null) ?? [];
+}
 ---
 
-<Layout title="Dashboard">
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="rounded-2xl border border-white/10 bg-white/10 p-8 text-center text-white backdrop-blur-xl">
-      <h1 class="mb-4 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
-        Dashboard
-      </h1>
-      <p class="text-blue-100/80">
-        Welcome, <span class="font-semibold text-white">{user?.email}</span>
-      </p>
-      <p class="mt-2 text-sm text-blue-100/50">This page is only for authenticated users.</p>
-      <form method="POST" action="/api/auth/signout" class="mt-6">
-        <button
-          type="submit"
-          class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-        >
-          Sign out
-        </button>
-      </form>
-    </div>
+<Layout title="Dashboard — MealDraft">
+  <div class="bg-cosmic flex h-full min-h-screen flex-col text-white">
+    <DashboardTopbar />
+    <main class="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-2">
+      <div class="flex min-h-0 flex-col border-b border-white/10 md:border-r md:border-b-0">
+        <div class="shrink-0 border-b border-white/10 px-5 py-3">
+          <h2 class="text-sm font-semibold tracking-widest text-white/40 uppercase">My Pantry</h2>
+        </div>
+        <div class="min-h-0 flex-1 overflow-hidden">
+          <PantryWidget client:load initialItems={initialItems} />
+        </div>
+      </div>
+      <div class="hidden min-h-0 flex-col md:flex">
+        <MealGeneratorPlaceholder />
+      </div>
+    </main>
   </div>
 </Layout>
