@@ -31,8 +31,8 @@ Busy working adults waste time and food every day because opening the fridge tri
 |---|---|---|---|---|---|
 | F-01 | domain-data-schema | (foundation) pantry, favorites, and generation-history tables exist with per-user RLS | — | NFR (privacy), Access Control | done |
 | F-02 | ai-meal-generation | (foundation) server-side meal generation returns one strict-pantry recipe from pantry + constraints | F-01 | NFR (feedback >1s), Business Logic | ready |
-| S-01 | auth-flow-for-mvp | register, log in, log out, and reach a protected core screen after authentication | — | US-05, FR-001, FR-002 | ready |
-| S-02 | pantry-crud | add, view, edit, and remove pantry products with immediate UI updates and session persistence | F-01, S-01 | US-02, FR-003, FR-004, FR-005, FR-006 | proposed |
+| S-01 | auth-flow-for-mvp | register, log in, log out, and reach a protected core screen after authentication | — | US-05, FR-001, FR-002 | done |
+| S-02 | pantry-crud | add, view, edit, and remove pantry products with immediate UI updates and session persistence | F-01, S-01 | US-02, FR-003, FR-004, FR-005, FR-006 | ready |
 | S-03 | strict-pantry-meal-generation | set time and meal-type constraints, tap Generate, and see exactly one compliant meal suggestion | F-01, F-02, S-02 | US-01, FR-007, FR-008, FR-009 | proposed |
 | S-04 | try-another-suggestion | tap Try another for a different non-repeating suggestion within the same session, with exhaustion messaging | S-03 | US-06, FR-010 | proposed |
 | S-05 | meal-favorites | save a generated meal to favorites and browse the favorites list from navigation | S-03 | US-03, FR-011, FR-012 | proposed |
@@ -101,7 +101,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Auth scaffold exists but only `/dashboard` is protected; this slice expands route guards and post-login landing before pantry work ships to real users.
-- **Status:** ready
+- **Status:** done
 
 ### S-02: Pantry CRUD
 
@@ -113,7 +113,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Sequenced immediately before the north star because US-01 requires at least one pantry product; manual entry is acceptable for v1 per PRD.
-- **Status:** proposed
+- **Status:** ready
 
 ### S-03: Strict-pantry meal generation
 
@@ -172,8 +172,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 |---|---|---|---|---|
 | F-01 | domain-data-schema | Add pantry, favorites, and history schema with RLS | no | Done — see ## Done |
 | F-02 | ai-meal-generation | Integrate server-side strict-pantry meal generation | yes | Run `/10x-plan ai-meal-generation` |
-| S-01 | auth-flow-for-mvp | Complete MVP auth flow and route protection | yes | Run `/10x-plan auth-flow-for-mvp` — parallel with F-02 |
-| S-02 | pantry-crud | Build pantry add/view/edit/remove UI and API | no | Needs F-01, S-01 |
+| S-01 | auth-flow-for-mvp | Complete MVP auth flow and route protection | no | Done — see ## Done |
+| S-02 | pantry-crud | Build pantry add/view/edit/remove UI and API | yes | Run `/10x-plan pantry-crud` |
 | S-03 | strict-pantry-meal-generation | Ship first strict-pantry meal generation (north star) | no | Needs F-01, F-02, S-02 |
 | S-04 | try-another-suggestion | Add Try another with session exclusion | no | Needs S-03 |
 | S-05 | meal-favorites | Add save-to-favorites and favorites list | no | Needs S-03 |
@@ -202,3 +202,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 ## Done
 
 - **F-01** domain-data-schema — pantry, favorites, and generation-history tables with per-user RLS (2026-05-29)
+- **S-01** auth-flow-for-mvp — register, sign-in, sign-out, protected routes, email confirmation callback (2026-05-30)
