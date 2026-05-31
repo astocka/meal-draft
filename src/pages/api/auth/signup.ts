@@ -1,8 +1,8 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { SITE_URL } from "astro:env/server";
 import { createClient } from "@/lib/supabase";
 import { authErrorMessage } from "@/lib/auth/auth-error-message";
+import { getSiteUrl } from "@/lib/auth/get-site-url";
 
 export const prerender = false;
 
@@ -30,7 +30,8 @@ export const POST: APIRoute = async (context) => {
 
   const { email, password } = parsed.data;
 
-  if (!SITE_URL) {
+  const siteUrl = getSiteUrl();
+  if (!siteUrl) {
     return context.redirect(`/auth/signup?error=${encodeURIComponent("Site URL is not configured")}`);
   }
 
@@ -42,7 +43,7 @@ export const POST: APIRoute = async (context) => {
     email,
     password,
     options: {
-      emailRedirectTo: `${SITE_URL}/auth/callback`,
+      emailRedirectTo: `${siteUrl}/auth/callback`,
     },
   });
 
