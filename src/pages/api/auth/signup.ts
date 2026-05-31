@@ -1,16 +1,23 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
+import { SITE_URL } from "astro:env/server";
 import { createClient } from "@/lib/supabase";
+import { authErrorMessage } from "@/lib/auth/auth-error-message";
 
 export const prerender = false;
 
 const signUpSchema = z.object({
   email: z.email(),
-  password: z.string().min(6),
+  password: z.string().min(10),
 });
 
 export const POST: APIRoute = async (context) => {
-  const form = await context.request.formData();
+  let form: FormData;
+  try {
+    form = await context.request.formData();
+  } catch {
+    return context.redirect(`/auth/signup?error=${encodeURIComponent("Invalid request")}`);
+  }
   const parsed = signUpSchema.safeParse({
     email: form.get("email"),
     password: form.get("password"),
@@ -31,12 +38,12 @@ export const POST: APIRoute = async (context) => {
     email,
     password,
     options: {
-      emailRedirectTo: `${new URL(context.request.url).origin}/auth/callback`,
+      emailRedirectTo: `${SITE_URL}/auth/callback`,
     },
   });
 
   if (error) {
-    return context.redirect(`/auth/signup?error=${encodeURIComponent(error.message)}`);
+    return context.redirect(`/auth/signup?error=${encodeURIComponent(authErrorMessage(error.code))}`);
   }
 
   return context.redirect("/auth/confirm-email");
