@@ -31,3 +31,19 @@ export interface GenerationHistoryEntry {
   recipe: MealRecipe | null;
   readonly seq?: number;
 }
+
+export interface GenerateRequest {
+  meal_type: MealType;
+  max_prep_time_minutes: number | null;
+  exclude_names?: string[];
+}
+
+export interface GenerateResponse {
+  recipe: MealRecipe;
+  history_id: string;
+}
+
+export type GenerationResult =
+  | { status: "ok"; recipe: MealRecipe; history_id: string }
+  | { status: "no_match" }
+  | { status: "error" };

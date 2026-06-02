@@ -1,9 +1,9 @@
 ---
 change_id: ai-meal-generation
 title: Server-side strict-pantry meal generation (F-02)
-status: plan_reviewed
+status: implementing
 created: 2026-06-01
-updated: 2026-06-01
+updated: 2026-06-02
 plan_review_verdict: SOUND (4/4 findings fixed)
 archived_at: null
 ---

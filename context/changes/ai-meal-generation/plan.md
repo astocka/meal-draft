@@ -86,41 +86,30 @@ OpenRouter layer and keeps `buildSystemPrompt` signature stable.
 
 ## Pre-flight: Context7 Doc Lookups
 
+> **Status: COMPLETE (2026-06-02)** — All queries run; results recorded below; Fix B applied to Phase 2.
+
 Run these two MCP sequences in Cursor **before writing any code**. The Vercel AI SDK moves fast and the OpenRouter provider is lightly documented — these queries pull current API surface that training data may not reflect.
 
 ### Before Phase 1 — confirm workerd compatibility
 
-```
-resolve-library-id
-  libraryName: "Vercel AI SDK"
-  query: "Cloudflare Workers workerd runtime compatibility for ai package installation"
+**Results:**
 
-resolve-library-id
-  libraryName: "@openrouter/ai-sdk-provider"
-  query: "OpenRouter AI SDK provider setup createOpenRouter initialization"
-```
+| Library | Context7 ID | Notes |
+|---|---|---|
+| Vercel AI SDK | `/vercel/ai` | Stable versions: v4 (`ai_4_3_19`), v5 (`ai_5_0_0`). `generateObject` is deprecated in v6 beta only — still fully available in stable. Uses standard `fetch` internally; no Node.js-only APIs. Workerd compatible. |
+| OpenRouter AI SDK Provider | `/openrouterteam/ai-sdk-provider` | v0.7.5. `createOpenRouter({ apiKey })` confirmed. `plugins: [{ id: 'response-healing' }]` and `provider: { require_parameters: true }` syntax confirmed. |
 
-Save the two library IDs returned (format `/org/project`) — you need them for the Phase 2 queries.
+**Workerd verdict**: No blocking compatibility issues. External HTTPS fetch to OpenRouter works via `global_fetch_strictly_public`. Do not skip `pnpm run build && pnpm run preview` before marking complete.
 
 ### Before Phase 2 — pull exact API surface for generation.ts
 
-Use the IDs obtained above:
+**Results:**
 
-```
-query-docs
-  libraryId: <Vercel AI SDK id>
-  query: "generateObject API signature schema schemaName system prompt provider model options"
+- `generateObject` API signature: confirmed unchanged in stable. `schema`, `schemaName`, `system`, `prompt`, `maxRetries`, `model` options all valid.
+- **`z.union` schema verdict**: ⚠️ **RISKY** — OpenAI Structured Outputs in strict mode does not reliably support `anyOf` root schemas (which `z.union` emits). The AI SDK troubleshooting docs explicitly list incompatible patterns; Google AI requires a dedicated escape hatch for `z.union`. Going through OpenRouter adds further uncertainty about whether `strictJsonSchema: false` propagates. **Fix B applied** (see Phase 2 Zod schemas).
+- OpenRouter provider syntax: `plugins: [{ id: 'response-healing' }]` and `provider: { require_parameters: true }` both confirmed against live docs.
 
-query-docs
-  libraryId: <Vercel AI SDK id>
-  query: "z.union zod schema anyOf OpenAI Structured Outputs additionalProperties generateObject schema compatibility"
-
-query-docs
-  libraryId: <@openrouter/ai-sdk-provider id>
-  query: "createOpenRouter apiKey plugins response-healing provider require_parameters options"
-```
-
-**Critical schema verification**: the second query above must confirm that a two-branch `z.union` root schema (as used in `GenerationOutputSchema`) produces a valid OpenAI Structured Outputs JSON Schema with `additionalProperties: false` on each branch. If the current AI SDK version does not emit this correctly, switch to Fix B before writing any code: replace the `z.union` with a single flat `z.object` schema where both `no_match` and all `MealRecipe` fields are optional, and add a secondary `MealRecipeSchema.parse(result)` call in step 6c to regain type safety on the success branch.
+**Fix B**: Replace `z.union` root schema with a single flat `z.object` where all `MealRecipe` fields are optional. Use `result.no_match === true` for no-match branch check. Call `MealRecipeSchema.parse(result)` on the success branch to regain full type safety. See Phase 2 Zod schemas section below.
 
 ---
 
@@ -277,7 +266,7 @@ Orchestrates the full pipeline:
 
    a. Call `generateObject` with:
       - `model`: `openrouter("openai/gpt-4.1-nano", { plugins: [{ id: "response-healing" }], provider: { require_parameters: true } })`
-      - `schema`: `GenerationOutputSchema` (Zod union — see below)
+      - `schema`: `GenerationOutputSchema` (flat `z.object` — Fix B; see Zod schemas below)
       - `schemaName: "MealRecipeOrNoMatch"`
       - `system`: `systemPrompt`
       - `prompt`: `userMessage`
@@ -290,11 +279,11 @@ Orchestrates the full pipeline:
         insert sentinel row `{ user_id: userId, name: "[generation failed]", meal_type: input.meal_type, recipe: null }`;
         return `{ status: "error" }`.
 
-   c. If result is `{ no_match: true }` — use `"no_match" in result` for TypeScript narrowing (not `result.no_match === true`, which causes a compile error because the `MealRecipe` branch of the union does not have a `no_match` property):
+   c. If result is `{ no_match: true }` — use `result.no_match === true` for the check (Fix B: both branches share the same flat type, so `"no_match" in result` is not needed for TypeScript narrowing):
       - `console.warn("no_match: model decision", { meal_type, max_prep_time_minutes, pantry_size: pantryItems.length })`.
       - Return `{ status: "no_match" }` immediately (do **not** retry).
 
-   d. **Strict-pantry validation**: for each `ingredient` in `result.ingredients`, check that
+   d. **Strict-pantry validation**: call `MealRecipeSchema.parse(result)` first to obtain a fully-typed `MealRecipe` and surface any unexpected schema gaps from the model as a caught error (treat as a `generateObject` throw — apply retry logic from step 6b). Then for each `ingredient` in the parsed recipe, check that
       `ingredient.toLowerCase().trim()` is in `pantryNamesLower` OR in `COOKING_STAPLES`. If any
       ingredient fails:
       - If `attempt < 2`: `console.warn("pantry_violation: retrying", { attempt, ingredient })`;
@@ -302,11 +291,14 @@ Orchestrates the full pipeline:
       - If `attempt === 2`: `console.warn("no_match: pantry violation after retry", { meal_type, pantry_size: pantryItems.length })`;
         return `{ status: "no_match" }`.
 
-   e. **History insert**: `supabase.from("generation_history").insert({ user_id: userId, name: result.name, meal_type: input.meal_type, recipe: result }).select("id").single()`. If insert errors, log and return `{ status: "error" }`.
+   e. **History insert**: use the `MealRecipeSchema.parse(result)`-typed value (call it `recipe`) from step 6d. `supabase.from("generation_history").insert({ user_id: userId, name: recipe.name, meal_type: input.meal_type, recipe }).select("id").single()`. If insert errors, log and return `{ status: "error" }`.
 
-   f. Return `{ status: "ok", recipe: result, history_id: row.id }`.
+   f. Return `{ status: "ok", recipe, history_id: row.id }`.
 
 **Zod schemas (local to the service file, not exported):**
+
+> **Fix B applied** (pre-flight 2026-06-02): `z.union` root schema replaced with a flat `z.object`
+> to avoid OpenAI Structured Outputs `anyOf` incompatibility via OpenRouter.
 
 ```typescript
 const MealRecipeSchema = z.object({
@@ -316,10 +308,14 @@ const MealRecipeSchema = z.object({
   steps: z.array(z.string().min(1)).min(1),
 });
 
-const GenerationOutputSchema = z.union([
-  z.object({ no_match: z.literal(true) }),
-  MealRecipeSchema,
-]);
+// Fix B: flat schema — all fields optional; branch determined at runtime.
+const GenerationOutputSchema = z.object({
+  no_match: z.boolean().optional(),
+  name: z.string().min(1).optional(),
+  prep_time_minutes: z.number().int().positive().optional(),
+  ingredients: z.array(z.string().min(1)).optional(),
+  steps: z.array(z.string().min(1)).optional(),
+});
 ```
 
 ### Success Criteria
@@ -466,8 +462,8 @@ delivered in F-01 (`20260528120000_domain_data_schema.sql`,
 
 #### Automated
 
-- [ ] 1.1 `pnpm run build` passes without type errors after package install and type additions
-- [ ] 1.2 `pnpm run lint` passes
+- [x] 1.1 `pnpm run build` passes without type errors after package install and type additions
+- [x] 1.2 `pnpm run lint` passes
 
 #### Manual
 
