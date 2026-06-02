@@ -474,14 +474,14 @@ delivered in F-01 (`20260528120000_domain_data_schema.sql`,
 
 #### Automated
 
-- [ ] 2.1 `pnpm run build` compiles `src/lib/generation.ts` without type errors
-- [ ] 2.2 `pnpm run lint` passes
+- [x] 2.1 `pnpm run build` compiles `src/lib/generation.ts` without type errors
+- [x] 2.2 `pnpm run lint` passes
 
 #### Manual
 
-- [ ] 2.3 `generateMeal` returns `{ status: "ok", recipe: {...} }` for a 5-item pantry via `pnpm run dev`
-- [ ] 2.4 `generateMeal` returns `{ status: "no_match" }` for an empty pantry (no LLM call)
-- [ ] 2.5 Staples in returned recipe do not trigger pantry validation failure
+- [x] 2.3 `generateMeal` returns `{ status: "ok", recipe: {...} }` for a 5-item pantry via `pnpm run dev`
+- [x] 2.4 `generateMeal` returns `{ status: "no_match" }` for an empty pantry (no LLM call)
+- [x] 2.5 Staples in returned recipe do not trigger pantry validation failure
 
 ### Phase 3: API Route
 
