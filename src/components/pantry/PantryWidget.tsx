@@ -19,6 +19,40 @@ function insertSorted(items: PantryProduct[], item: PantryProduct): PantryProduc
   return [...items.slice(0, index), item, ...items.slice(index)];
 }
 
+function hasItemField(value: object): value is { item: unknown } {
+  return "item" in value;
+}
+
+function parsePantryItemResponse(body: unknown): PantryProduct | null {
+  if (typeof body !== "object" || body === null || !hasItemField(body)) {
+    return null;
+  }
+  const { item } = body;
+  if (typeof item !== "object" || item === null) {
+    return null;
+  }
+  if (
+    !("id" in item) ||
+    !("user_id" in item) ||
+    !("name" in item) ||
+    !("created_at" in item) ||
+    !("updated_at" in item)
+  ) {
+    return null;
+  }
+  const { id, user_id, name, created_at, updated_at } = item;
+  if (
+    typeof id !== "string" ||
+    typeof user_id !== "string" ||
+    typeof name !== "string" ||
+    typeof created_at !== "string" ||
+    typeof updated_at !== "string"
+  ) {
+    return null;
+  }
+  return { id, user_id, name, created_at, updated_at };
+}
+
 const inputBase =
   "w-full rounded-lg bg-white/10 border border-white/20 px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-colors text-sm";
 
@@ -72,11 +106,16 @@ export default function PantryWidget({ initialItems }: Props) {
         return;
       }
 
-      const data = (await res.json()) as { item: PantryProduct };
+      const item = parsePantryItemResponse(await res.json());
+      if (!item) {
+        setItems((prev) => prev.filter((i) => i.id !== tempItem.id));
+        setAddError("Failed to add item — please try again");
+        return;
+      }
       setItems((prev) =>
         insertSorted(
           prev.filter((i) => i.id !== tempItem.id),
-          data.item,
+          item,
         ),
       );
     } catch {
@@ -156,8 +195,13 @@ export default function PantryWidget({ initialItems }: Props) {
         return;
       }
 
-      const data = (await res.json()) as { item: PantryProduct };
-      setItems((prev) => sortItems(prev.map((i) => (i.id === editingId ? data.item : i))));
+      const item = parsePantryItemResponse(await res.json());
+      if (!item) {
+        setEditError("Failed to rename — please try again");
+        setEditLoading(false);
+        return;
+      }
+      setItems((prev) => sortItems(prev.map((i) => (i.id === editingId ? item : i))));
       setEditingId(null);
       setEditName("");
       setEditLoading(false);
