@@ -18,6 +18,7 @@ if (supabase && user) {
     .order("name", { ascending: true });
   if (error) {
     // TODO: pass loadError prop to PantryWidget to show "We're having trouble loading your pantry, please refresh the page"
+    // eslint-disable-next-line no-console -- server-side prefetch failure logging until loadError UI exists
     console.error("[dashboard] pantry prefetch failed:", error.message);
   }
   initialItems = (data as PantryProduct[] | null) ?? [];
