@@ -462,13 +462,13 @@ delivered in F-01 (`20260528120000_domain_data_schema.sql`,
 
 #### Automated
 
-- [x] 1.1 `pnpm run build` passes without type errors after package install and type additions
-- [x] 1.2 `pnpm run lint` passes
+- [x] 1.1 `pnpm run build` passes without type errors after package install and type additions — 44bfcf7
+- [x] 1.2 `pnpm run lint` passes — 44bfcf7
 
 #### Manual
 
-- [ ] 1.3 `OPENROUTER_API_KEY` visible in TypeScript IntelliSense from `astro:env/server`
-- [ ] 1.4 `GenerateRequest`, `GenerateResponse`, `GenerationResult` importable from `@/types`
+- [x] 1.3 `OPENROUTER_API_KEY` visible in TypeScript IntelliSense from `astro:env/server` — 44bfcf7
+- [x] 1.4 `GenerateRequest`, `GenerateResponse`, `GenerationResult` importable from `@/types` — 44bfcf7
 
 ### Phase 2: Generation Service
 
