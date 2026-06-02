@@ -12,7 +12,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "preview:wrangler": "astro build && wrangler dev",
-    "deploy": "astro build && wrangler deploy"
+    "deploy": "astro build && wrangler deploy",
+    "cf:types": "wrangler types src/worker-configuration.d.ts --include-runtime false"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",
@@ -40,6 +41,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260601.1",
     "@eslint/compat": "^2.0.3",
     "@eslint/js": "^9.29.0",
     "eslint": "^9.29.0",

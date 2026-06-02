@@ -1,3 +1,4 @@
+// generateText + Output.object used instead of generateObject: better OpenRouter compatibility with AI SDK v5 structured-output API.
 import { generateText, Output } from "ai";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { z } from "zod";
@@ -27,20 +28,6 @@ export const COOKING_STAPLES: ReadonlySet<string> = new Set([
   "mąka pszenna",
   "mąka uniwersalna",
   "mąka kukurydziana",
-  "czosnek",
-  "czosnek granulowany",
-  "cebula",
-  "proszek do pieczenia",
-  "soda oczyszczona",
-  "ocet",
-  "sok z cytryny",
-  "sok z limonki",
-  "oregano",
-  "bazylia",
-  "papryka",
-  "kurkuma",
-  "zioła prowansalskie",
-  "kolendra",
 ]);
 
 const MealRecipeSchema = z.object({
@@ -119,6 +106,7 @@ export async function generateMeal(
       .eq("user_id", userId);
 
     if (pantryError) {
+      // eslint-disable-next-line no-console
       console.error("generateMeal_pantry_fetch_error", pantryError);
       return { status: "error" };
     }
@@ -127,6 +115,7 @@ export async function generateMeal(
 
     // Step 2: Empty pantry guard
     if (pantryItems.length === 0) {
+      // eslint-disable-next-line no-console
       console.warn("no_match: empty pantry", {
         meal_type: input.meal_type,
         max_prep_time_minutes: input.max_prep_time_minutes,
@@ -145,7 +134,7 @@ export async function generateMeal(
     const excludeNames = input.exclude_names ?? [];
     const userMessage =
       excludeNames.length > 0
-        ? `Generate exactly one meal recipe. Do not suggest any of these meals: ${excludeNames.join(", ")}.`
+        ? `Generate exactly one meal recipe. Do not suggest any of these meals: ${excludeNames.map((n) => `"${n.replace(/[\r\n\t]/g, " ")}"`).join(", ")}.`
         : "Generate exactly one meal recipe.";
 
     // Step 6: Attempt loop (max 2 iterations)
@@ -168,6 +157,7 @@ export async function generateMeal(
           system: systemPrompt,
           prompt: userMessage,
           maxRetries: 0,
+          abortSignal: AbortSignal.timeout(25000),
         });
         result = generatedOutput;
       } catch (err) {
@@ -175,6 +165,7 @@ export async function generateMeal(
           attempt++;
           continue;
         }
+        // eslint-disable-next-line no-console
         console.error("generation_error after retry", err);
         await supabase.from("generation_history").insert({
           user_id: userId,
@@ -187,6 +178,7 @@ export async function generateMeal(
 
       // Step 6c: No-match from model
       if (result.no_match) {
+        // eslint-disable-next-line no-console
         console.warn("no_match: model decision", {
           meal_type: input.meal_type,
           max_prep_time_minutes: input.max_prep_time_minutes,
@@ -204,6 +196,7 @@ export async function generateMeal(
           attempt++;
           continue;
         }
+        // eslint-disable-next-line no-console
         console.error("generation_error after retry", err);
         await supabase.from("generation_history").insert({
           user_id: userId,
@@ -222,6 +215,7 @@ export async function generateMeal(
 
       if (violatingIngredient !== undefined) {
         if (attempt < 2) {
+          // eslint-disable-next-line no-console
           console.warn("pantry_violation: retrying", {
             attempt,
             ingredient: violatingIngredient,
@@ -229,6 +223,7 @@ export async function generateMeal(
           attempt++;
           continue;
         }
+        // eslint-disable-next-line no-console
         console.warn("no_match: pantry violation after retry", {
           meal_type: input.meal_type,
           pantry_size: pantryItems.length,
@@ -249,6 +244,7 @@ export async function generateMeal(
         .single();
 
       if (insertError) {
+        // eslint-disable-next-line no-console
         console.error("generateMeal_history_insert_error", insertError);
         return { status: "error" };
       }
@@ -260,6 +256,7 @@ export async function generateMeal(
     // Should never reach here but satisfies TypeScript exhaustiveness
     return { status: "error" };
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error("generateMeal_unexpected_error", err);
     return { status: "error" };
   }

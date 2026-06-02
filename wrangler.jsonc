@@ -12,4 +12,7 @@
   "observability": {
     "enabled": true,
   },
+  // Run `wrangler kv namespace create RATE_LIMIT` to get a real ID for production.
+  // For local preview (Miniflare), any non-empty string works as the id.
+  "kv_namespaces": [{ "binding": "RATE_LIMIT", "id": "rate-limit-kv-placeholder" }],
 }
