@@ -61,6 +61,11 @@ Three phases in dependency order:
 2. **Generation service** (`src/lib/generation.ts`) — protocol-agnostic orchestrator: pantry
    fetch → system prompt → LLM call with Vercel AI SDK `generateObject` → soft-pantry validation
    with retry-once → history insert → discriminated union return.
+
+   > **Addendum (2026-06-02, post impl-review F2):** `generateObject` was replaced by
+   > `generateText + Output.object` from the same `ai` package. This uses the AI SDK v5
+   > structured-output API which has better OpenRouter compatibility. The result is accessed as
+   > `{ output }` instead of `{ object }` but behaviour is identical.
 3. **API route** (`src/pages/api/generate.ts`) — thin HTTP adapter following the pantry pattern:
    auth → Supabase client → Zod parse → call service → map result to HTTP codes.
 
@@ -71,6 +76,13 @@ Three phases in dependency order:
 lists these items under "always available", and (2) `validatePantryCompliance` allows them without
 checking the user's pantry. These two usages must reference the exact same constant — any divergence
 produces a system prompt that promises an ingredient the validator will reject.
+
+> **Addendum (2026-06-02, post impl-review F1):** `COOKING_STAPLES` was intentionally trimmed to
+> truly universal items only: water, salt/pepper variants, oils (olive/rapeseed/sunflower), butter,
+> sugar, and flour variants. Items like garlic, onion, herbs, vinegar, lemon/lime juice, baking
+> powder, and baking soda were removed from the allowlist — users who always have these on hand
+> should add them to their pantry, where they pass validation naturally. This preserves the strict
+> FR-009 invariant ("uses only pantry ingredients").
 
 **Retry only applies to pantry validation failures, not to LLM `{ no_match: true }` responses.** If
 the model explicitly returns `{ no_match: true }`, that is a semantic decision — retrying the same
@@ -308,13 +320,15 @@ const MealRecipeSchema = z.object({
   steps: z.array(z.string().min(1)).min(1),
 });
 
-// Fix B: flat schema — all fields optional; branch determined at runtime.
+// Fix B + strict JSON schema: all keys required (OpenAI/Azure reject optional properties).
+// When no_match is true, use empty placeholders; branch on no_match before MealRecipeSchema.
+// Note: AI SDK v5 structured-output (Output.object) requires a fully non-optional schema.
 const GenerationOutputSchema = z.object({
-  no_match: z.boolean().optional(),
-  name: z.string().min(1).optional(),
-  prep_time_minutes: z.number().int().positive().optional(),
-  ingredients: z.array(z.string().min(1)).optional(),
-  steps: z.array(z.string().min(1)).optional(),
+  no_match: z.boolean(),
+  name: z.string(),
+  prep_time_minutes: z.number().int(),
+  ingredients: z.array(z.string()),
+  steps: z.array(z.string()),
 });
 ```
 
@@ -391,10 +405,10 @@ pantry route pattern:
 
 #### Manual Verification
 
-- `POST /api/generate` with a valid session and body `{ "meal_type": "dinner", "max_prep_time_minutes": 30 }` → 200 with a valid `MealRecipe` in the response body
+- `POST /api/generate` with a valid session and body `{ "meal_type": "lunch", "max_prep_time_minutes": 30 }` → 200 with a valid `MealRecipe` in the response body
 - `POST /api/generate` without a session → 401
 - `POST /api/generate` with an empty body `{}` → 400 with a validation error message
-- `POST /api/generate` with `{ "meal_type": "dinner", "max_prep_time_minutes": 30 }` for a user with an empty pantry → 200 `{ recipe: null, reason: "no_match" }`
+- `POST /api/generate` with `{ "meal_type": "lunch", "max_prep_time_minutes": 30 }` for a user with an empty pantry → 200 `{ recipe: null, reason: "no_match" }`
 - Supabase Studio → `generation_history` table → a new row with correct `name`, `meal_type`, and recipe JSONB matches the API response
 - `pnpm run build && pnpm run preview` → same POST test passes on the workerd runtime (validates Cloudflare Workers compatibility)
 
@@ -410,11 +424,11 @@ passes, the feature is complete and ready for code review.
 1. Start `pnpm run dev`; log in as a test user.
 2. Add 5–8 pantry items via the existing pantry UI (e.g., chicken breast, rice, cherry tomatoes,
    mozzarella, basil).
-3. `curl -X POST http://localhost:4321/api/generate -H "Content-Type: application/json" -b <session cookie> -d '{"meal_type":"dinner","max_prep_time_minutes":30}'`
+3. `curl -X POST http://localhost:4321/api/generate -H "Content-Type: application/json" -b <session cookie> -d '{"meal_type":"lunch","max_prep_time_minutes":30}'`
 4. Verify response: `{ recipe: { name, prep_time_minutes, ingredients, steps }, history_id }`.
 5. Check that every ingredient in `recipe.ingredients` is either in the pantry list or in
    `COOKING_STAPLES`.
-6. Open Supabase Studio → `generation_history` → confirm a matching row exists.
+6. Open Supabase Studio → `generation_history` → confirm a matching row exists. `generated_at` should read in local time (Europe/Warsaw) after migration `20260602193000_set_database_timezone_europe_warsaw.sql`; re-open the table or reconnect if you still see `+00`.
 7. Test no-match: clear the pantry, repeat the request → `{ recipe: null, reason: "no_match" }`,
    no new row in `generation_history`.
 8. Test time constraint: add only slow-cook items to the pantry, request with
@@ -438,9 +452,11 @@ complete.
 
 ## Migration Notes
 
-No database migrations are needed. All schema, RLS, and trigger logic required by F-02 was
-delivered in F-01 (`20260528120000_domain_data_schema.sql`,
-`20260528140000_fix_history_prune_ordering.sql`).
+F-02 reuses F-01 schema (`20260528120000_domain_data_schema.sql`,
+`20260528140000_fix_history_prune_ordering.sql`). Optional display-only migration
+`20260602193000_set_database_timezone_europe_warsaw.sql` sets the database session timezone to
+`Europe/Warsaw` so Supabase Studio shows `generated_at` in local time (DST-aware). Apply with
+`npx supabase db push` (local) or run the SQL on the hosted project; reconnect Studio after applying.
 
 ## References
 
@@ -487,14 +503,19 @@ delivered in F-01 (`20260528120000_domain_data_schema.sql`,
 
 #### Automated
 
-- [ ] 3.1 `pnpm run build` passes (full project including new route)
-- [ ] 3.2 `pnpm run lint` passes
+- [x] 3.1 `pnpm run build` passes (full project including new route)
+- [x] 3.2 `pnpm run lint` passes
 
 #### Manual
 
-- [ ] 3.3 `POST /api/generate` with valid session → 200 with valid `MealRecipe` and `history_id`
-- [ ] 3.4 `POST /api/generate` without session → 401
-- [ ] 3.5 `POST /api/generate` with empty body → 400
-- [ ] 3.6 `POST /api/generate` with empty pantry → 200 `{ recipe: null, reason: "no_match" }`
-- [ ] 3.7 Supabase Studio → `generation_history` → new row matches API response
-- [ ] 3.8 `pnpm run build && pnpm run preview` → POST test passes on workerd runtime
+- [x] 3.3 `POST /api/generate` with valid session → 200 with valid `MealRecipe` and `history_id`
+- [x] 3.4 `POST /api/generate` without session → 401
+- [x] 3.5 `POST /api/generate` with empty body → 400
+- [x] 3.6 `POST /api/generate` with empty pantry → 200 `{ recipe: null, reason: "no_match" }`
+- [x] 3.7 Supabase Studio → `generation_history` → new row matches API response
+- [x] 3.8 `pnpm run build && pnpm run preview` → POST test passes on workerd runtime
+
+### Implementation review (2026-06-02)
+
+- **Verdict**: APPROVED — see `reviews/impl-review.md` (9 findings fixed, 1 noted).
+- **Post-triage deploy note**: provision `RATE_LIMIT` KV namespace and run `pnpm run cf:types` after updating `wrangler.jsonc`.
