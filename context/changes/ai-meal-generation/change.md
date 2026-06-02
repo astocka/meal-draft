@@ -31,4 +31,6 @@ F-01 (domain-data-schema) — pantry, favorites, and generation-history tables w
 
 ### Impl review (2026-06-02)
 
-Triage complete — see @context/changes/ai-meal-generation/reviews/impl-review.md. Before production deploy: create `RATE_LIMIT` KV namespace (`wrangler kv namespace create RATE_LIMIT`) and update `wrangler.jsonc` id; run `pnpm run cf:types` after binding changes.
+Triage complete — see @context/changes/ai-meal-generation/reviews/impl-review.md.
+
+**Deploy infra:** `RATE_LIMIT` KV namespace provisioned; `wrangler.jsonc` updated with production id; types regenerated via `pnpm run cf:types`. Re-run `cf:types` after future binding changes.

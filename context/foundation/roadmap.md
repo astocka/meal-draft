@@ -3,7 +3,7 @@ project: MealDraft
 version: 1
 status: draft
 created: 2026-05-27
-updated: 2026-05-31
+updated: 2026-06-02
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -30,15 +30,15 @@ Busy working adults waste time and food every day because opening the fridge tri
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 |---|---|---|---|---|---|
 | F-01 | domain-data-schema | (foundation) pantry, favorites, and generation-history tables exist with per-user RLS | — | NFR (privacy), Access Control | done |
-| F-02 | ai-meal-generation | (foundation) server-side meal generation returns one strict-pantry recipe from pantry + constraints | F-01 | NFR (feedback >1s), Business Logic | ready |
+| F-02 | ai-meal-generation | (foundation) server-side meal generation returns one strict-pantry recipe from pantry + constraints | F-01 | NFR (feedback >1s), Business Logic | done |
 | S-01 | auth-flow-for-mvp | register, log in, log out, and reach a protected core screen after authentication | — | US-05, FR-001, FR-002 | done |
 | S-02 | pantry-crud | add, view, edit, and remove pantry products with immediate UI updates and session persistence | F-01, S-01 | US-02, FR-003, FR-004, FR-005, FR-006 | done |
-| S-03 | strict-pantry-meal-generation | set time and meal-type constraints, tap Generate, and see exactly one compliant meal suggestion | F-01, F-02, S-02 | US-01, FR-007, FR-008, FR-009 | proposed |
+| S-03 | strict-pantry-meal-generation | set time and meal-type constraints, tap Generate, and see exactly one compliant meal suggestion | F-01, F-02, S-02 | US-01, FR-007, FR-008, FR-009 | ready |
 | S-04 | try-another-suggestion | tap Try another for a different non-repeating suggestion within the same session, with exhaustion messaging | S-03 | US-06, FR-010 | proposed |
 | S-05 | meal-favorites | save a generated meal to favorites and browse the favorites list from navigation | S-03 | US-03, FR-011, FR-012 | proposed |
 | S-06 | generation-history | browse the last N generated meals in reverse chronological order | S-03 | US-04, FR-013 | proposed |
 
-**Unlocked now** (prerequisites met): **F-02**. **Current focus:** F-02 (pantry data now available for generation testing). **S-03** unlocks after F-02 ships; **S-04**–**S-06** unlock after S-03.
+**Unlocked now** (prerequisites met): **S-03**. **Current focus:** S-03 (wire Generate UI to `POST /api/generate`). **S-04**–**S-06** unlock after S-03 ships.
 
 ## Streams
 
@@ -46,7 +46,7 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 
 | Stream | Theme | Chain | Note |
 |---|---|---|---|
-| A | Schema & pantry | `F-01` → `S-02` | **S-02 done** — F-02 next; joins Stream C at `S-02` (needs `S-01`). |
+| A | Schema & pantry | `F-01` → `S-02` | **S-02 done**; joins Stream C at `S-02` (needs `S-01`). |
 | B | Generation loop | `F-02` → `S-03` → `S-04` / `S-05` / `S-06` | North star and downstream must-haves; speed bias keeps `S-04` before favorites/history. |
 | C | Account access | `S-01` | Auth scaffold present in baseline; slice completes MVP auth UX. Joins Stream A at `S-02`. |
 
@@ -89,7 +89,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Which LLM provider and model for v1? — Owner: user. Block: no.
 - **Risk:** Sequenced before the north-star slice because generation quality and strict-pantry compliance are the product's riskiest assumption; surfacing failures early beats polishing pantry UI first.
-- **Status:** ready
+- **Status:** done
 
 ## Slices
 
@@ -129,7 +129,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - What are the exact time budget presets? — Owner: user. Block: no.
 - **UX (mobile):** On viewports &lt; 768px, use tab navigation (`Pantry` | `Meal Generator`) instead of stacked columns — see @context/foundation/dashboard-layout.md (decided during S-02; placeholder hidden on mobile until this ships).
 - **Risk:** This is the north star — the validation milestone that proves MealDraft is not another recipe list app; strict-pantry zero-tolerance is the hardest contract to satisfy.
-- **Status:** proposed
+- **Status:** ready
 
 ### S-04: Try another suggestion
 
@@ -174,10 +174,10 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
 |---|---|---|---|---|
 | F-01 | domain-data-schema | Add pantry, favorites, and history schema with RLS | no | Done — see ## Done |
-| F-02 | ai-meal-generation | Integrate server-side strict-pantry meal generation | yes | **Next up** — run `/10x-new ai-meal-generation` when starting |
+| F-02 | ai-meal-generation | Integrate server-side strict-pantry meal generation | no | Done — see ## Done |
 | S-01 | auth-flow-for-mvp | Complete MVP auth flow and route protection | no | Done — see ## Done |
 | S-02 | pantry-crud | Build pantry add/view/edit/remove UI and API | no | Done — see ## Done |
-| S-03 | strict-pantry-meal-generation | Ship first strict-pantry meal generation (north star) | no | Blocked until F-02 ships |
+| S-03 | strict-pantry-meal-generation | Ship first strict-pantry meal generation (north star) | yes | **Next up** — run `/10x-new strict-pantry-meal-generation` when starting |
 | S-04 | try-another-suggestion | Add Try another with session exclusion | no | Blocked until S-03 ships |
 | S-05 | meal-favorites | Add save-to-favorites and favorites list | no | Blocked until S-03 ships |
 | S-06 | generation-history | Add read-only generation history (last N) | no | Blocked until S-03 ships |
@@ -207,3 +207,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **F-01** domain-data-schema — pantry, favorites, and generation-history tables with per-user RLS (2026-05-29)
 - **S-01** auth-flow-for-mvp — register, sign-in, sign-out, protected routes, email confirmation callback (2026-05-30)
 - **S-02** pantry-crud — add, view, edit, and remove pantry products with immediate UI updates and session persistence (2026-05-31)
+- **F-02** ai-meal-generation — `POST /api/generate` + `src/lib/generation.ts` strict-pantry generation via OpenRouter (2026-06-02)
