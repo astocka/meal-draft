@@ -9,7 +9,7 @@ tags: [research, codebase, strict-pantry-meal-generation, dashboard, meal-genera
 status: complete
 last_updated: 2026-06-03
 last_updated_by: AI agent
-last_updated_note: "Locked Polish UI v1, empty pantry copy, no_match info panel + conditional hints"
+last_updated_note: "S-03 implemented — MealGenerator, DashboardShell, roadmap done"
 ---
 
 # Research: S-03 Strict-Pantry Meal Generation — Codebase Readiness
@@ -26,7 +26,7 @@ What does the codebase provide today for S-03 (`strict-pantry-meal-generation`),
 
 ## Summary
 
-**S-03 is almost entirely a frontend slice.** F-02 (`ai-meal-generation`) shipped `POST /api/generate`, `src/lib/generation.ts`, types, and OpenRouter integration. S-02 (`pantry-crud`) shipped the two-column dashboard shell with `PantryWidget` and a static `MealGeneratorPlaceholder`. **Nothing in `src/` calls `/api/generate` yet**, and mobile tab navigation from `dashboard-layout.md` is not implemented.
+**S-03 shipped (2026-06-03).** F-02 provides `POST /api/generate`; S-02 provides pantry CRUD; S-03 adds `MealGenerator`, `DashboardShell` (mobile tabs), wire parsing, and Polish UX on `/dashboard`.
 
 The implementation path is straightforward: replace the placeholder with a React island (`client:load`), map constraint controls to `GenerateRequest`, call `POST /api/generate` using the same fetch patterns as `PantryWidget`, render `MealRecipe` or friendly `no_match` copy, and add mobile-only `Pantry | Meal Generator` tabs. No migrations or backend changes are required.
 

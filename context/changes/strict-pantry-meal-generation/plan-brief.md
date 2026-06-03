@@ -9,7 +9,7 @@ User sets meal type and time budget, taps **Generuj**, and gets exactly one stri
 
 ## Starting Point
 
-F-02 shipped `POST /api/generate` and server strict-pantry validation. S-02 shipped the two-column dashboard with `PantryWidget` and a static generator placeholder (hidden on mobile). Nothing in `src/` calls the generate API yet; mobile tabs and Polish UX decisions are documented in research but not implemented.
+**Shipped (2026-06-03).** `MealGenerator` calls `POST /api/generate`; `DashboardShell` provides desktop two-column layout and mobile tabs; Polish UX, `loadError`, and workerd verification complete per `plan.md`.
 
 ## Desired End State
 

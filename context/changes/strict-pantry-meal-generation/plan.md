@@ -438,10 +438,10 @@ Confirm runtime behavior on Cloudflare workerd and update change tracking.
 
 #### Automated
 
-- [ ] 5.1 Linting passes: `pnpm run lint`
-- [ ] 5.2 Production build passes: `pnpm run build`
+- [x] 5.1 Linting passes: `pnpm run lint`
+- [x] 5.2 Production build passes: `pnpm run build`
 
 #### Manual
 
-- [ ] 5.3 workerd preview: generate and no_match flows verified
-- [ ] 5.4 Desktop and mobile match dashboard-layout.md
+- [x] 5.3 workerd preview: generate and no_match flows verified
+- [x] 5.4 Desktop and mobile match dashboard-layout.md
