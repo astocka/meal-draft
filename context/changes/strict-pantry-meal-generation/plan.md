@@ -410,29 +410,29 @@ Confirm runtime behavior on Cloudflare workerd and update change tracking.
 
 #### Automated
 
-- [x] 3.1 Linting passes: `pnpm run lint`
-- [x] 3.2 Production build passes: `pnpm run build`
+- [x] 3.1 Linting passes: `pnpm run lint` — c96f2e2
+- [x] 3.2 Production build passes: `pnpm run build` — c96f2e2
 
 #### Manual
 
-- [x] 3.3 loadError shows Polish banner in pantry panel
-- [x] 3.4 Empty pantry shows Polish empty copy
-- [x] 3.5 onItemsChange updates pantry count when items added/removed
+- [x] 3.3 loadError shows Polish banner in pantry panel — c96f2e2
+- [x] 3.4 Empty pantry shows Polish empty copy — c96f2e2
+- [x] 3.5 onItemsChange updates pantry count when items added/removed — c96f2e2
 
 ### Phase 4: MealGenerator Island
 
 #### Automated
 
-- [ ] 4.1 Linting passes: `pnpm run lint`
-- [ ] 4.2 Production build passes: `pnpm run build`
+- [x] 4.1 Linting passes: `pnpm run lint`
+- [x] 4.2 Production build passes: `pnpm run build`
 
 #### Manual
 
-- [ ] 4.3 Successful generate shows recipe card; history_id stored in state
-- [ ] 4.4 no_match info panel with conditional hint 2
-- [ ] 4.5 Empty pantry and loadError disable Generuj with appropriate messaging
-- [ ] 4.6 Rate limit 429 shows dedicated Polish inline error
-- [ ] 4.7 Mobile: add pantry item then generate without page refresh
+- [x] 4.3 Successful generate shows recipe card; history_id stored in state
+- [x] 4.4 no_match info panel with conditional hint 2
+- [x] 4.5 Empty pantry and loadError disable Generuj with appropriate messaging
+- [x] 4.6 Rate limit 429 shows dedicated Polish inline error
+- [x] 4.7 Mobile: add pantry item then generate without page refresh
 
 ### Phase 5: workerd Verification and Docs Sync
 
