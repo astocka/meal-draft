@@ -38,10 +38,8 @@ export interface GenerateRequest {
   exclude_names?: string[];
 }
 
-export interface GenerateResponse {
-  recipe: MealRecipe;
-  history_id: string;
-}
+/** @deprecated Prefer `GenerateSuccessBody` from `@/lib/generation-schema` (HTTP wire shape). */
+export type GenerateResponse = import("@/lib/generation-schema").GenerateSuccessBody;
 
 export type GenerationResult =
   | { status: "ok"; recipe: MealRecipe; history_id: string }
