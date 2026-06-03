@@ -410,14 +410,14 @@ Confirm runtime behavior on Cloudflare workerd and update change tracking.
 
 #### Automated
 
-- [ ] 3.1 Linting passes: `pnpm run lint`
-- [ ] 3.2 Production build passes: `pnpm run build`
+- [x] 3.1 Linting passes: `pnpm run lint`
+- [x] 3.2 Production build passes: `pnpm run build`
 
 #### Manual
 
-- [ ] 3.3 loadError shows Polish banner in pantry panel
-- [ ] 3.4 Empty pantry shows Polish empty copy
-- [ ] 3.5 onItemsChange updates pantry count when items added/removed
+- [x] 3.3 loadError shows Polish banner in pantry panel
+- [x] 3.4 Empty pantry shows Polish empty copy
+- [x] 3.5 onItemsChange updates pantry count when items added/removed
 
 ### Phase 4: MealGenerator Island
 
