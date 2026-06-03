@@ -62,7 +62,11 @@ export function parseGenerateResponse(body: unknown, status: number): GeneratePa
   }
 
   if (status === 429) {
-    return { kind: "error", code: "rate_limit", message: GENERATION_RATE_LIMIT_MESSAGE };
+    const error = parseErrorBody(body);
+    if (error === "rate_limit_exceeded") {
+      return { kind: "error", code: "rate_limit", message: GENERATION_RATE_LIMIT_MESSAGE };
+    }
+    return { kind: "error", code: "unknown", message: GENERATION_UNKNOWN_MESSAGE };
   }
 
   if (status === 503) {

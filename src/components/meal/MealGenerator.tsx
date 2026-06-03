@@ -20,7 +20,7 @@ const TIME_PRESETS: { value: number | null; label: string }[] = [
   { value: 15, label: "15" },
   { value: 30, label: "30" },
   { value: 60, label: "60" },
-  { value: null, label: "Dow." },
+  { value: null, label: "Dowolny czas" },
 ];
 
 const NO_MATCH_TITLE = "Nie udało się stworzyć przepisu";
@@ -66,6 +66,8 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
     setFeedback(null);
     setErrorMessage(null);
     setShowTimeHintOnNoMatch(false);
+    setLastRecipe(null);
+    setHistoryId(null);
 
     let body: unknown;
     let httpStatus: number;
@@ -175,7 +177,8 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-end gap-2">
+          {!loadError && pantryCount === 0 && <p className="text-xs text-white/40">{EMPTY_PANTRY_HINT}</p>}
           <Button
             type="button"
             size="sm"
@@ -186,13 +189,12 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
             {isLoading ? (
               <>
                 <Loader2 className="size-3.5 animate-spin" />
-                Tworzę…
+                Tworzę przepis…
               </>
             ) : (
               "Generuj"
             )}
           </Button>
-          {!loadError && pantryCount === 0 && <p className="text-xs text-white/40">{EMPTY_PANTRY_HINT}</p>}
         </div>
       </div>
 

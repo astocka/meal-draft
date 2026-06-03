@@ -67,11 +67,7 @@ export default function DashboardShell({ initialItems, loadError }: DashboardShe
   }
 
   return (
-    <div
-      className="dark text-foreground flex min-h-0 flex-1 flex-col"
-      data-pantry-count={pantryCount}
-      data-load-error={loadError || undefined}
-    >
+    <div className="dark text-foreground flex min-h-0 flex-1 flex-col">
       <Tabs value={mobileTab} onValueChange={setMobileTab} className="flex min-h-0 flex-1 flex-col">
         <TabsList variant="line" className={cn(tabsListClass, "md:hidden")}>
           <TabsTrigger value="pantry" className={tabsTriggerClass}>
@@ -82,7 +78,7 @@ export default function DashboardShell({ initialItems, loadError }: DashboardShe
           </TabsTrigger>
         </TabsList>
 
-        <div className="grid min-h-0 flex-1 md:grid-cols-2">
+        <div className="grid min-h-0 flex-1 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
           <div className={cn("flex min-h-0 flex-col", mobileTab !== "pantry" && "hidden md:flex")}>
             <PantryPanel initialItems={initialItems} loadError={loadError} onItemsChange={handleItemsChange} />
           </div>
