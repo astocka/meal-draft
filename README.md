@@ -110,9 +110,27 @@ Local Studio UI: `http://localhost:54323`
 | `/auth/signin`        | Email/password sign-in form                                             |
 | `/auth/signup`        | Email/password sign-up form                                             |
 | `/auth/confirm-email` | Post-signup "check your inbox" page                                     |
+| `/auth/callback`      | Email confirmation link target (PKCE code exchange)                       |
 | `/dashboard`          | Example protected page (redirects to `/auth/signin` if unauthenticated) |
 
 Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array to require authentication.
+
+### Email confirmation on `pnpm run preview`
+
+`astro preview` runs on **workerd**, which cannot `fetch` a **local** Supabase API (`http://127.0.0.1:54321`) because of the `global_fetch_strictly_public` flag in `wrangler.jsonc`.
+
+For email confirmation testing with preview:
+
+1. Put your **cloud** project URL and anon key in `.dev.vars` (not the local CLI URL).
+2. In the Supabase dashboard → **Authentication** → **URL Configuration**, add `http://localhost:4321/auth/callback` to **Redirect URLs**.
+3. After changing `.dev.vars`, run `pnpm run build && pnpm run preview` again.
+4. Open the confirmation link in the **same browser** you used to sign up (PKCE cookie).
+
+`/auth/callback` exchanges the code in the **browser** (not on workerd), so confirmation works in preview even when server-side Supabase fetch fails.
+
+If confirmation still fails but the account exists in Supabase, sign in with your password — the email is already confirmed.
+
+To use **local** Supabase (`npx supabase start`) for auth, use `pnpm run dev` (Node.js) instead of preview for the callback step.
 
 ## Deployment
 
