@@ -397,14 +397,14 @@ Confirm runtime behavior on Cloudflare workerd and update change tracking.
 
 #### Automated
 
-- [ ] 2.1 Linting passes: `pnpm run lint`
-- [ ] 2.2 Production build passes: `pnpm run build`
+- [x] 2.1 Linting passes: `pnpm run lint`
+- [x] 2.2 Production build passes: `pnpm run build`
 
 #### Manual
 
-- [ ] 2.3 Desktop two-column layout intact with shell mounted
-- [ ] 2.4 Mobile tabs switch Spiżarnia / Generator full-height panels
-- [ ] 2.5 No regression to sign-out topbar
+- [x] 2.3 Desktop two-column layout intact with shell mounted
+- [x] 2.4 Mobile tabs switch Spiżarnia / Generator full-height panels
+- [x] 2.5 No regression to sign-out topbar
 
 ### Phase 3: Pantry Polish and loadError
 
