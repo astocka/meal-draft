@@ -1,6 +1,7 @@
 import { useState } from "react";
+import MealGenerator from "@/components/meal/MealGenerator";
 import PantryWidget from "@/components/pantry/PantryWidget";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import type { PantryProduct } from "@/types";
 
@@ -46,12 +47,12 @@ function PantryPanel({
   );
 }
 
-function GeneratorShell() {
+function GeneratorPanel({ loadError, pantryCount }: { loadError: boolean; pantryCount: number }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <ColumnHeader title="Generator posiłków" />
-      <div className="shrink-0 px-5 py-4">
-        <p className="text-sm text-white/40">Wybierz typ posiłku i czas — formularz pojawi się w następnym kroku.</p>
+      <div className="min-h-0 flex-1 overflow-hidden">
+        <MealGenerator loadError={loadError} pantryCount={pantryCount} />
       </div>
     </div>
   );
@@ -59,6 +60,7 @@ function GeneratorShell() {
 
 export default function DashboardShell({ initialItems, loadError }: DashboardShellProps) {
   const [pantryCount, setPantryCount] = useState(() => initialItems.length);
+  const [mobileTab, setMobileTab] = useState("pantry");
 
   function handleItemsChange(count: number) {
     setPantryCount(count);
@@ -70,8 +72,8 @@ export default function DashboardShell({ initialItems, loadError }: DashboardShe
       data-pantry-count={pantryCount}
       data-load-error={loadError || undefined}
     >
-      <Tabs defaultValue="pantry" className="flex min-h-0 flex-1 flex-col md:hidden">
-        <TabsList variant="line" className={tabsListClass}>
+      <Tabs value={mobileTab} onValueChange={setMobileTab} className="flex min-h-0 flex-1 flex-col">
+        <TabsList variant="line" className={cn(tabsListClass, "md:hidden")}>
           <TabsTrigger value="pantry" className={tabsTriggerClass}>
             Spiżarnia
           </TabsTrigger>
@@ -79,18 +81,16 @@ export default function DashboardShell({ initialItems, loadError }: DashboardShe
             Generator posiłków
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="pantry" className="mt-0 flex min-h-0 flex-1 flex-col overflow-hidden">
-          <PantryPanel initialItems={initialItems} loadError={loadError} onItemsChange={handleItemsChange} />
-        </TabsContent>
-        <TabsContent value="generator" className="mt-0 flex min-h-0 flex-1 flex-col overflow-hidden">
-          <GeneratorShell />
-        </TabsContent>
-      </Tabs>
 
-      <div className="hidden min-h-0 flex-1 md:grid md:grid-cols-2">
-        <PantryPanel initialItems={initialItems} loadError={loadError} onItemsChange={handleItemsChange} />
-        <GeneratorShell />
-      </div>
+        <div className="grid min-h-0 flex-1 md:grid-cols-2">
+          <div className={cn("flex min-h-0 flex-col", mobileTab !== "pantry" && "hidden md:flex")}>
+            <PantryPanel initialItems={initialItems} loadError={loadError} onItemsChange={handleItemsChange} />
+          </div>
+          <div className={cn("flex min-h-0 flex-col", mobileTab !== "generator" && "hidden md:flex")}>
+            <GeneratorPanel loadError={loadError} pantryCount={pantryCount} />
+          </div>
+        </div>
+      </Tabs>
     </div>
   );
 }
