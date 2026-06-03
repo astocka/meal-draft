@@ -4,9 +4,11 @@
 
 ## Desktop (≥ 768px)
 
-- Two equal columns: **Spiżarnia** (left), **Generator posiłków** (right).
+- Two columns **1/3 · 2/3**: **Spiżarnia** (left, narrower), **Generator posiłków** (right, wider).
 - Pantry list scrolls inside the left column; add input stays fixed at the top of that column.
 - Both panels stay visible side-by-side — user sees pantry and generation/results without navigation.
+- **`loadError` (prefetch failed):** Polish banner in the **pantry column** on all viewports; generator column disables **Generuj** without duplicating the banner on desktop (mobile generator tab still shows the banner).
+- **`no_match`:** Shown in the generator column as an info-style panel (not destructive error UI).
 
 ## Mobile (< 768px)
 
@@ -14,7 +16,7 @@
 
 - Below `DashboardTopbar`, **shadcn tabs** on mobile only: **Spiżarnia** | **Generator posiłków** (`DashboardShell`).
 - One panel visible at a time, each filling the remaining viewport height (same scroll contract as the pantry column).
-- Desktop (`md+`): no tab bar — `md:grid md:grid-cols-2` shows both columns.
+- Desktop (`md+`): no tab bar — `md:grid-cols-[1fr_2fr]` shows both columns (pantry one third, generator two thirds).
 - **Delete control:** Trash icon is always visible on touch (`opacity-100`); on `sm+` it remains hover-reveal (`sm:opacity-0 sm:group-hover:opacity-100`) because hover does not exist on phones.
 
 ### S-02 behavior (superseded on mobile)
@@ -35,7 +37,7 @@
 |-------|------------|
 | S-02 (`pantry-crud`) | Two-column shell, placeholder right, pantry CRUD, mobile hide placeholder + touch delete |
 | S-03 (`strict-pantry-meal-generation`) | `MealGenerator`, `DashboardShell` mobile tabs, `loadError`, Polish copy — **done** |
-| S-04+ | Same shell; tabs still apply on mobile unless a later change revises this doc |
+| S-04+ | Same shell; **Try another** in generator column; tabs still apply on mobile unless a later change revises this doc |
 
 ## References
 

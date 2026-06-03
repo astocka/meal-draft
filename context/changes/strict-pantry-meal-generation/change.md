@@ -3,7 +3,7 @@ change_id: strict-pantry-meal-generation
 title: Ship strict-pantry meal generation (north star S-03)
 status: implemented
 created: 2026-06-03
-updated: 2026-06-03
+updated: 2026-06-04
 archived_at: null
 ---
 

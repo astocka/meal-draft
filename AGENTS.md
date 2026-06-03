@@ -12,8 +12,8 @@ MealDraft is an Astro 6 SSR application with React 19 islands, Tailwind 4, Supab
 
 ## Project Structure
 
-- `src/pages/` — Astro routes and API endpoints (`api/auth/` for signin, signup, signout)
-- `src/components/` — Astro components at root; React islands in subdirs; `ui/` for shadcn ("new-york" style)
+- `src/pages/` — Astro routes and API endpoints (`api/auth/` for signin, signup, signout; `api/generate.ts` for meal generation)
+- `src/components/` — Astro components at root; React islands in subdirs (`dashboard/`, `meal/`, `pantry/`); `ui/` for shadcn ("new-york" style): `button`, `tabs`, `card`
 - `src/components/hooks/` — extracted React hooks
 - `src/lib/` — Supabase client, utilities, services and business logic
 - `src/layouts/` — page layouts
@@ -31,8 +31,14 @@ Full server-side rendering (`output: "server"` in astro.config.mjs). All pages a
 - `src/lib/supabase.ts` — creates a Supabase SSR client using `@supabase/ssr` with cookie-based sessions. Uses `astro:env/server` for `SUPABASE_URL` and `SUPABASE_KEY` (server-only secrets declared in astro.config.mjs `env.schema`).
 - `src/middleware.ts` — runs on every request, resolves the current user, attaches to `context.locals.user`. Redirects unauthenticated users away from routes listed in `PROTECTED_ROUTES`.
 - API endpoints: `src/pages/api/auth/{signin,signup,signout}.ts`
-- Auth pages: `src/pages/auth/{signin,signup,confirm-email}.astro`
-- Protected page example: `src/pages/dashboard.astro`
+- Auth pages: `src/pages/auth/{signin,signup,confirm-email,callback}.astro` — `/auth/callback` handles email confirmation (PKCE code exchange in the browser)
+- Protected page: `src/pages/dashboard.astro` — server-prefetches pantry; mounts `DashboardShell` (`client:load`) with `PantryWidget` + `MealGenerator`. Layout: @context/foundation/dashboard-layout.md
+
+### Meal generation (client)
+
+- `POST /api/generate` — server strict-pantry generation (F-02); see `src/lib/generation.ts`
+- Client wire: `src/lib/generation-schema.ts`, `src/lib/parse-generate-response.ts`, `src/lib/generation-copy.ts` (Polish error copy)
+- **`no_match` is HTTP 200** (`{ recipe: null, reason: "no_match" }`) — parse before treating as failure; UI uses info panel, not error styling
 
 ## Commands
 
@@ -74,6 +80,7 @@ Pre-commit hook (husky + lint-staged) runs `eslint --fix` on `*.{ts,tsx,astro}` 
 - Node version pinned in @.nvmrc
 - Secrets: `SUPABASE_URL`, `SUPABASE_KEY` — copy `.env.example` to `.env` for Node, or `.dev.vars` for Cloudflare local dev
 - Local Supabase: `npx supabase start` (requires Docker)
-- Cloudflare local dev: secrets go in `.dev.vars` (gitignored)
+- Cloudflare local dev: secrets go in `.dev.vars` (gitignored); include `OPENROUTER_API_KEY` for generation
+- Email confirmation on `pnpm run preview` vs local Supabase: see README § Email confirmation on `pnpm run preview`
 - Deploy: `pnpm run deploy`
 

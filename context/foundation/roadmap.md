@@ -24,6 +24,8 @@ Busy working adults waste time and food every day because opening the fridge tri
 **S-03: user can generate exactly one strict-pantry meal from their pantry and constraints** — this is the validation milestone (the smallest end-to-end flow that proves the core product hypothesis): if a logged-in user cannot go from pantry → constraints → one compliant meal suggestion, nothing else in the product matters.
 
 > **North star** here means the smallest end-to-end slice whose successful delivery would prove the core product hypothesis — placed as early as prerequisites allow because everything else only matters if this works.
+>
+> **Delivered 2026-06-03 (S-03).** Validation focus moves to S-04 (Try another) and parallel favorites/history slices.
 
 ## At a glance
 
@@ -52,11 +54,11 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 
 ## Baseline
 
-What's already in place in the codebase as of `2026-05-31` (auto-researched + slice completions).
+What's already in place in the codebase as of `2026-06-03` (auto-researched + slice completions).
 Foundations below assume these are present and do NOT re-scaffold them.
 
-- **Frontend:** present (partial UI) — Astro 6 SSR + React 19 islands, Tailwind 4, file routing (`src/pages/`), shadcn/Radix started (`src/components/ui/button.tsx`)
-- **Backend / API:** partial — Astro SSR on Cloudflare; auth API routes (`src/pages/api/auth/`); pantry CRUD and `POST /api/generate` (F-02, S-02, S-03)
+- **Frontend:** present — Astro 6 SSR + React 19 islands, Tailwind 4, file routing (`src/pages/`); shadcn `button`, `tabs`, `card`; `DashboardShell` + `MealGenerator` on `/dashboard` (mobile tabs per @context/foundation/dashboard-layout.md)
+- **Backend / API:** partial — Astro SSR on Cloudflare; auth API routes (`src/pages/api/auth/`); pantry CRUD; `POST /api/generate` with client wire (`generation-schema`, `parse-generate-response`, `generation-copy`) (F-02, S-02, S-03)
 - **Data:** partial — Supabase client wired (`src/lib/supabase.ts`); pantry, favorites, and generation-history tables with per-user RLS (F-01)
 - **Auth:** present (MVP complete, S-01) — register, sign-in, sign-out, email confirmation, protected routes beyond `/dashboard` only
 - **Deploy / infra:** present (partial CI) — Cloudflare Workers (`wrangler.jsonc`); GitHub Actions lint + build; no deploy workflow in repo
@@ -125,8 +127,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Prerequisites:** F-01, F-02, S-02
 - **Parallel with:** —
 - **Blockers:** —
-- **Unknowns:**
-  - What are the exact time budget presets? — Owner: user. Block: no.
+- **Unknowns:** —
 - **UX (mobile):** Tab navigation (*Spiżarnia* | *Generator posiłków*) on viewports &lt; 768px — shipped in `DashboardShell`; see @context/foundation/dashboard-layout.md.
 - **Risk:** This is the north star — the validation milestone that proves MealDraft is not another recipe list app; strict-pantry zero-tolerance is the hardest contract to satisfy.
 - **Status:** done
@@ -208,4 +209,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-01** auth-flow-for-mvp — register, sign-in, sign-out, protected routes, email confirmation callback (2026-05-30)
 - **S-02** pantry-crud — add, view, edit, and remove pantry products with immediate UI updates and session persistence (2026-05-31)
 - **F-02** ai-meal-generation — `POST /api/generate` + `src/lib/generation.ts` strict-pantry generation via OpenRouter (2026-06-02)
-- **S-03** strict-pantry-meal-generation — `MealGenerator` + `DashboardShell` (mobile tabs), wire contract, Polish UX, workerd verification (2026-06-03)
+- **S-03** strict-pantry-meal-generation — `MealGenerator` + `DashboardShell` (mobile tabs), Zod wire parser, `loadError`, Polish UX, workerd verification (2026-06-03)

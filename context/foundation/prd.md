@@ -4,6 +4,7 @@
 version: 1
 status: draft
 created: 2026-05-21
+updated: 2026-06-03
 context_type: greenfield
 product_type: web-app
 target_scale:
@@ -58,8 +59,8 @@ Existing recipe apps (Tasty, SuperCook, MyFridgeFood) get two things wrong at on
 
 - Suggestion NEVER includes ingredients outside the user's pantry
 - Suggestion respects the time constraint
-- If no valid meal exists for the given constraints, the user sees a clear message (not an empty screen or error)
-- "Try another" produces a different suggestion, never repeating a previously shown result in the same session
+- If no valid meal exists for the given constraints, the user sees a clear message in an info-style panel (not an empty screen or destructive error UI)
+- *Try another* is covered by US-06 / FR-010 (S-04); S-03 ships generate + no-match only
 
 ### US-02: User manages their pantry
 
@@ -145,11 +146,11 @@ Existing recipe apps (Tasty, SuperCook, MyFridgeFood) get two things wrong at on
 
 ### Meal Generation
 
-- FR-007: User can set a time budget constraint via quick-pick presets (e.g. 15/30/45 min or "Any time"). Selected time represents the maximum preparation time; "Any time" means no time restriction. Custom text input is explicitly excluded from v1. Default selection is set to "Any time". Priority: must-have
+- FR-007: User can set a time budget constraint via quick-pick presets **15 / 30 / 60 min** or **"Any time"**. Selected time represents the maximum preparation time; "Any time" means no time restriction (`max_prep_time_minutes: null`). Custom text input is explicitly excluded from v1. Default selection is **"Any time"**. Priority: must-have
   > Socrates: Counter-argument considered: "Fixed presets are arbitrary — 25 min forces a choice between 15 or 30." Resolution: revised; presets cover common time windows plus "Any time" as the default no-restriction option. Custom input excluded from v1 to keep the UI simple.
 - FR-008: User can set a meal type constraint (breakfast/lunch/dinner). Priority: must-have
   > Socrates: Counter-argument considered: "Meal type categories are culturally loaded and fuzzy — 'quick snack' doesn't fit." Resolution: kept; three types are clear enough for v1.
-- FR-009: User can generate exactly one meal suggestion that uses only pantry ingredients and respects all constraints. Priority: must-have
+- FR-009: User can generate exactly one meal suggestion that uses only pantry ingredients and respects all constraints. When no valid meal exists, the user sees a clear info-style message with actionable hints (not a blank screen or error toast). Priority: must-have
   > Socrates: Counter-argument considered: "AI might fail for a sparse pantry — zero-result state is worse than imperfect results." Resolution: kept; a clear 'nothing found' message is acceptable for v1.
 - FR-010: User can hit "Try another" to get a new suggestion that excludes previously shown results in the session. Priority: must-have
   > Socrates: Counter-argument considered: "Exclusion pool shrinks per tap — after 3–5 taps user hits a wall that feels broken." Resolution: kept with note — show how many options remain so the user knows when they're running low.
@@ -165,6 +166,7 @@ Existing recipe apps (Tasty, SuperCook, MyFridgeFood) get two things wrong at on
 
 ## Non-Functional Requirements
 
+- MVP user-facing UI copy is **Polish** (inline strings; no i18n layer in v1).
 - Continuous visible feedback during any operation that takes longer than 1 second.
 - Pantry data, constraint preferences, favorites, and generation history are private to the user's account — no cross-user visibility, no sharing.
 - The product remains usable on the latest two major versions of Chrome, Firefox, Safari, and Edge, on both desktop and mobile viewports (responsive).
@@ -195,5 +197,5 @@ Email + password login. Flat user model — every user is equal, no admin/member
 ## Open Questions
 
 1. **What is the specific value of N for generation history limit?** FR-013 caps history to "last N entries" but the exact number is not decided. Owner: user. Block: no (can be set during implementation, but affects UX expectations).
-2. **What are the exact time budget presets?** FR-007 references "e.g. 15/30/45 min" as examples alongside "Any time" (default). The preset structure is locked (presets + "Any time", no custom input), but exact minute values are not. Owner: user. Block: no (can be finalized during implementation).
+2. ~~**What are the exact time budget presets?**~~ **Resolved (S-03, 2026-06-03):** **15 / 30 / 60** min + **Any time** (default); no custom input.
 3. **What happens when a user removes a favorited meal's ingredients from pantry?** The favorite persists but its ingredients no longer match the pantry. Is this surfaced to the user, or is the favorite purely a historical bookmark? Owner: user. Block: no.
