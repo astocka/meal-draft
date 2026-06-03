@@ -106,20 +106,20 @@ export default function PantryWidget({ initialItems, loadError = false, onItemsC
       if (res.status === 409) {
         setItems((prev) => prev.filter((i) => i.id !== tempItem.id));
         setNewName(trimmed);
-        setAddError(`'${trimmed}' is already in your pantry`);
+        setAddError(`„${trimmed}" jest już w spiżarni`);
         return;
       }
 
       if (!res.ok) {
         setItems((prev) => prev.filter((i) => i.id !== tempItem.id));
-        setAddError("Failed to add item — please try again");
+        setAddError("Nie udało się dodać składnika — spróbuj ponownie");
         return;
       }
 
       const item = parsePantryItemResponse(await res.json());
       if (!item) {
         setItems((prev) => prev.filter((i) => i.id !== tempItem.id));
-        setAddError("Failed to add item — please try again");
+        setAddError("Nie udało się dodać składnika — spróbuj ponownie");
         return;
       }
       setItems((prev) =>
@@ -130,7 +130,7 @@ export default function PantryWidget({ initialItems, loadError = false, onItemsC
       );
     } catch {
       setItems((prev) => prev.filter((i) => i.id !== tempItem.id));
-      setAddError("Failed to add item — please try again");
+      setAddError("Nie udało się dodać składnika — spróbuj ponownie");
     }
   }
 
@@ -150,7 +150,7 @@ export default function PantryWidget({ initialItems, loadError = false, onItemsC
           next.splice(removedIndex, 0, removedItem);
           return next;
         });
-        setDeleteError("Failed to delete item — please try again");
+        setDeleteError("Nie udało się usunąć składnika — spróbuj ponownie");
       }
     } catch {
       setItems((prev) => {
@@ -158,7 +158,7 @@ export default function PantryWidget({ initialItems, loadError = false, onItemsC
         next.splice(removedIndex, 0, removedItem);
         return next;
       });
-      setDeleteError("Failed to delete item — please try again");
+      setDeleteError("Nie udało się usunąć składnika — spróbuj ponownie");
     }
   }
 
@@ -194,20 +194,20 @@ export default function PantryWidget({ initialItems, loadError = false, onItemsC
       });
 
       if (res.status === 409) {
-        setEditError(`'${trimmed}' is already in your pantry`);
+        setEditError(`„${trimmed}" jest już w spiżarni`);
         setEditLoading(false);
         return;
       }
 
       if (!res.ok) {
-        setEditError("Failed to rename — please try again");
+        setEditError("Nie udało się zmienić nazwy — spróbuj ponownie");
         setEditLoading(false);
         return;
       }
 
       const item = parsePantryItemResponse(await res.json());
       if (!item) {
-        setEditError("Failed to rename — please try again");
+        setEditError("Nie udało się zmienić nazwy — spróbuj ponownie");
         setEditLoading(false);
         return;
       }
@@ -216,7 +216,7 @@ export default function PantryWidget({ initialItems, loadError = false, onItemsC
       setEditName("");
       setEditLoading(false);
     } catch {
-      setEditError("Failed to rename — please try again");
+      setEditError("Nie udało się zmienić nazwy — spróbuj ponownie");
       setEditLoading(false);
     }
   }
@@ -253,7 +253,7 @@ export default function PantryWidget({ initialItems, loadError = false, onItemsC
                 onKeyDown={(e) => {
                   if (e.key === "Enter") void handleAdd();
                 }}
-                placeholder="Add ingredient…"
+                placeholder="Dodaj składnik…"
                 className={cn(inputBase, addError && "border-red-400/60 focus:ring-red-400")}
               />
               <Button
@@ -261,7 +261,7 @@ export default function PantryWidget({ initialItems, loadError = false, onItemsC
                 size="icon"
                 onClick={() => void handleAdd()}
                 className="shrink-0 bg-purple-600 text-white hover:bg-purple-500"
-                aria-label="Add ingredient"
+                aria-label="Dodaj składnik"
               >
                 <Plus className="size-4" />
               </Button>
