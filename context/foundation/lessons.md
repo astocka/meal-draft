@@ -22,3 +22,10 @@
 - **Problem**: Without explicit approval, the agent runs `git add` or `git commit` on the user's behalf, removing control over when and how changes are committed.
 - **Rule**: Always ask for explicit approval before running `git add` or `git commit`; let the user stage and commit themselves if they prefer.
 - **Applies to**: all
+
+## Skip on commit approval means no approval
+
+- **Context**: Any workflow that asks for commit approval (AskQuestion or conversation) — especially `/10x-implement` phase-end commits, `/commit-changes`, and any agent-run `git add` / `git commit`.
+- **Problem**: During strict-pantry Phase 1, the agent committed after the user **skipped** the approval prompt, treating skip as consent. The user reset the commit and redid it via `/commit-changes`. Skipping is not approval; “manual testing complete” does not imply commit consent.
+- **Rule**: Never run `git add` or `git commit` unless the user **explicitly** approves (e.g. selects Approve or writes “approve”). If the approval prompt is **skipped**, dismissed, or unanswered, **stop and wait** — do not commit. Do not infer consent from other messages or from completing verification steps. After implementation or verification work, do **not** auto-propose or execute commits — the user has a separate commit skill; at most suggest that now is a good moment to run it (e.g. `/commit-changes`).
+- **Applies to**: all

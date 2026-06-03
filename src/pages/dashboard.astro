@@ -1,14 +1,14 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import DashboardTopbar from "@/components/dashboard/DashboardTopbar.astro";
-import MealGeneratorPlaceholder from "@/components/meal/MealGeneratorPlaceholder.astro";
-import PantryWidget from "@/components/pantry/PantryWidget.tsx";
+import DashboardShell from "@/components/dashboard/DashboardShell.tsx";
 import { createClient } from "@/lib/supabase";
 import type { PantryProduct } from "@/types";
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const user = Astro.locals.user;
 let initialItems: PantryProduct[] = [];
+let loadError = false;
 
 if (supabase && user) {
   const { data, error } = await supabase
@@ -17,8 +17,8 @@ if (supabase && user) {
     .eq("user_id", user.id)
     .order("name", { ascending: true });
   if (error) {
-    // TODO: pass loadError prop to PantryWidget to show "We're having trouble loading your pantry, please refresh the page"
-    // eslint-disable-next-line no-console -- server-side prefetch failure logging until loadError UI exists
+    loadError = true;
+    // eslint-disable-next-line no-console -- server-side prefetch failure logging
     console.error("[dashboard] pantry prefetch failed:", error.message);
   }
   initialItems = (data as PantryProduct[] | null) ?? [];
@@ -28,18 +28,8 @@ if (supabase && user) {
 <Layout title="Dashboard — MealDraft">
   <div class="bg-cosmic flex h-full min-h-screen flex-col text-white">
     <DashboardTopbar />
-    <main class="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-2">
-      <div class="flex min-h-0 flex-col border-b border-white/10 md:border-r md:border-b-0">
-        <div class="shrink-0 border-b border-white/10 px-5 py-3">
-          <h2 class="text-sm font-semibold tracking-widest text-white/40 uppercase">My Pantry</h2>
-        </div>
-        <div class="min-h-0 flex-1 overflow-hidden">
-          <PantryWidget client:load initialItems={initialItems} />
-        </div>
-      </div>
-      <div class="hidden min-h-0 flex-col md:flex">
-        <MealGeneratorPlaceholder />
-      </div>
+    <main class="flex min-h-0 flex-1 flex-col">
+      <DashboardShell client:load initialItems={initialItems} loadError={loadError} />
     </main>
   </div>
 </Layout>
