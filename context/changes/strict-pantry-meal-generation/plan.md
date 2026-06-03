@@ -386,12 +386,12 @@ Confirm runtime behavior on Cloudflare workerd and update change tracking.
 
 #### Automated
 
-- [ ] 1.1 Linting passes: `pnpm run lint`
-- [ ] 1.2 Production build passes: `pnpm run build`
+- [x] 1.1 Linting passes: `pnpm run lint`
+- [x] 1.2 Production build passes: `pnpm run build`
 
 #### Manual
 
-- [ ] 1.3 Parser manual check: success, no_match, and 429 bodies narrow correctly
+- [x] 1.3 Parser manual check: success, no_match, and 429 bodies narrow correctly
 
 ### Phase 2: shadcn, Theme, and DashboardShell
 
