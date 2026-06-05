@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { pantryNameSchema } from "@/lib/pantry-name";
+import { PANTRY_NAME_REQUIRED_MESSAGE, pantryNameSchema } from "@/lib/pantry-name";
 import { createClient } from "@/lib/supabase";
 import type { PantryProduct } from "@/types";
 
@@ -54,7 +54,7 @@ export const POST: APIRoute = async (context) => {
 
   const parsed = addSchema.safeParse(body);
   if (!parsed.success) {
-    return Response.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
+    return Response.json({ error: parsed.error.issues[0]?.message ?? PANTRY_NAME_REQUIRED_MESSAGE }, { status: 400 });
   }
 
   const trimmedName = parsed.data.name;
