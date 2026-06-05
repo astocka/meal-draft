@@ -257,16 +257,16 @@ Dedicated `/favorites` page with server-prefetched list, expandable recipe rows,
 
 #### Automated
 
-- [ ] 1.1 Linting passes: `pnpm run lint`
-- [ ] 1.2 Production build passes: `pnpm run build`
+- [x] 1.1 Linting passes: `pnpm run lint`
+- [x] 1.2 Production build passes: `pnpm run build`
 
 #### Manual
 
-- [ ] 1.3 GET /api/favorites returns empty list when authenticated with no favorites
-- [ ] 1.4 POST with valid recipe returns 201; GET includes new item
-- [ ] 1.5 Duplicate POST returns 409 already-favorited
-- [ ] 1.6 DELETE returns 204; item removed from GET
-- [ ] 1.7 Unauthenticated requests return 401
+- [x] 1.3 GET /api/favorites returns empty list when authenticated with no favorites
+- [x] 1.4 POST with valid recipe returns 201; GET includes new item
+- [x] 1.5 Duplicate POST returns 409 already-favorited
+- [x] 1.6 DELETE returns 204; item removed from GET
+- [x] 1.7 Unauthenticated requests return 401
 
 ### Phase 2: Save Action in MealGenerator
 
