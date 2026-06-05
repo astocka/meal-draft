@@ -272,30 +272,30 @@ Dedicated `/favorites` page with server-prefetched list, expandable recipe rows,
 
 #### Automated
 
-- [x] 2.1 Linting passes: `pnpm run lint`
-- [x] 2.2 Production build passes: `pnpm run build`
+- [x] 2.1 Linting passes: `pnpm run lint` — 8de88de
+- [x] 2.2 Production build passes: `pnpm run build` — 8de88de
 
 #### Manual
 
-- [x] 2.3 Save button visible on recipe card after successful generation
-- [x] 2.4 Save shows spinner then success message; favorite persisted
-- [x] 2.5 Duplicate save shows info message (not error styling)
-- [x] 2.6 Save feedback clears on new generation
-- [x] 2.7 Save button hidden when lastRecipe is null
+- [x] 2.3 Save button visible on recipe card after successful generation — 8de88de
+- [x] 2.4 Save shows spinner then success message; favorite persisted — 8de88de
+- [x] 2.5 Duplicate save shows info message (not error styling) — 8de88de
+- [x] 2.6 Save feedback clears on new generation — 8de88de
+- [x] 2.7 Save button hidden when lastRecipe is null — 8de88de
 
 ### Phase 3: Favorites Page and Navigation
 
 #### Automated
 
-- [ ] 3.1 Linting passes: `pnpm run lint`
-- [ ] 3.2 Production build passes: `pnpm run build`
+- [x] 3.1 Linting passes: `pnpm run lint` — 20b0485
+- [x] 3.2 Production build passes: `pnpm run build` — 20b0485
 
 #### Manual
 
-- [ ] 3.3 Ulubione link visible in topbar on dashboard and favorites pages
-- [ ] 3.4 Favorites list shows items saved_at DESC with expandable recipe
-- [ ] 3.5 Delete works optimistically and persists after refresh
-- [ ] 3.6 Empty state displays when no favorites
-- [ ] 3.7 Unauthenticated /favorites redirects to sign-in
-- [ ] 3.8 workerd preview: end-to-end save → browse → delete flow
-- [ ] 3.9 Mobile layout: nav and expanded recipe usable
+- [x] 3.3 Ulubione link visible in topbar on dashboard and favorites pages — 20b0485
+- [x] 3.4 Favorites list shows items saved_at DESC with expandable recipe — 20b0485
+- [x] 3.5 Delete works optimistically and persists after refresh — 20b0485
+- [x] 3.6 Empty state displays when no favorites — 20b0485
+- [x] 3.7 Unauthenticated /favorites redirects to sign-in — 20b0485
+- [x] 3.8 workerd preview: end-to-end save → browse → delete flow — 20b0485
+- [x] 3.9 Mobile layout: nav and expanded recipe usable — 20b0485

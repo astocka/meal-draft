@@ -1,7 +1,7 @@
 ---
 change_id: meal-favorites
 title: Save generated meals to favorites and browse from navigation
-status: implementing
+status: implemented
 created: 2026-06-05
 updated: 2026-06-05
 reviewed: 2026-06-05
