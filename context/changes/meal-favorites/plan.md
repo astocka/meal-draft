@@ -119,6 +119,10 @@ Add **Dodaj do ulubionych** to the recipe card shown after successful generation
 
 **Contract**: Render save `Button` inside or below the recipe `Card` when `lastRecipe` is set (after line 251). Local state: `saveStatus: 'idle' | 'saving' | 'saved' | 'duplicate' | 'error'` (or equivalent). On click: `POST /api/favorites` with `{ recipe: lastRecipe }`. During request: button shows `Loader2` spinner, disabled. On 201: brief inline success text (e.g. "Dodano do ulubionych"); button returns to enabled **Dodaj do ulubionych**. On 409: info-styled inline text (e.g. "Ten posiłek jest już w ulubionych") — not `role="alert"` error styling. On other failures: error-styled inline message. Clear save feedback when `handleGenerate` starts (alongside existing state resets at lines 66–70).
 
+**Addendum (a11719f):** Save control is a ghost star icon button (`size="icon"`, `aria-label="Dodaj do ulubionych"`) in the recipe card header row. Filled amber star indicates saved/duplicate state (`isFavorited`). Success and duplicate feedback auto-dismiss after 3s. Visible Polish text label replaced by icon + inline status messages.
+
+**Addendum (post-review, 2026-06-05):** Star toggles save and unsave (DELETE when filled). On recipe display, client checks favorites by normalized dish name and pre-fills the star when a matching title already exists (same rule as DB unique index).
+
 #### 2. Polish copy constants
 
 **File**: `src/components/meal/MealGenerator.tsx` (or colocated constants)

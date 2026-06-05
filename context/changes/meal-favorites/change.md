@@ -15,7 +15,7 @@ S-05 from @context/foundation/roadmap.md.
 
 ### Outcome
 
-User can save a generated meal to favorites and browse their favorites list from main navigation; duplicate saves are handled gracefully.
+User can save a generated meal to favorites and browse their favorites list from main navigation; duplicate saves are handled gracefully. Star toggles save/unsave; existing favorites are detected by dish name when a recipe is generated.
 
 ### Prerequisites
 
