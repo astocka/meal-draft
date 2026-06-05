@@ -304,20 +304,20 @@ Meet PRD US-06 acceptance criteria for shrinking-pool indication and distinct ex
 
 #### Automated
 
-- [x] 2.1 Linting passes: `pnpm run lint`
-- [x] 2.2 Production build passes: `pnpm run build`
+- [x] 2.1 Linting passes: `pnpm run lint` — 1c9300e
+- [x] 2.2 Production build passes: `pnpm run build` — 1c9300e
 
 #### Manual
 
-- [x] 2.3 Try another visibility, keep-card loading, 20-cap disable, no double-submit
+- [x] 2.3 Try another visibility, keep-card loading, 20-cap disable, no double-submit — 1c9300e
 
 ### Phase 3: Exhaustion Panel & Pool Indicator
 
 #### Automated
 
-- [ ] 3.1 Linting passes: `pnpm run lint`
-- [ ] 3.2 Production build passes: `pnpm run build`
+- [x] 3.1 Linting passes: `pnpm run lint`
+- [x] 3.2 Production build passes: `pnpm run build`
 
 #### Manual
 
-- [ ] 3.3 Exhaustion vs first-time no_match, rejected count, workerd preview sign-off
+- [x] 3.3 Exhaustion vs first-time no_match, rejected count, workerd preview sign-off
