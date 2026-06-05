@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase";
 
 // Blocklist: routes that require authentication. Add new protected routes here.
 // WARNING: new pages are implicitly public if omitted — keep this list updated.
-const PROTECTED_ROUTES = ["/dashboard"];
+const PROTECTED_ROUTES = ["/dashboard", "/favorites"];
 // Routes that authenticated users should not visit (redirected to /dashboard).
 const AUTHENTICATED_ROUTES = ["/auth/signin", "/auth/signup"];
 

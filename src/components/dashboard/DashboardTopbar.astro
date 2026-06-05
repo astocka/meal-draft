@@ -1,5 +1,11 @@
 ---
 const { user } = Astro.locals;
+const pathname = Astro.url.pathname;
+
+const navLinks = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/favorites", label: "Ulubione" },
+];
 ---
 
 <header class="flex shrink-0 items-center justify-between border-b border-white/10 bg-white/5 px-5 py-3 text-white">
@@ -9,6 +15,25 @@ const { user } = Astro.locals;
     MealDraft
   </span>
   <div class="flex items-center gap-3 text-sm text-white/60">
+    <nav class="flex items-center gap-2" aria-label="Główna nawigacja">
+      {
+        navLinks.map((link) => {
+          const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
+          return (
+            <a
+              href={link.href}
+              class:list={[
+                "rounded-lg px-2 py-1 transition-colors",
+                isActive ? "bg-white/10 text-white" : "text-white/60 hover:text-white",
+              ]}
+              aria-current={isActive ? "page" : undefined}
+            >
+              {link.label}
+            </a>
+          );
+        })
+      }
+    </nav>
     {user && <span class="hidden sm:inline">{user.email}</span>}
     <form method="POST" action="/api/auth/signout">
       <button
