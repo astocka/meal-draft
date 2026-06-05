@@ -79,9 +79,11 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
   const isGenerating = loadingSource === "generate";
   const isTryAnotherLoading = loadingSource === "try_another";
   const exclusionCapReached = shownNames.length >= 20;
-  const canGenerate = !loadError && pantryCount > 0 && loadingSource === null;
+  const generationBlocked = loadError || pantryCount === 0 || loadingSource !== null;
+  const tryAnotherAvailable = !generationBlocked && status === "success" && lastRecipe !== null && !exclusionCapReached;
+  const canTryAnother = tryAnotherAvailable;
+  const canGenerate = !generationBlocked && !(shownNames.length > 0 && tryAnotherAvailable);
   const showTryAnother = lastRecipe !== null && (status === "success" || loadingSource === "try_another");
-  const canTryAnother = canGenerate && status === "success" && lastRecipe !== null && !exclusionCapReached;
 
   async function requestGeneration({
     excludeNames,
