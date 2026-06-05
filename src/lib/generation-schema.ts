@@ -8,10 +8,10 @@ export const generateRequestSchema = z.object({
 
 /** Matches `MealRecipe` returned by POST /api/generate on success. */
 export const mealRecipeSchema = z.object({
-  name: z.string().min(1),
-  prep_time_minutes: z.number().int().positive(),
-  ingredients: z.array(z.string().min(1)).min(1),
-  steps: z.array(z.string().min(1)).min(1),
+  name: z.string().min(1).max(200),
+  prep_time_minutes: z.number().int().positive().max(480),
+  ingredients: z.array(z.string().min(1).max(500)).min(1).max(50),
+  steps: z.array(z.string().min(1).max(500)).min(1).max(30),
 });
 
 export const generateSuccessBodySchema = z.object({

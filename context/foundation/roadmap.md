@@ -3,7 +3,7 @@ project: MealDraft
 version: 1
 status: draft
 created: 2026-05-27
-updated: 2026-06-03
+updated: 2026-06-05
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -37,10 +37,10 @@ Busy working adults waste time and food every day because opening the fridge tri
 | S-02 | pantry-crud | add, view, edit, and remove pantry products with immediate UI updates and session persistence | F-01, S-01 | US-02, FR-003, FR-004, FR-005, FR-006 | done |
 | S-03 | strict-pantry-meal-generation | set time and meal-type constraints, tap Generate, and see exactly one compliant meal suggestion | F-01, F-02, S-02 | US-01, FR-007, FR-008, FR-009 | done |
 | S-04 | try-another-suggestion | tap Try another for a different non-repeating suggestion within the same session, with exhaustion messaging | S-03 | US-06, FR-010 | proposed |
-| S-05 | meal-favorites | save a generated meal to favorites and browse the favorites list from navigation | S-03 | US-03, FR-011, FR-012 | proposed |
+| S-05 | meal-favorites | save a generated meal to favorites and browse the favorites list from navigation | S-03 | US-03, FR-011, FR-012 | done |
 | S-06 | generation-history | browse the last N generated meals in reverse chronological order | S-03 | US-04, FR-013 | proposed |
 
-**Unlocked now** (prerequisites met): **S-04**, **S-05**, **S-06**. **Current focus:** S-04 (Try another) or parallel thin favorites/history once planned. **North star (S-03) shipped** 2026-06-03.
+**Unlocked now** (prerequisites met): **S-04**, **S-06**. **Current focus:** S-04 (Try another) or S-06 (generation history). **S-05 shipped** 2026-06-05.
 
 ## Streams
 
@@ -49,7 +49,7 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 | Stream | Theme | Chain | Note |
 |---|---|---|---|
 | A | Schema & pantry | `F-01` → `S-02` | **S-02 done**; joins Stream C at `S-02` (needs `S-01`). |
-| B | Generation loop | `F-02` → `S-03` (done) → `S-04` / `S-05` / `S-06` | North star shipped; speed bias keeps `S-04` before favorites/history. |
+| B | Generation loop | `F-02` → `S-03` (done) → `S-04` / `S-05` (done) / `S-06` | North star shipped; S-05 done; speed bias keeps `S-04` before history. |
 | C | Account access | `S-01` | Auth scaffold present in baseline; slice completes MVP auth UX. Joins Stream A at `S-02`. |
 
 ## Baseline
@@ -58,9 +58,9 @@ What's already in place in the codebase as of `2026-06-03` (auto-researched + sl
 Foundations below assume these are present and do NOT re-scaffold them.
 
 - **Frontend:** present — Astro 6 SSR + React 19 islands, Tailwind 4, file routing (`src/pages/`); shadcn `button`, `tabs`, `card`; `DashboardShell` + `MealGenerator` on `/dashboard` (mobile tabs per @context/foundation/dashboard-layout.md)
-- **Backend / API:** partial — Astro SSR on Cloudflare; auth API routes (`src/pages/api/auth/`); pantry CRUD; `POST /api/generate` with client wire (`generation-schema`, `parse-generate-response`, `generation-copy`) (F-02, S-02, S-03)
+- **Backend / API:** partial — Astro SSR on Cloudflare; auth API routes (`src/pages/api/auth/`); pantry CRUD; favorites CRUD (`/api/favorites`); `POST /api/generate` with client wire (`generation-schema`, `parse-generate-response`, `generation-copy`) (F-02, S-02, S-03, S-05)
 - **Data:** partial — Supabase client wired (`src/lib/supabase.ts`); pantry, favorites, and generation-history tables with per-user RLS (F-01)
-- **Auth:** present (MVP complete, S-01) — register, sign-in, sign-out, email confirmation, protected routes beyond `/dashboard` only
+- **Auth:** present (MVP complete, S-01) — register, sign-in, sign-out, email confirmation, protected routes for `/dashboard` and `/favorites`
 - **Deploy / infra:** present (partial CI) — Cloudflare Workers (`wrangler.jsonc`); GitHub Actions lint + build; no deploy workflow in repo
 - **Observability:** absent — no app-level logging or error tracking; Cloudflare platform observability only
 
@@ -155,7 +155,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - What happens when a user removes a favorited meal's ingredients from pantry? — Owner: user. Block: no.
 - **Risk:** In scope for v1 — sequenced after the core generation loop (not cut). Favorites persist indefinitely; history (S-06) is a capped passive log. Build thin versions of both in parallel once S-03 lands.
-- **Status:** proposed
+- **Status:** done
 
 ### S-06: Generation history
 
@@ -180,14 +180,14 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-02 | pantry-crud | Build pantry add/view/edit/remove UI and API | no | Done — see ## Done |
 | S-03 | strict-pantry-meal-generation | Ship first strict-pantry meal generation (north star) | no | Done — see ## Done |
 | S-04 | try-another-suggestion | Add Try another with session exclusion | yes | **Next up** — run `/10x-new try-another-suggestion` when starting |
-| S-05 | meal-favorites | Add save-to-favorites and favorites list | yes | Unlocked — can plan in parallel with S-04 |
+| S-05 | meal-favorites | Add save-to-favorites and favorites list | no | Done — see ## Done |
 | S-06 | generation-history | Add read-only generation history (last N) | yes | Unlocked — can plan in parallel with S-04 |
 
 ## Open Roadmap Questions
 
 1. **What is the specific value of N for generation history limit?** — Owner: user. Block: S-06 (planning only; implementation can proceed with a default).
 2. **What are the exact time budget presets?** — Resolved in S-03: **15 / 30 / 60** min + **Dowolny czas** (default `null`).
-3. **What happens when a user removes a favorited meal's ingredients from pantry?** — Owner: user. Block: S-05 (planning only).
+3. **What happens when a user removes a favorited meal's ingredients from pantry?** — Owner: user. Block: no (S-05 shipped; favorites are recipe snapshots independent of pantry).
 
 ## Parked
 
@@ -210,3 +210,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-02** pantry-crud — add, view, edit, and remove pantry products with immediate UI updates and session persistence (2026-05-31)
 - **F-02** ai-meal-generation — `POST /api/generate` + `src/lib/generation.ts` strict-pantry generation via OpenRouter (2026-06-02)
 - **S-03** strict-pantry-meal-generation — `MealGenerator` + `DashboardShell` (mobile tabs), Zod wire parser, `loadError`, Polish UX, workerd verification (2026-06-03)
+- **S-05** meal-favorites — save/unsave star on generator, `/favorites` page with expandable list, topbar nav, impl-review fixes (2026-06-05)

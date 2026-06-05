@@ -1,0 +1,40 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import DashboardTopbar from "@/components/dashboard/DashboardTopbar.astro";
+import FavoritesList from "@/components/favorites/FavoritesList.tsx";
+import { createClient } from "@/lib/supabase";
+import type { FavoriteMeal } from "@/types";
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const user = Astro.locals.user;
+let initialItems: FavoriteMeal[] = [];
+let loadError = false;
+
+if (supabase && user) {
+  const { data, error } = await supabase
+    .from("favorite_meals")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("saved_at", { ascending: false });
+  if (error) {
+    loadError = true;
+    // eslint-disable-next-line no-console -- server-side prefetch failure logging
+    console.error("[favorites] prefetch failed:", error.message);
+  }
+  initialItems = (data as FavoriteMeal[] | null) ?? [];
+} else if (user) {
+  loadError = true;
+}
+---
+
+<Layout title="Ulubione — MealDraft">
+  <div class="bg-cosmic flex h-full min-h-screen flex-col text-white">
+    <DashboardTopbar />
+    <main class="flex min-h-0 flex-1 flex-col">
+      <div class="shrink-0 border-b border-white/10 px-5 py-4">
+        <h1 class="text-lg font-semibold text-white">Ulubione</h1>
+      </div>
+      <FavoritesList client:load initialItems={initialItems} loadError={loadError} />
+    </main>
+  </div>
+</Layout>
