@@ -40,9 +40,15 @@ const HINT_ADD = "Dodaj więcej składników";
 const HINT_TIME = "Wydłuż czas przygotowania";
 const HINT_MEAL_TYPE = "Zmień typ posiłku";
 
+const SAVE_BUTTON_LABEL = "Dodaj do ulubionych";
+const SAVE_SUCCESS_MESSAGE = "Dodano do ulubionych";
+const SAVE_DUPLICATE_MESSAGE = "Ten posiłek jest już w ulubionych";
+const SAVE_ERROR_MESSAGE = "Nie udało się dodać do ulubionych — spróbuj ponownie";
+
 type GeneratorStatus = "idle" | "loading" | "success" | "no_match" | "error";
 type LoadingSource = "generate" | "try_another";
 type GeneratorFeedback = "no_match" | "exhausted" | "error" | null;
+type SaveStatus = "idle" | "saving" | "saved" | "duplicate" | "error";
 
 interface MealGeneratorProps {
   loadError: boolean;
@@ -75,6 +81,7 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
   const [feedback, setFeedback] = useState<GeneratorFeedback>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showTimeHintOnNoMatch, setShowTimeHintOnNoMatch] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
 
   const isGenerating = loadingSource === "generate";
   const isTryAnotherLoading = loadingSource === "try_another";
@@ -102,6 +109,7 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
       setStatus("loading");
       setLastRecipe(null);
       setHistoryId(null);
+      setSaveStatus("idle");
     }
 
     let body: unknown;
@@ -182,6 +190,34 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
       resetRecipeOnLoad: false,
       loadingSource: "try_another",
     });
+  }
+
+  async function handleSaveFavorite() {
+    if (!lastRecipe || saveStatus === "saving") return;
+
+    setSaveStatus("saving");
+
+    try {
+      const res = await fetch("/api/favorites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ recipe: lastRecipe }),
+      });
+
+      if (res.status === 201) {
+        setSaveStatus("saved");
+        return;
+      }
+
+      if (res.status === 409) {
+        setSaveStatus("duplicate");
+        return;
+      }
+
+      setSaveStatus("error");
+    } catch {
+      setSaveStatus("error");
+    }
   }
 
   return (
@@ -351,6 +387,50 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
                     <li key={index}>{step}</li>
                   ))}
                 </ol>
+              </div>
+              <div className="space-y-2 border-t border-white/10 pt-3">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={saveStatus === "saving"}
+                  onClick={() => void handleSaveFavorite()}
+                  className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                >
+                  {saveStatus === "saving" ? (
+                    <>
+                      <Loader2 className="size-3.5 animate-spin" />
+                      Zapisywanie…
+                    </>
+                  ) : (
+                    SAVE_BUTTON_LABEL
+                  )}
+                </Button>
+                {saveStatus === "saved" && (
+                  <p
+                    className="rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1.5 text-xs text-emerald-100"
+                    role="status"
+                  >
+                    {SAVE_SUCCESS_MESSAGE}
+                  </p>
+                )}
+                {saveStatus === "duplicate" && (
+                  <p
+                    className="rounded-lg border border-purple-400/30 bg-purple-500/10 px-2.5 py-1.5 text-xs text-purple-100"
+                    role="status"
+                  >
+                    {SAVE_DUPLICATE_MESSAGE}
+                  </p>
+                )}
+                {saveStatus === "error" && (
+                  <p
+                    className="flex items-start gap-2 rounded-lg border border-red-400/30 bg-red-500/10 px-2.5 py-1.5 text-xs text-red-100"
+                    role="alert"
+                  >
+                    <CircleAlert className="mt-0.5 size-3.5 shrink-0 text-red-300" />
+                    {SAVE_ERROR_MESSAGE}
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>

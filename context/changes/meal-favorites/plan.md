@@ -257,31 +257,31 @@ Dedicated `/favorites` page with server-prefetched list, expandable recipe rows,
 
 #### Automated
 
-- [x] 1.1 Linting passes: `pnpm run lint`
-- [x] 1.2 Production build passes: `pnpm run build`
+- [x] 1.1 Linting passes: `pnpm run lint` — 9b07f36
+- [x] 1.2 Production build passes: `pnpm run build` — 9b07f36
 
 #### Manual
 
-- [x] 1.3 GET /api/favorites returns empty list when authenticated with no favorites
-- [x] 1.4 POST with valid recipe returns 201; GET includes new item
-- [x] 1.5 Duplicate POST returns 409 already-favorited
-- [x] 1.6 DELETE returns 204; item removed from GET
-- [x] 1.7 Unauthenticated requests return 401
+- [x] 1.3 GET /api/favorites returns empty list when authenticated with no favorites — 9b07f36
+- [x] 1.4 POST with valid recipe returns 201; GET includes new item — 9b07f36
+- [x] 1.5 Duplicate POST returns 409 already-favorited — 9b07f36
+- [x] 1.6 DELETE returns 204; item removed from GET — 9b07f36
+- [x] 1.7 Unauthenticated requests return 401 — 9b07f36
 
 ### Phase 2: Save Action in MealGenerator
 
 #### Automated
 
-- [ ] 2.1 Linting passes: `pnpm run lint`
-- [ ] 2.2 Production build passes: `pnpm run build`
+- [x] 2.1 Linting passes: `pnpm run lint`
+- [x] 2.2 Production build passes: `pnpm run build`
 
 #### Manual
 
-- [ ] 2.3 Save button visible on recipe card after successful generation
-- [ ] 2.4 Save shows spinner then success message; favorite persisted
-- [ ] 2.5 Duplicate save shows info message (not error styling)
-- [ ] 2.6 Save feedback clears on new generation
-- [ ] 2.7 Save button hidden when lastRecipe is null
+- [x] 2.3 Save button visible on recipe card after successful generation
+- [x] 2.4 Save shows spinner then success message; favorite persisted
+- [x] 2.5 Duplicate save shows info message (not error styling)
+- [x] 2.6 Save feedback clears on new generation
+- [x] 2.7 Save button hidden when lastRecipe is null
 
 ### Phase 3: Favorites Page and Navigation
 
