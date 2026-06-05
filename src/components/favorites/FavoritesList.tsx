@@ -19,6 +19,11 @@ function sortBySavedAtDesc(items: FavoriteMeal[]): FavoriteMeal[] {
   return [...items].sort((a, b) => b.saved_at.localeCompare(a.saved_at));
 }
 
+function restoreDeletedItem(items: FavoriteMeal[], removedItem: FavoriteMeal): FavoriteMeal[] {
+  if (items.some((item) => item.id === removedItem.id)) return items;
+  return sortBySavedAtDesc([...items, removedItem]);
+}
+
 function formatSavedDate(savedAt: string): string {
   return new Date(savedAt).toLocaleDateString("pl-PL", {
     day: "numeric",
@@ -31,6 +36,7 @@ export default function FavoritesList({ initialItems, loadError = false }: Favor
   const [items, setItems] = useState<FavoriteMeal[]>(() => sortBySavedAtDesc(initialItems));
   const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set());
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(() => new Set());
 
   function toggleExpanded(id: string) {
     setExpandedIds((prev) => {
@@ -45,10 +51,12 @@ export default function FavoritesList({ initialItems, loadError = false }: Favor
   }
 
   async function handleDelete(id: string) {
+    if (deletingIds.has(id)) return;
+
     const removedItem = items.find((item) => item.id === id);
     if (!removedItem) return;
-    const removedIndex = items.indexOf(removedItem);
 
+    setDeletingIds((prev) => new Set(prev).add(id));
     setItems((prev) => prev.filter((item) => item.id !== id));
     setExpandedIds((prev) => {
       const next = new Set(prev);
@@ -60,20 +68,18 @@ export default function FavoritesList({ initialItems, loadError = false }: Favor
     try {
       const res = await fetch(`/api/favorites/${id}`, { method: "DELETE" });
       if (!res.ok) {
-        setItems((prev) => {
-          const next = [...prev];
-          next.splice(removedIndex, 0, removedItem);
-          return sortBySavedAtDesc(next);
-        });
+        setItems((prev) => restoreDeletedItem(prev, removedItem));
         setDeleteError(DELETE_ERROR_MESSAGE);
       }
     } catch {
-      setItems((prev) => {
-        const next = [...prev];
-        next.splice(removedIndex, 0, removedItem);
-        return sortBySavedAtDesc(next);
-      });
+      setItems((prev) => restoreDeletedItem(prev, removedItem));
       setDeleteError(DELETE_ERROR_MESSAGE);
+    } finally {
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
   }
 
@@ -132,6 +138,7 @@ export default function FavoritesList({ initialItems, loadError = false }: Favor
                           type="button"
                           size="icon"
                           variant="ghost"
+                          disabled={deletingIds.has(item.id)}
                           onClick={() => void handleDelete(item.id)}
                           className="shrink-0 text-white/40 opacity-100 transition-all hover:bg-white/10 hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100"
                           aria-label={`Usuń ${recipe.name}`}

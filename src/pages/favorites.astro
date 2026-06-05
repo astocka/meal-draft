@@ -22,6 +22,8 @@ if (supabase && user) {
     console.error("[favorites] prefetch failed:", error.message);
   }
   initialItems = (data as FavoriteMeal[] | null) ?? [];
+} else if (user) {
+  loadError = true;
 }
 ---
 

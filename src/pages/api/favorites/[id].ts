@@ -1,7 +1,10 @@
 import type { APIRoute } from "astro";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase";
 
 export const prerender = false;
+
+const idSchema = z.uuid();
 
 export const DELETE: APIRoute = async (context) => {
   const user = context.locals.user;
@@ -15,8 +18,12 @@ export const DELETE: APIRoute = async (context) => {
   }
 
   const { id } = context.params;
+  const parsedId = idSchema.safeParse(id);
+  if (!parsedId.success) {
+    return Response.json({ error: "Invalid id" }, { status: 400 });
+  }
 
-  const deleteResult = await supabase.from("favorite_meals").delete().eq("id", id).eq("user_id", user.id);
+  const deleteResult = await supabase.from("favorite_meals").delete().eq("id", parsedId.data).eq("user_id", user.id);
 
   if (deleteResult.error) {
     return Response.json({ error: "Failed to delete favorite" }, { status: 500 });
