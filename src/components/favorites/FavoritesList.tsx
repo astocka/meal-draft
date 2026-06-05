@@ -1,17 +1,24 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ChevronDown, ChevronUp, CircleAlert, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import type { FavoriteMeal } from "@/types";
+import { MEAL_TYPE_OPTIONS } from "@/lib/meal-types";
+import { cn } from "@/lib/utils";
+import type { FavoriteMeal, MealType } from "@/types";
 
 const LOAD_ERROR_MESSAGE = "Nie udało się załadować ulubionych posiłków. Odśwież stronę lub spróbuj ponownie później.";
 
-const EMPTY_FAVORITES_MESSAGE = "Nie masz jeszcze ulubionych posiłków";
-
 const DELETE_ERROR_MESSAGE = "Nie udało się usunąć posiłku — spróbuj ponownie";
+
+const EMPTY_BY_MEAL_TYPE: Record<MealType, string> = {
+  breakfast: "Nie masz ulubionych posiłków na śniadanie",
+  lunch: "Nie masz ulubionych posiłków na obiad",
+  dinner: "Nie masz ulubionych posiłków na kolację",
+};
 
 interface FavoritesListProps {
   initialItems: FavoriteMeal[];
+  mealType: MealType;
   loadError?: boolean;
 }
 
@@ -25,18 +32,23 @@ function restoreDeletedItem(items: FavoriteMeal[], removedItem: FavoriteMeal): F
 }
 
 function formatSavedDate(savedAt: string): string {
-  return new Date(savedAt).toLocaleDateString("pl-PL", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  const date = new Date(savedAt);
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}.${month}.${year}`;
 }
 
-export default function FavoritesList({ initialItems, loadError = false }: FavoritesListProps) {
+export default function FavoritesList({ initialItems, mealType, loadError = false }: FavoritesListProps) {
   const [items, setItems] = useState<FavoriteMeal[]>(() => sortBySavedAtDesc(initialItems));
   const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set());
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deletingIds, setDeletingIds] = useState<Set<string>>(() => new Set());
+
+  const filteredItems = useMemo(() => items.filter((item) => item.meal_type === mealType), [items, mealType]);
+
+  const emptyMessage = EMPTY_BY_MEAL_TYPE[mealType];
+  const mealTypeLabel = MEAL_TYPE_OPTIONS.find((option) => option.value === mealType)?.label ?? mealType;
 
   function toggleExpanded(id: string) {
     setExpandedIds((prev) => {
@@ -84,7 +96,15 @@ export default function FavoritesList({ initialItems, loadError = false }: Favor
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+      <div
+        className={cn(
+          "hidden shrink-0 border-b border-white/10 px-5 py-3 text-sm font-semibold tracking-widest text-white/40 uppercase md:block",
+        )}
+      >
+        <h2>{mealTypeLabel}</h2>
+      </div>
+
       {loadError && (
         <div className="shrink-0 border-b border-white/10 p-4">
           <p
@@ -106,11 +126,11 @@ export default function FavoritesList({ initialItems, loadError = false }: Favor
             </p>
           )}
 
-          {items.length === 0 ? (
-            <p className="py-12 text-center text-sm text-white/40">{EMPTY_FAVORITES_MESSAGE}</p>
+          {filteredItems.length === 0 ? (
+            <p className="py-12 text-center text-sm text-white/40">{emptyMessage}</p>
           ) : (
             <ul className="space-y-3">
-              {items.map((item) => {
+              {filteredItems.map((item) => {
                 const isExpanded = expandedIds.has(item.id);
                 const { recipe } = item;
 
@@ -149,6 +169,7 @@ export default function FavoritesList({ initialItems, loadError = false }: Favor
 
                       {isExpanded && (
                         <CardContent className="space-y-3 border-t border-white/10 px-3 py-3">
+                          <p className="text-sm font-medium text-white md:hidden">{recipe.name}</p>
                           <p className="text-xs text-white/50">Czas przygotowania: {recipe.prep_time_minutes} min</p>
                           <div>
                             <h3 className="mb-1 text-xs font-medium text-white/70">Składniki</h3>

@@ -21,11 +21,7 @@ const LOAD_ERROR_MESSAGE = "Nie udało się załadować Twojej spiżarni. Odświ
 
 const EMPTY_PANTRY_HINT = "Dodaj składniki w zakładce Spiżarnia";
 
-const MEAL_TYPES: { value: MealType; label: string }[] = [
-  { value: "breakfast", label: "Śniadanie" },
-  { value: "lunch", label: "Obiad" },
-  { value: "dinner", label: "Kolacja" },
-];
+import { MEAL_TYPE_OPTIONS } from "@/lib/meal-types";
 
 const TIME_PRESETS: { value: number | null; label: string }[] = [
   { value: 15, label: "15" },
@@ -250,6 +246,7 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
 
     const generationAtSave = saveGenerationRef.current;
     const recipeAtSave = lastRecipe;
+    const mealTypeAtSave = mealType;
 
     setSaveStatus("saving");
 
@@ -257,7 +254,7 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
       const res = await fetch("/api/favorites", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ recipe: recipeAtSave }),
+        body: JSON.stringify({ recipe: recipeAtSave, meal_type: mealTypeAtSave }),
       });
 
       if (generationAtSave !== saveGenerationRef.current) {
@@ -365,7 +362,7 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
         <div className="space-y-1">
           <p className="text-[10px] font-medium tracking-wider text-white/40 uppercase">Typ posiłku</p>
           <div className={segmentGroupClass} role="group" aria-label="Typ posiłku">
-            {MEAL_TYPES.map(({ value, label }) => (
+            {MEAL_TYPE_OPTIONS.map(({ value, label }) => (
               <button
                 key={value}
                 type="button"
@@ -406,10 +403,25 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
           </div>
         </div>
 
-        <div className="flex flex-col items-end gap-1.5">
+        <div className="flex flex-col items-start gap-1.5">
           {exclusionCapReached && showTryAnother && <p className="text-xs text-white/50">{EXCLUSION_CAP_MESSAGE}</p>}
-          <div className="flex items-center justify-end gap-2">
-            {!loadError && pantryCount === 0 && <p className="text-xs text-white/40">{EMPTY_PANTRY_HINT}</p>}
+          <div className="flex flex-wrap items-center justify-start gap-2">
+            <Button
+              type="button"
+              size="sm"
+              disabled={!canGenerate}
+              onClick={() => void handleGenerate()}
+              className="bg-purple-600 text-white hover:bg-purple-500"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="size-3.5 animate-spin" />
+                  Tworzę przepis…
+                </>
+              ) : (
+                "Generuj"
+              )}
+            </Button>
             {showTryAnother && (
               <Button
                 type="button"
@@ -429,22 +441,7 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
                 )}
               </Button>
             )}
-            <Button
-              type="button"
-              size="sm"
-              disabled={!canGenerate}
-              onClick={() => void handleGenerate()}
-              className="bg-purple-600 text-white hover:bg-purple-500"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="size-3.5 animate-spin" />
-                  Tworzę przepis…
-                </>
-              ) : (
-                "Generuj"
-              )}
-            </Button>
+            {!loadError && pantryCount === 0 && <p className="text-xs text-white/40">{EMPTY_PANTRY_HINT}</p>}
           </div>
         </div>
       </div>

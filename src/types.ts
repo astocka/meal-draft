@@ -19,6 +19,7 @@ export interface FavoriteMeal {
   id: string;
   user_id: string;
   recipe: MealRecipe;
+  meal_type: MealType;
   saved_at: string;
 }
 
