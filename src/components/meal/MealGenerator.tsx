@@ -110,7 +110,7 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
   const generationBlocked = loadError || pantryCount === 0 || loadingSource !== null;
   const tryAnotherAvailable = !generationBlocked && status === "success" && lastRecipe !== null && !exclusionCapReached;
   const canTryAnother = tryAnotherAvailable;
-  const canGenerate = !generationBlocked && !(shownNames.length > 0 && tryAnotherAvailable);
+  const canGenerate = !generationBlocked && !tryAnotherAvailable;
   const showTryAnother = lastRecipe !== null && (status === "success" || loadingSource === "try_another");
 
   useEffect(() => {
