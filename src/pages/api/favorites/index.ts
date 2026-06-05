@@ -8,6 +8,7 @@ export const prerender = false;
 
 const addFavoriteSchema = z.object({
   recipe: mealRecipeSchema,
+  meal_type: z.enum(["breakfast", "lunch", "dinner"]),
 });
 
 export const GET: APIRoute = async (context) => {
@@ -59,7 +60,7 @@ export const POST: APIRoute = async (context) => {
 
   const insertResult = await supabase
     .from("favorite_meals")
-    .insert({ user_id: user.id, recipe: parsed.data.recipe })
+    .insert({ user_id: user.id, recipe: parsed.data.recipe, meal_type: parsed.data.meal_type })
     .select()
     .single();
 
