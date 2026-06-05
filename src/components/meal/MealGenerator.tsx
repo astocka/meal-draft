@@ -234,7 +234,7 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
   }
 
   async function handleTryAnother() {
-    if (!canTryAnother || !lastRecipe) return;
+    if (!canTryAnother) return;
 
     const excludeNames = [...shownNames, lastRecipe.name];
     setShownNames(excludeNames);
