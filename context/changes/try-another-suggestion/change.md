@@ -1,7 +1,7 @@
 ---
 change_id: try-another-suggestion
 title: Add Try another with session exclusion
-status: plan_reviewed
+status: implementing
 created: 2026-06-05
 updated: 2026-06-05
 archived_at: null

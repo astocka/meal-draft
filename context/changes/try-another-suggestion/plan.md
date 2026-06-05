@@ -293,12 +293,12 @@ Meet PRD US-06 acceptance criteria for shrinking-pool indication and distinct ex
 
 #### Automated
 
-- [ ] 1.1 Linting passes: `pnpm run lint`
-- [ ] 1.2 Production build passes: `pnpm run build`
+- [x] 1.1 Linting passes: `pnpm run lint`
+- [x] 1.2 Production build passes: `pnpm run build`
 
 #### Manual
 
-- [ ] 1.3 Generuj sends `exclude_names: []`; Try another sends accumulated names; Generuj resets session; constraint change does not reset
+- [x] 1.3 Generuj sends `exclude_names: []`; Try another sends accumulated names; Generuj resets session; constraint change does not reset
 
 ### Phase 2: Try Another UI
 

@@ -2,6 +2,14 @@ import { useState } from "react";
 import { CircleAlert, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  EXHAUSTION_BODY,
+  EXHAUSTION_HINT_MEAL_TYPE,
+  EXHAUSTION_HINT_TIME,
+  EXHAUSTION_HINTS_HEADING,
+  EXHAUSTION_TITLE,
+  rejectedCountLabel,
+} from "@/lib/generation-copy";
 import { parseGenerateResponse } from "@/lib/parse-generate-response";
 import { cn } from "@/lib/utils";
 import type { MealRecipe, MealType } from "@/types";
@@ -30,10 +38,18 @@ const HINT_TIME = "Wydłuż czas przygotowania";
 const HINT_MEAL_TYPE = "Zmień typ posiłku";
 
 type GeneratorStatus = "idle" | "loading" | "success" | "no_match" | "error";
+type LoadingSource = "generate" | "try_another";
+type GeneratorFeedback = "no_match" | "exhausted" | "error" | null;
 
 interface MealGeneratorProps {
   loadError: boolean;
   pantryCount: number;
+}
+
+interface RequestGenerationOptions {
+  excludeNames: string[];
+  resetRecipeOnLoad: boolean;
+  loadingSource: LoadingSource;
 }
 
 const segmentGroupClass = cn("inline-flex w-full rounded-md border border-white/10 bg-white/5 p-0.5");
@@ -51,23 +67,33 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
   const [status, setStatus] = useState<GeneratorStatus>("idle");
   const [lastRecipe, setLastRecipe] = useState<MealRecipe | null>(null);
   const [historyId, setHistoryId] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<"no_match" | "error" | null>(null);
+  const [shownNames, setShownNames] = useState<string[]>([]);
+  const [loadingSource, setLoadingSource] = useState<LoadingSource | null>(null);
+  const [feedback, setFeedback] = useState<GeneratorFeedback>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showTimeHintOnNoMatch, setShowTimeHintOnNoMatch] = useState(false);
 
-  const isLoading = status === "loading";
-  const canGenerate = !loadError && pantryCount > 0 && !isLoading;
+  const isGenerating = loadingSource === "generate";
+  const canGenerate = !loadError && pantryCount > 0 && loadingSource === null;
 
-  async function handleGenerate() {
-    if (!canGenerate) return;
-
+  async function requestGeneration({
+    excludeNames,
+    resetRecipeOnLoad,
+    loadingSource: source,
+  }: RequestGenerationOptions) {
     const prepAtSubmit = maxPrepMinutes;
-    setStatus("loading");
+    const hadExclusions = excludeNames.length > 0;
+
+    setLoadingSource(source);
     setFeedback(null);
     setErrorMessage(null);
     setShowTimeHintOnNoMatch(false);
-    setLastRecipe(null);
-    setHistoryId(null);
+
+    if (resetRecipeOnLoad) {
+      setStatus("loading");
+      setLastRecipe(null);
+      setHistoryId(null);
+    }
 
     let body: unknown;
     let httpStatus: number;
@@ -79,13 +105,14 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
         body: JSON.stringify({
           meal_type: mealType,
           max_prep_time_minutes: prepAtSubmit,
-          exclude_names: [],
+          exclude_names: excludeNames,
         }),
       });
       httpStatus = res.status;
       body = await res.json();
     } catch {
       const parsed = parseGenerateResponse(null, 0);
+      setLoadingSource(null);
       setStatus("error");
       setFeedback("error");
       if (parsed.kind === "error") {
@@ -95,6 +122,7 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
     }
 
     const parsed = parseGenerateResponse(body, httpStatus);
+    setLoadingSource(null);
 
     if (parsed.kind === "success") {
       setLastRecipe(parsed.recipe);
@@ -108,14 +136,43 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
       setLastRecipe(null);
       setHistoryId(null);
       setShowTimeHintOnNoMatch(prepAtSubmit !== null);
-      setStatus("no_match");
-      setFeedback("no_match");
+
+      if (hadExclusions) {
+        setStatus("no_match");
+        setFeedback("exhausted");
+      } else {
+        setStatus("no_match");
+        setFeedback("no_match");
+      }
       return;
     }
 
     setErrorMessage(parsed.message);
     setStatus("error");
     setFeedback("error");
+  }
+
+  async function handleGenerate() {
+    if (!canGenerate) return;
+
+    setShownNames([]);
+    await requestGeneration({
+      excludeNames: [],
+      resetRecipeOnLoad: true,
+      loadingSource: "generate",
+    });
+  }
+
+  async function _handleTryAnother() {
+    if (!canGenerate || lastRecipe === null || status !== "success") return;
+
+    const excludeNames = [...shownNames, lastRecipe.name];
+    setShownNames(excludeNames);
+    await requestGeneration({
+      excludeNames,
+      resetRecipeOnLoad: false,
+      loadingSource: "try_another",
+    });
   }
 
   return (
@@ -141,7 +198,7 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
                 key={value}
                 type="button"
                 data-active={mealType === value}
-                disabled={isLoading}
+                disabled={loadingSource !== null}
                 onClick={() => {
                   setMealType(value);
                 }}
@@ -163,7 +220,7 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
                 key={label}
                 type="button"
                 data-active={maxPrepMinutes === value}
-                disabled={isLoading}
+                disabled={loadingSource !== null}
                 title={value === null ? "Dowolny czas" : `${label} min`}
                 aria-label={value === null ? "Dowolny czas" : `${label} minut`}
                 onClick={() => {
@@ -186,7 +243,7 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
             onClick={() => void handleGenerate()}
             className="bg-purple-600 text-white hover:bg-purple-500"
           >
-            {isLoading ? (
+            {isGenerating ? (
               <>
                 <Loader2 className="size-3.5 animate-spin" />
                 Tworzę przepis…
@@ -199,6 +256,21 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
       </div>
 
       <div className="min-h-0 flex-1 space-y-3 p-3">
+        {feedback === "exhausted" && (
+          <div
+            className="rounded-lg border border-purple-400/30 bg-purple-500/10 px-3 py-2.5 text-purple-100"
+            role="status"
+          >
+            <p className="text-sm font-semibold text-white">{EXHAUSTION_TITLE}</p>
+            <p className="mt-1 text-xs text-white/80">{EXHAUSTION_BODY}</p>
+            <p className="mt-2 text-xs font-medium text-white/80">{EXHAUSTION_HINTS_HEADING}</p>
+            <ul className="mt-1 list-inside list-disc space-y-0.5 text-xs text-white/70">
+              {showTimeHintOnNoMatch && <li>{EXHAUSTION_HINT_TIME}</li>}
+              <li>{EXHAUSTION_HINT_MEAL_TYPE}</li>
+            </ul>
+          </div>
+        )}
+
         {feedback === "no_match" && (
           <div
             className="rounded-lg border border-purple-400/30 bg-purple-500/10 px-3 py-2.5 text-purple-100"
@@ -223,6 +295,8 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
             {errorMessage}
           </p>
         )}
+
+        {shownNames.length > 0 && <p className="text-xs text-white/50">{rejectedCountLabel(shownNames.length)}</p>}
 
         {lastRecipe && (
           <Card className="gap-3 border-white/10 bg-white/5 py-3 shadow-none">
