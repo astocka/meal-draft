@@ -3,12 +3,15 @@ import { CircleAlert, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  EXCLUSION_CAP_MESSAGE,
   EXHAUSTION_BODY,
   EXHAUSTION_HINT_MEAL_TYPE,
   EXHAUSTION_HINT_TIME,
   EXHAUSTION_HINTS_HEADING,
   EXHAUSTION_TITLE,
   rejectedCountLabel,
+  TRY_ANOTHER_LABEL,
+  TRY_ANOTHER_LOADING,
 } from "@/lib/generation-copy";
 import { parseGenerateResponse } from "@/lib/parse-generate-response";
 import { cn } from "@/lib/utils";
@@ -74,7 +77,11 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
   const [showTimeHintOnNoMatch, setShowTimeHintOnNoMatch] = useState(false);
 
   const isGenerating = loadingSource === "generate";
+  const isTryAnotherLoading = loadingSource === "try_another";
+  const exclusionCapReached = shownNames.length >= 20;
   const canGenerate = !loadError && pantryCount > 0 && loadingSource === null;
+  const showTryAnother = lastRecipe !== null && (status === "success" || loadingSource === "try_another");
+  const canTryAnother = canGenerate && status === "success" && lastRecipe !== null && !exclusionCapReached;
 
   async function requestGeneration({
     excludeNames,
@@ -163,8 +170,8 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
     });
   }
 
-  async function _handleTryAnother() {
-    if (!canGenerate || lastRecipe === null || status !== "success") return;
+  async function handleTryAnother() {
+    if (!canTryAnother) return;
 
     const excludeNames = [...shownNames, lastRecipe.name];
     setShownNames(excludeNames);
@@ -234,24 +241,46 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2">
-          {!loadError && pantryCount === 0 && <p className="text-xs text-white/40">{EMPTY_PANTRY_HINT}</p>}
-          <Button
-            type="button"
-            size="sm"
-            disabled={!canGenerate}
-            onClick={() => void handleGenerate()}
-            className="bg-purple-600 text-white hover:bg-purple-500"
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="size-3.5 animate-spin" />
-                Tworzę przepis…
-              </>
-            ) : (
-              "Generuj"
+        <div className="flex flex-col items-end gap-1.5">
+          {exclusionCapReached && showTryAnother && <p className="text-xs text-white/50">{EXCLUSION_CAP_MESSAGE}</p>}
+          <div className="flex items-center justify-end gap-2">
+            {!loadError && pantryCount === 0 && <p className="text-xs text-white/40">{EMPTY_PANTRY_HINT}</p>}
+            {showTryAnother && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={!canTryAnother}
+                onClick={() => void handleTryAnother()}
+                className="border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white"
+              >
+                {isTryAnotherLoading ? (
+                  <>
+                    <Loader2 className="size-3.5 animate-spin" />
+                    {TRY_ANOTHER_LOADING}
+                  </>
+                ) : (
+                  TRY_ANOTHER_LABEL
+                )}
+              </Button>
             )}
-          </Button>
+            <Button
+              type="button"
+              size="sm"
+              disabled={!canGenerate}
+              onClick={() => void handleGenerate()}
+              className="bg-purple-600 text-white hover:bg-purple-500"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="size-3.5 animate-spin" />
+                  Tworzę przepis…
+                </>
+              ) : (
+                "Generuj"
+              )}
+            </Button>
+          </div>
         </div>
       </div>
 

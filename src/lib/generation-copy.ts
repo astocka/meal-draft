@@ -14,9 +14,9 @@ export const GENERATION_NETWORK_MESSAGE = "Błąd połączenia. Sprawdź sieć i
 
 export const GENERATION_UNKNOWN_MESSAGE = "Wystąpił nieoczekiwany błąd. Spróbuj ponownie.";
 
-export const TRY_ANOTHER_LABEL = "Inny przepis";
+export const TRY_ANOTHER_LABEL = "Spróbuj inny";
 
-export const TRY_ANOTHER_LOADING = "Szukam innego przepisu…";
+export const TRY_ANOTHER_LOADING = "Szukam innego…";
 
 export const rejectedCountLabel = (count: number) => `Odrzucono: ${count}`;
 

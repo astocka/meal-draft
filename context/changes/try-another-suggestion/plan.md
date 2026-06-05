@@ -293,23 +293,23 @@ Meet PRD US-06 acceptance criteria for shrinking-pool indication and distinct ex
 
 #### Automated
 
-- [x] 1.1 Linting passes: `pnpm run lint`
-- [x] 1.2 Production build passes: `pnpm run build`
+- [x] 1.1 Linting passes: `pnpm run lint` — 7525940
+- [x] 1.2 Production build passes: `pnpm run build` — 7525940
 
 #### Manual
 
-- [x] 1.3 Generuj sends `exclude_names: []`; Try another sends accumulated names; Generuj resets session; constraint change does not reset
+- [x] 1.3 Generuj sends `exclude_names: []`; Try another sends accumulated names; Generuj resets session; constraint change does not reset — 7525940
 
 ### Phase 2: Try Another UI
 
 #### Automated
 
-- [ ] 2.1 Linting passes: `pnpm run lint`
-- [ ] 2.2 Production build passes: `pnpm run build`
+- [x] 2.1 Linting passes: `pnpm run lint`
+- [x] 2.2 Production build passes: `pnpm run build`
 
 #### Manual
 
-- [ ] 2.3 Try another visibility, keep-card loading, 20-cap disable, no double-submit
+- [x] 2.3 Try another visibility, keep-card loading, 20-cap disable, no double-submit
 
 ### Phase 3: Exhaustion Panel & Pool Indicator
 
