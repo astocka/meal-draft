@@ -327,12 +327,12 @@ None — no schema changes.
 
 #### Automated
 
-- [ ] 1.1 `pnpm install` succeeds with vitest added
-- [ ] 1.2 `pnpm test` runs (vitest executes)
+- [x] 1.1 `pnpm install` succeeds with vitest added
+- [x] 1.2 `pnpm test` runs (vitest executes)
 
 #### Manual
 
-- [ ] 1.3 `.env.test.example` documents required variables
+- [x] 1.3 `.env.test.example` documents required variables
 
 ### Phase 2: Env Guard + Test Helpers
 
