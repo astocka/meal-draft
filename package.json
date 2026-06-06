@@ -14,7 +14,9 @@
     "test": "vitest run",
     "preview:wrangler": "astro build && wrangler dev",
     "deploy": "astro build && wrangler deploy",
-    "cf:types": "wrangler types src/worker-configuration.d.ts --include-runtime false"
+    "cf:types": "wrangler types src/worker-configuration.d.ts --include-runtime false",
+    "typecheck": "astro check",
+    "prepare": "husky"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",
@@ -70,7 +72,11 @@
     "vite": "^7.3.2"
   },
   "lint-staged": {
-    "*.{ts,tsx,astro}": [
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "vitest related --run --passWithNoTests"
+    ],
+    "*.astro": [
       "eslint --fix"
     ],
     "*.{json,css,md}": [
