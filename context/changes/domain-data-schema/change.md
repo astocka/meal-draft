@@ -1,9 +1,9 @@
 ---
 change_id: domain-data-schema
 title: Add pantry, favorites, and history schema with RLS
-status: impl_reviewed
+status: implemented
 created: 2026-05-28
-updated: 2026-05-29
+updated: 2026-06-06
 archived_at: null
 ---
 

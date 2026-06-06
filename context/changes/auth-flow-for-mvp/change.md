@@ -1,9 +1,9 @@
 ---
 change_id: auth-flow-for-mvp
 title: Complete MVP auth flow and route protection
-status: impl_reviewed
+status: implemented
 created: 2026-05-30
-updated: 2026-05-30
+updated: 2026-06-06
 archived_at: null
 ---
 

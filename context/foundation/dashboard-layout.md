@@ -1,6 +1,6 @@
 # Dashboard layout (desktop + mobile)
 
-> UX decisions for `/dashboard`: two-column app shell (pantry + meal generator). S-02 established the shell; S-03 shipped the live generator and mobile tabs.
+> UX decisions for `/dashboard`: two-column app shell (pantry + meal generator). **S-02** (done) established the shell; **S-03** (done) shipped the live generator and mobile tabs.
 
 ## Desktop (≥ 768px)
 
@@ -35,11 +35,13 @@
 
 | Slice | What ships |
 |-------|------------|
-| S-02 (`pantry-crud`) | Two-column shell, placeholder right, pantry CRUD, mobile hide placeholder + touch delete |
+| S-02 (`pantry-crud`) | Two-column shell, placeholder right, pantry CRUD, mobile hide placeholder + touch delete — **done** |
 | S-03 (`strict-pantry-meal-generation`) | `MealGenerator`, `DashboardShell` mobile tabs, `loadError`, Polish copy — **done** |
-| S-04+ | Same shell; **Try another** in generator column; tabs still apply on mobile unless a later change revises this doc |
+| S-04 (`try-another-suggestion`) | **Inny przepis** beside Generuj, session `exclude_names`, exhaustion panel, rejected-count indicator — **done** |
+| S-05 (`meal-favorites`) | Save/unsave star on recipe card, `/favorites` page with expandable list, **Ulubione** in topbar — **done** |
+| S-06+ | Same shell; tabs still apply on mobile unless a later change revises this doc |
 
 ## References
 
-- Roadmap: `context/foundation/roadmap.md` — S-02, S-03 (done)
-- Implementation: `src/pages/dashboard.astro`, `src/components/dashboard/DashboardShell.tsx`, `src/components/meal/MealGenerator.tsx`, `src/components/pantry/PantryWidget.tsx`
+- Roadmap: `context/foundation/roadmap.md` — S-02, S-03, S-04, S-05 (done)
+- Implementation: `src/pages/dashboard.astro`, `src/pages/favorites.astro`, `src/components/dashboard/DashboardShell.tsx`, `src/components/dashboard/DashboardTopbar.astro`, `src/components/meal/MealGenerator.tsx`, `src/components/favorites/FavoritesShell.tsx`, `src/components/pantry/PantryWidget.tsx`
