@@ -338,13 +338,13 @@ None — no schema changes.
 
 #### Automated
 
-- [ ] 2.1 Guard unit tests pass (`pnpm test` for assert module)
-- [ ] 2.2 `pnpm run lint` passes
-- [ ] 2.3 `pnpm run build` passes
+- [x] 2.1 Guard unit tests pass (`pnpm test` for assert module)
+- [x] 2.2 `pnpm run lint` passes
+- [x] 2.3 `pnpm run build` passes
 
 #### Manual
 
-- [ ] 2.4 Service-role key in env throws on `createClient()`
+- [x] 2.4 Service-role key in env throws on `createClient()`
 
 ### Phase 3: RLS Cross-User Integration Suite
 
