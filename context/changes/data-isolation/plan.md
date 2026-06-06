@@ -363,9 +363,9 @@ None — no schema changes.
 
 #### Automated
 
-- [ ] 4.1 `pnpm run lint` passes
+- [x] 4.1 `pnpm run lint` passes
 
 #### Manual
 
-- [ ] 4.2 test-plan §6.2 cookbook filled in
-- [ ] 4.3 AGENTS.md lists `pnpm test` + prerequisites
+- [x] 4.2 test-plan §6.2 cookbook filled in
+- [x] 4.3 AGENTS.md lists `pnpm test` + prerequisites

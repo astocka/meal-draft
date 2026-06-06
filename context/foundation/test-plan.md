@@ -67,7 +67,7 @@ orchestrator updates Status as artifacts appear on disk.
 
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|------------|-----------------|---------------|------------|--------|---------------|
-| 1 | Data isolation | Test runner bootstrap + per-user RLS on pantry, favorites, history; cross-user denial | #1, #6 | integration (Supabase) | planned | data-isolation |
+| 1 | Data isolation | Test runner bootstrap + per-user RLS on pantry, favorites, history; cross-user denial | #1, #6 | integration (Supabase) | implemented | data-isolation |
 | 2 | Bootstrap + API contracts | Zod wire/schema tests, protected-route auth gate | #4, partial #6 | unit + integration | not started | — |
 | 3 | Generation server path | Strict-pantry validation, rate limit, mocked OpenRouter edge | #2, #7, partial #5 | integration | not started | — |
 | 4 | Client session + CI gates | Try another race/loading behavior; workerd smoke; tests in CI | #3, #5, cross-cutting | component/integration + CI | not started | — |
@@ -81,7 +81,7 @@ plus the MCP/tools actually exposed in the current session.
 
 | Layer | Tool | Version | Notes |
 |-------|------|---------|-------|
-| unit + integration | Vitest | none yet — see §3 Phase 1 | Bootstrap in Phase 1 (data isolation); pair with `@vitest/coverage-v8` if coverage gate added later |
+| unit + integration | Vitest | ^4.1.8 (see package.json) | Bootstrapped in Phase 1 (data isolation); pair with `@vitest/coverage-v8` if coverage gate added later |
 | API mocking | MSW or vi.mock at HTTP edge | none yet — see §3 Phase 2 | Mock OpenRouter and external HTTP only; never mock internal validation modules |
 | component | @testing-library/react + jsdom | none yet — see §3 Phase 4 | For Try another session/race behavior |
 | e2e | Playwright | none yet | Deferred — integration + workerd smoke cover critical paths cheaper for v1 |
@@ -121,7 +121,38 @@ TBD — see §3 Phase 2 for Zod schema / parse contract pattern (Risk #4).
 
 ### 6.2 Adding an integration test
 
-TBD — see §3 Phase 1 for Supabase RLS cross-user denial pattern (Risk #1).
+Use this pattern for Supabase RLS / cross-user denial tests (Risk #1). Reference implementation: `tests/integration/rls-cross-user.test.ts`.
+
+**Layout and naming**
+
+- Place files under `tests/integration/` with suffix `*.test.ts`.
+- Shared auth/env helpers live in `tests/helpers/` (see `supabase-test-client.ts`).
+
+**Local setup**
+
+1. Copy `.env.test.example` → `.env.test`.
+2. Fill `SUPABASE_URL` and `SUPABASE_KEY` (anon key only — from `supabase status` or hosted Project Settings → API).
+3. Set `TEST_USER_A_*` and `TEST_USER_B_*` credentials (dedicated test accounts; unique emails in your project).
+4. Ensure your local database is running via: `npx supabase start` (before `pnpm test`).
+5. Run: `pnpm test` (loads `.env.test` via Vitest config).
+
+Tests are **local-only** — CI does not run them yet (see §3 Phase 4 for CI gate).
+
+**Two-user Auth API pattern**
+
+- In `beforeAll`, provision User A and User B via `signUpOrSignIn()` from `tests/helpers/supabase-test-client.ts` (signUp with signIn fallback if already registered).
+- Seed rows owned by User B using **User B's authenticated client** before cross-user assertions.
+- Run denial assertions as **User A's client**: SELECT → empty `data`; INSERT with foreign `user_id` → error; UPDATE/DELETE foreign rows → no effect or error; confirm B's rows still exist via B's client.
+
+**Oracle source**
+
+Expected outcomes come from migration RLS policies and grants — not from copying app route handlers. See `supabase/migrations/` for policy definitions.
+
+**Anti-patterns**
+
+- Do **not** use the service-role key in test clients or assertions — anon key + user JWT only (the Env Guard implemented in `createClient()` will actively throw an error if a service-role token is detected to prevent false-positive green tests).
+- Do **not** mock the Supabase client for RLS tests — use real auth sessions against a live project.
+- Do **not** assert happy-path-only own-user CRUD without cross-user denial cases.
 
 ### 6.3 Adding a component test
 
@@ -137,7 +168,7 @@ TBD — see §3 Phase 3 for strict-pantry validation with mocked LLM responses (
 
 ### 6.6 Per-rollout-phase notes
 
-(none yet)
+**Phase 1 (data isolation):** Tier A RLS cross-user suite is local-only (`pnpm test` + `.env.test`); CI unchanged. Server `createClient()` in `src/lib/supabase.ts` rejects a misconfigured service-role `SUPABASE_KEY` via `assertSupabaseAnonKey()` — see `src/lib/assert-supabase-anon-key.ts`. Tier B HTTP route tests deferred to Phase 2.
 
 ## 7. What We Deliberately Don't Test
 
