@@ -350,14 +350,14 @@ None — no schema changes.
 
 #### Automated
 
-- [ ] 3.1 `pnpm test` passes with `.env.test` configured
-- [ ] 3.2 `pnpm run lint` passes
-- [ ] 3.3 `pnpm run build` passes
+- [x] 3.1 `pnpm test` passes with `.env.test` configured
+- [x] 3.2 `pnpm run lint` passes
+- [x] 3.3 `pnpm run build` passes
 
 #### Manual
 
-- [ ] 3.4 Missing or incomplete `.env.test` yields clear message
-- [ ] 3.5 Temporarily broken policy causes test failure
+- [x] 3.4 Missing or incomplete `.env.test` yields clear message
+- [x] 3.5 Temporarily broken policy causes test failure
 
 ### Phase 4: Cookbook, Docs, and Change Metadata
 

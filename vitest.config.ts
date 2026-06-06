@@ -11,7 +11,8 @@ function loadTestEnv(): Record<string, string> {
   if (!existsSync(envPath)) {
     return {};
   }
-  return parse(readFileSync(envPath));
+  const parsed = parse(readFileSync(envPath));
+  return Object.fromEntries(Object.entries(parsed).filter(([, value]) => value.trim() !== ""));
 }
 
 export default defineConfig({
