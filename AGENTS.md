@@ -47,6 +47,7 @@ Full server-side rendering (`output: "server"` in astro.config.mjs). All pages a
 - `pnpm run preview` — preview production build (local workerd/Miniflare)
 - `pnpm run preview:wrangler` — build + run local workerd via wrangler dev
 - `pnpm run deploy` — build + deploy to Cloudflare Workers
+- `pnpm test` — Vitest integration/unit tests (local only; requires `.env.test` — copy from `.env.test.example` with Supabase URL + anon key and test user credentials; see @context/foundation/test-plan.md §6.2). **CRITICAL:** Only use the anon key. An environment guard inside `createClient()` will actively throw an error and abort execution if a `service_role` key is detected to prevent false-positive RLS bypasses.
 - `pnpm run lint` — ESLint with strict type-checked rules
 - `pnpm run lint:fix` — auto-fix lint issues
 - `pnpm run format` — Prettier (includes astro + tailwindcss plugins)
@@ -65,7 +66,7 @@ Pre-commit hook (husky + lint-staged) runs `eslint --fix` on `*.{ts,tsx,astro}` 
 
 - Conventional Commits: `type: description` (lowercase type, no scope required)
 - CI gate (see @.github/workflows/ci.yml): lint + build must pass on every push/PR to `main`
-- No test suite configured yet — CI does not run tests
+- `pnpm test` runs locally only — CI does not run tests yet (see test-plan §3 Phase 4)
 
 ## Cloudflare
 
@@ -78,7 +79,7 @@ Pre-commit hook (husky + lint-staged) runs `eslint --fix` on `*.{ts,tsx,astro}` 
 ## Environment
 
 - Node version pinned in @.nvmrc
-- Secrets: `SUPABASE_URL`, `SUPABASE_KEY` — copy `.env.example` to `.env` for Node, or `.dev.vars` for Cloudflare local dev
+- Secrets: `SUPABASE_URL`, `SUPABASE_KEY` — copy `.env.example` to `.env` for Node, or `.dev.vars` for Cloudflare local dev. **`SUPABASE_KEY` must be the anon key** — `createClient()` throws if the JWT decodes to `role: service_role` (see `src/lib/assert-supabase-anon-key.ts`).
 - Local Supabase: `npx supabase start` (requires Docker)
 - Cloudflare local dev: secrets go in `.dev.vars` (gitignored); include `OPENROUTER_API_KEY` for generation
 - Email confirmation on `pnpm run preview` vs local Supabase: see README § Email confirmation on `pnpm run preview`
