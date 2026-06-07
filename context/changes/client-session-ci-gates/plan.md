@@ -352,27 +352,27 @@ Update test-plan, AGENTS.md, change.md, and CI contributor docs so agents and hu
 
 #### Automated
 
-- [x] 1.1 `pnpm exec playwright test tests/e2e/workerd-smoke.spec.ts` passes locally
-- [x] 1.2 `pnpm exec playwright test tests/e2e/seed.spec.ts` passes (existing test)
-- [x] 1.3 Reversed-order test runs under `test.fail()` — runner reports pass
+- [x] 1.1 `pnpm exec playwright test tests/e2e/workerd-smoke.spec.ts` passes locally — ad370f2
+- [x] 1.2 `pnpm exec playwright test tests/e2e/seed.spec.ts` passes (existing test) — ad370f2
+- [x] 1.3 Reversed-order test runs under `test.fail()` — runner reports pass — ad370f2
 - [ ] 1.4 `pnpm exec playwright test` — full suite green locally
 
 #### Manual
 
-- [x] 1.5 Workerd smoke confirmed on preview; reversed-order failure verified with `test.fail()` removed temporarily; isolation patterns reviewed
+- [x] 1.5 Workerd smoke confirmed on preview; reversed-order failure verified with `test.fail()` removed temporarily; isolation patterns reviewed — ad370f2
 
 ### Phase 2: Vitest CI Jobs
 
 #### Automated
 
-- [ ] 2.1 Tier 1 CI-safe Vitest passes without Supabase secrets on runner
-- [ ] 2.2 Tier 2 integration job passes with all six secrets on same-repo PR
-- [ ] 2.3 `pnpm test` passes locally with `.env.test`
-- [ ] 2.4 `pnpm run lint` passes
+- [x] 2.1 Tier 1 CI-safe Vitest passes without Supabase secrets on runner
+- [x] 2.2 Tier 2 integration job passes with all six secrets on same-repo PR
+- [x] 2.3 `pnpm test` passes locally with `.env.test`
+- [x] 2.4 `pnpm run lint` passes
 
 #### Manual
 
-- [ ] 2.5 Fork PR skips Tier 2; RLS hits CI project not production; missing secret errors are clear
+- [x] 2.5 Fork PR skips Tier 2; RLS hits CI project not production; missing secret errors are clear
 
 ### Phase 3: Playwright CI Job
 

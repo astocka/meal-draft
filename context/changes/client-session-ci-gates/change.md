@@ -3,7 +3,7 @@ change_id: client-session-ci-gates
 title: Client session and CI gates from phased test rollout
 status: implementing
 created: 2026-06-07
-updated: 2026-06-07
+updated: 2026-06-08
 archived_at: null
 ---
 

@@ -65,8 +65,8 @@ Pre-commit hook (husky + lint-staged) runs `eslint --fix` on `*.{ts,tsx,astro}` 
 ## Commit & PR Guidelines
 
 - Conventional Commits: `type: description` (lowercase type, no scope required)
-- CI gate (see @.github/workflows/ci.yml): lint + build must pass on every push/PR to `main`
-- `pnpm test` runs locally only — CI does not run tests yet (see test-plan §3 Phase 4)
+- CI gate (see @.github/workflows/ci.yml): lint + build + Tier 1 CI-safe Vitest on every push/PR to `main` (including fork PRs)
+- Tier 2 integration (`pnpm test`, RLS suite) runs on same-repo PRs and pushes to `main` when GitHub secrets are set: `SUPABASE_URL`, `SUPABASE_KEY`, `TEST_USER_A_EMAIL`, `TEST_USER_A_PASSWORD`, `TEST_USER_B_EMAIL`, `TEST_USER_B_PASSWORD` (see @.env.test.example)
 
 ## Cloudflare
 
@@ -84,4 +84,3 @@ Pre-commit hook (husky + lint-staged) runs `eslint --fix` on `*.{ts,tsx,astro}` 
 - Cloudflare local dev: secrets go in `.dev.vars` (gitignored); include `OPENROUTER_API_KEY` for generation
 - Email confirmation on `pnpm run preview` vs local Supabase: see README § Email confirmation on `pnpm run preview`
 - Deploy: `pnpm run deploy`
-
