@@ -44,13 +44,21 @@ export default defineConfig({
       testMatch: /auth\.setup\.ts/,
     },
     {
+      name: "chromium-unauthenticated",
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: { cookies: [], origins: [] },
+      },
+      testMatch: /workerd-smoke\.spec\.ts/,
+    },
+    {
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
         storageState: AUTH_FILE,
       },
       dependencies: ["setup"],
-      testIgnore: /auth\.setup\.ts/,
+      testIgnore: /auth\.setup\.ts|workerd-smoke\.spec\.ts/,
     },
   ],
   webServer: {
