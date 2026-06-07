@@ -31,6 +31,14 @@ Thumbs.db
 .dev.vars
 .wrangler/
 
+# playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+/.playwright-cli/
+
 # macOS-specific files
 .DS_Store
 
