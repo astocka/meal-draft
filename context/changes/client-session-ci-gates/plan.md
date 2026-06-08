@@ -380,11 +380,11 @@ Update test-plan, AGENTS.md, change.md, and CI contributor docs so agents and hu
 
 - [ ] 3.1 Tier 3 E2E job green on same-repo PR with secrets
 - [x] 3.2 All E2E specs run in CI (auth.setup, workerd-smoke, seed, no-match-info-panel)
-- [ ] 3.3 `pnpm test:e2e` passes locally
+- [x] 3.3 `pnpm test:e2e` passes locally
 
 #### Manual
 
-- [ ] 3.4 E2E uses workerd preview; auth.setup ordering verified; CI duration acceptable
+- [x] 3.4 E2E uses workerd preview; auth.setup ordering verified; CI duration acceptable
 
 ### Phase 4: Docs & Test-Plan Sync
 
