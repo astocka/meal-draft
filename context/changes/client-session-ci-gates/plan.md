@@ -365,21 +365,21 @@ Update test-plan, AGENTS.md, change.md, and CI contributor docs so agents and hu
 
 #### Automated
 
-- [x] 2.1 Tier 1 CI-safe Vitest passes without Supabase secrets on runner
-- [x] 2.2 Tier 2 integration job passes with all six secrets on same-repo PR
-- [x] 2.3 `pnpm test` passes locally with `.env.test`
-- [x] 2.4 `pnpm run lint` passes
+- [x] 2.1 Tier 1 CI-safe Vitest passes without Supabase secrets on runner — dbd6ed0
+- [x] 2.2 Tier 2 integration job passes with all six secrets on same-repo PR — dbd6ed0
+- [x] 2.3 `pnpm test` passes locally with `.env.test` — dbd6ed0
+- [x] 2.4 `pnpm run lint` passes — dbd6ed0
 
 #### Manual
 
-- [x] 2.5 Fork PR skips Tier 2; RLS hits CI project not production; missing secret errors are clear
+- [x] 2.5 Fork PR skips Tier 2; RLS hits CI project not production; missing secret errors are clear — dbd6ed0
 
 ### Phase 3: Playwright CI Job
 
 #### Automated
 
 - [ ] 3.1 Tier 3 E2E job green on same-repo PR with secrets
-- [ ] 3.2 All E2E specs run in CI (auth.setup, workerd-smoke, seed, no-match-info-panel)
+- [x] 3.2 All E2E specs run in CI (auth.setup, workerd-smoke, seed, no-match-info-panel)
 - [ ] 3.3 `pnpm test:e2e` passes locally
 
 #### Manual
