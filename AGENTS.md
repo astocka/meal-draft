@@ -47,7 +47,9 @@ Full server-side rendering (`output: "server"` in astro.config.mjs). All pages a
 - `pnpm run preview` — preview production build (local workerd/Miniflare)
 - `pnpm run preview:wrangler` — build + run local workerd via wrangler dev
 - `pnpm run deploy` — build + deploy to Cloudflare Workers
-- `pnpm test` — Vitest integration/unit tests (local only; requires `.env.test` — copy from `.env.test.example` with Supabase URL + anon key and test user credentials; see @context/foundation/test-plan.md §6.2). **CRITICAL:** Only use the anon key. An environment guard inside `createClient()` will actively throw an error and abort execution if a `service_role` key is detected to prevent false-positive RLS bypasses.
+- `pnpm test` — Vitest integration/unit tests (requires `.env.test` — copy from `.env.test.example`; see @context/foundation/test-plan.md §6.2). CI runs the full suite in the `integration` job on same-repo PRs. **CRITICAL:** Only use the anon key. An environment guard inside `createClient()` will actively throw an error and abort execution if a `service_role` key is detected to prevent false-positive RLS bypasses.
+- `pnpm test:e2e` — Playwright E2E on workerd preview (`build && preview` via `playwright.config.ts`; see @context/foundation/test-plan.md §6.3). Locally, align `.dev.vars` Supabase URL/key with the test project when running E2E. CI Tier 3 injects secrets as env vars; `scripts/ensure-dev-vars.mjs` materializes `.dev.vars` when missing so workerd preview can auth.
+- `pnpm test:e2e:isolation` — fast local check that mutating E2E specs use unique pantry data and clean up after themselves: one build, reused preview, each mutating spec twice (~2 min). See `scripts/e2e-verify-isolation.mjs` and @tests/e2e/E2E-RULES.md. On Windows, prefer this over repeated full `test:e2e` runs (Playwright worker teardown can hang between projects).
 - `pnpm run lint` — ESLint with strict type-checked rules
 - `pnpm run lint:fix` — auto-fix lint issues
 - `pnpm run format` — Prettier (includes astro + tailwindcss plugins)
@@ -65,8 +67,24 @@ Pre-commit hook (husky + lint-staged) runs `eslint --fix` on `*.{ts,tsx,astro}` 
 ## Commit & PR Guidelines
 
 - Conventional Commits: `type: description` (lowercase type, no scope required)
-- CI gate (see @.github/workflows/ci.yml): lint + build must pass on every push/PR to `main`
-- `pnpm test` runs locally only — CI does not run tests yet (see test-plan §3 Phase 4)
+
+### CI (GitHub Actions)
+
+Three tiers in @.github/workflows/ci.yml (triggers on push/PR to `main`):
+
+| Tier | Job           | Runs on                        | What                                                                    |
+| ---- | ------------- | ------------------------------ | ----------------------------------------------------------------------- |
+| 1    | `ci`          | Every PR (including forks)     | lint, build, CI-safe Vitest (`assert-supabase-anon-key`, `placeholder`) |
+| 2    | `integration` | Same-repo PRs + push to `main` | full `pnpm test` (RLS suite)                                            |
+| 3    | `e2e`         | Same-repo PRs + push to `main` | Playwright on workerd preview                                           |
+
+**Fork PRs:** Tier 1 only. Full test signal requires a same-repo PR or local `pnpm test && pnpm test:e2e`.
+
+**GitHub secrets** (Tier 2 + 3): `SUPABASE_URL`, `SUPABASE_KEY`, `TEST_USER_A_EMAIL`, `TEST_USER_A_PASSWORD`, `TEST_USER_B_EMAIL`, `TEST_USER_B_PASSWORD` — use a **dedicated hosted CI/test Supabase project**, not production (see @.env.test.example).
+
+**Whenever a new DB migration is added under `supabase/migrations/`, it must be manually applied to the hosted CI Supabase project before merging to `main`.** Tier 2/3 depend on schema parity.
+
+**Future (out of scope):** optional pre-test `pnpm exec supabase db push --linked` in Tier 2/3 with `SUPABASE_ACCESS_TOKEN` + linked project.
 
 ## Cloudflare
 
@@ -84,4 +102,3 @@ Pre-commit hook (husky + lint-staged) runs `eslint --fix` on `*.{ts,tsx,astro}` 
 - Cloudflare local dev: secrets go in `.dev.vars` (gitignored); include `OPENROUTER_API_KEY` for generation
 - Email confirmation on `pnpm run preview` vs local Supabase: see README § Email confirmation on `pnpm run preview`
 - Deploy: `pnpm run deploy`
-
