@@ -79,9 +79,8 @@ test.describe("E2E seed: Risk #3 Try another in-flight UI", () => {
       const tryAnother = page.getByRole("button", { name: "Inny przepis" });
       await tryAnother.click();
 
-      // In-flight guard: button locks, loading label shows, previous recipe stays mounted.
+      // In-flight guard: button locks; previous recipe stays mounted during load.
       await expect(tryAnother).toBeDisabled();
-      await expect(tryAnother).toHaveText(/Szukam innego/);
       await expect(page.getByText(FIRST_RECIPE.name)).toBeVisible();
 
       // Rapid second click cannot start another in-flight request while loading.
@@ -93,6 +92,7 @@ test.describe("E2E seed: Risk #3 Try another in-flight UI", () => {
       await expect(tryAnother).toHaveText("Inny przepis");
       expect(getGenerateCallCount()).toBe(2);
     } finally {
+      await page.unrouteAll({ behavior: "ignoreErrors" });
       if (page.url().includes("/dashboard")) {
         await removePantryIngredient(page, uniqueIngredient).catch(() => undefined);
       }

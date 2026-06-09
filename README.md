@@ -110,7 +110,7 @@ Local Studio UI: `http://localhost:54323`
 | `/auth/signin`        | Email/password sign-in form                                             |
 | `/auth/signup`        | Email/password sign-up form                                             |
 | `/auth/confirm-email` | Post-signup "check your inbox" page                                     |
-| `/auth/callback`      | Email confirmation link target (PKCE code exchange)                       |
+| `/auth/callback`      | Email confirmation link target (PKCE code exchange)                     |
 | `/dashboard`          | Example protected page (redirects to `/auth/signin` if unauthenticated) |
 
 Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array to require authentication.
@@ -176,7 +176,7 @@ npx wrangler tail
 
 ## CI
 
-GitHub Actions runs lint + build on every push and PR to `main`. Configure `SUPABASE_URL` and `SUPABASE_KEY` as repository secrets in GitHub for the build step.
+GitHub Actions runs three tiers on push/PR to `main` (see `AGENTS.md` for fork behavior): lint + build + CI-safe Vitest (`ci` job), full Vitest integration (`integration` job), Playwright E2E on workerd preview (`e2e` job). Tier 2/3 require six repository secrets — copy variable names from `.env.test.example` and use a dedicated test Supabase project (not production).
 
 ## License
 

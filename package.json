@@ -15,6 +15,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
+    "test:e2e:isolation": "node scripts/e2e-verify-isolation.mjs",
     "preview:wrangler": "astro build && wrangler dev",
     "deploy": "astro build && wrangler deploy",
     "cf:types": "wrangler types src/worker-configuration.d.ts --include-runtime false",

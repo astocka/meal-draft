@@ -1,8 +1,9 @@
 import { mkdirSync } from "node:fs";
 import path from "node:path";
-import { test as setup, expect } from "@playwright/test";
-
-const AUTH_FILE = path.join(process.cwd(), "playwright/.auth/user.json");
+import { test as setup } from "@playwright/test";
+import { AUTH_FILE } from "./auth-path";
+const PREVIEW_PORT = 4321;
+const PREVIEW_ORIGIN = process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${PREVIEW_PORT}`;
 
 function requireEnv(name: "TEST_USER_A_EMAIL" | "TEST_USER_A_PASSWORD"): string {
   const value = process.env[name]?.trim();
@@ -12,15 +13,32 @@ function requireEnv(name: "TEST_USER_A_EMAIL" | "TEST_USER_A_PASSWORD"): string 
   return value;
 }
 
-setup("authenticate as test user A", async ({ page }) => {
+setup("authenticate as test user A", async ({ request }) => {
   mkdirSync(path.dirname(AUTH_FILE), { recursive: true });
 
-  await page.goto("/auth/signin");
-  await page.getByLabel("E-mail").fill(requireEnv("TEST_USER_A_EMAIL"));
-  await page.locator("#password").fill(requireEnv("TEST_USER_A_PASSWORD"));
-  await page.getByRole("button", { name: "Zaloguj się" }).click();
-  await page.waitForURL("/dashboard");
-  await expect(page.getByRole("heading", { name: "Spiżarnia" })).toBeVisible();
+  const email = requireEnv("TEST_USER_A_EMAIL");
+  const password = requireEnv("TEST_USER_A_PASSWORD");
 
-  await page.context().storageState({ path: AUTH_FILE });
+  // Request-only auth: no browser launch, so worker teardown stays fast on Windows.
+  // Astro origin-check middleware requires Origin on form POSTs.
+  const signIn = await request.post("/api/auth/signin", {
+    form: { email, password },
+    headers: {
+      Origin: PREVIEW_ORIGIN,
+      Referer: `${PREVIEW_ORIGIN}/auth/signin`,
+    },
+    maxRedirects: 0,
+  });
+
+  if (signIn.status() !== 302 && signIn.status() !== 303) {
+    const body = await signIn.text();
+    throw new Error(`Sign-in failed: HTTP ${signIn.status()} — ${body.slice(0, 300)}`);
+  }
+
+  const location = signIn.headers().location;
+  if (!location.includes("/dashboard")) {
+    throw new Error(`Sign-in redirect unexpected: ${location || "missing Location header"}`);
+  }
+
+  await request.storageState({ path: AUTH_FILE });
 });
