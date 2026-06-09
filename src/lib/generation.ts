@@ -93,6 +93,50 @@ export function buildSystemPrompt(pantryItems: string[], mealType: MealType, max
   return lines.join("\n");
 }
 
+const FAILURE_SENTINEL_NAME = "[generation failed]";
+
+async function insertFailureSentinelRow(
+  supabase: SupabaseClient,
+  userId: string,
+  mealType: MealType,
+): Promise<boolean> {
+  for (let insertAttempt = 1; insertAttempt <= 2; insertAttempt++) {
+    const { error: insertError } = await supabase
+      .from("generation_history")
+      .insert({
+        user_id: userId,
+        name: FAILURE_SENTINEL_NAME,
+        meal_type: mealType,
+        recipe: null,
+      })
+      .select("id")
+      .single();
+
+    if (!insertError) {
+      return true;
+    }
+
+    if (insertAttempt === 2) {
+      // eslint-disable-next-line no-console
+      console.error("generateMeal_failure_sentinel_insert_error", insertError);
+    }
+  }
+
+  return false;
+}
+
+async function recordGenerationFailure(
+  supabase: SupabaseClient,
+  userId: string,
+  mealType: MealType,
+  cause: unknown,
+): Promise<GenerationResult> {
+  // eslint-disable-next-line no-console
+  console.error("generation_error after retry", cause);
+  await insertFailureSentinelRow(supabase, userId, mealType);
+  return { status: "error" };
+}
+
 export async function generateMeal(
   supabase: SupabaseClient,
   userId: string,
@@ -165,15 +209,7 @@ export async function generateMeal(
           attempt++;
           continue;
         }
-        // eslint-disable-next-line no-console
-        console.error("generation_error after retry", err);
-        await supabase.from("generation_history").insert({
-          user_id: userId,
-          name: "[generation failed]",
-          meal_type: input.meal_type,
-          recipe: null,
-        });
-        return { status: "error" };
+        return await recordGenerationFailure(supabase, userId, input.meal_type, err);
       }
 
       // Step 6c: No-match from model
@@ -196,15 +232,7 @@ export async function generateMeal(
           attempt++;
           continue;
         }
-        // eslint-disable-next-line no-console
-        console.error("generation_error after retry", err);
-        await supabase.from("generation_history").insert({
-          user_id: userId,
-          name: "[generation failed]",
-          meal_type: input.meal_type,
-          recipe: null,
-        });
-        return { status: "error" };
+        return await recordGenerationFailure(supabase, userId, input.meal_type, err);
       }
 
       const violatingIngredient = recipe.ingredients.find(
