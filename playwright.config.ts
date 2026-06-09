@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parse } from "dotenv";
 import { defineConfig, devices } from "@playwright/test";
+import { ensureDevVarsForWorkerdPreview } from "./scripts/ensure-dev-vars.mjs";
 import { AUTH_FILE } from "./tests/e2e/auth-path";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -29,6 +30,7 @@ function loadEnvFile(relativePath: string, options?: { override?: boolean }): vo
 loadEnvFile(".env");
 loadEnvFile(".dev.vars");
 loadEnvFile(".env.test", { override: true });
+ensureDevVarsForWorkerdPreview();
 
 export default defineConfig({
   testDir: "tests/e2e",
