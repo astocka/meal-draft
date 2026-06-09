@@ -4,6 +4,8 @@
 
 Close **test-plan §3 Phase 4**: wire tiered GitHub Actions jobs for Vitest, Supabase RLS integration, and Playwright E2E on workerd preview; extend E2E for Risk #3 (Try another in-flight UI) and Risk #5 (workerd smoke); sync `test-plan.md` and `AGENTS.md`. **No production changes** to `MealGenerator` — stale-response handling remains a documented gap.
 
+> **Info — shipped deviations (2026-06-10):** Original plan used `test.fail()` on `try-another-stale-response.spec.ts` to document a MealGenerator stale-response gap. CI proved the mock overlap scenario **passes** without the wrapper (`c05fa8d`) — it is now a regression guard, not a gap doc. Tier 3 CI required `scripts/ensure-dev-vars.mjs` because workerd preview reads `.dev.vars`, not process env (`8905507`). Windows local verification uses `pnpm test:e2e:isolation` instead of full `playwright test` (Progress §1.4). Live docs: `test-plan.md` §6.3/§6.6, `AGENTS.md`, `E2E-RULES.md`.
+
 ## Current State Analysis
 
 - **Phase 1 (data-isolation)** is implemented: Vitest bootstrap, `tests/integration/rls-cross-user.test.ts`, `assertSupabaseAnonKey`, `.env.test.example`. Tests are **local-only**; CI runs lint + build only (`.github/workflows/ci.yml`).
@@ -24,7 +26,7 @@ Close **test-plan §3 Phase 4**: wire tiered GitHub Actions jobs for Vitest, Sup
 - **Tier 2 CI** (same-repo PRs + push to `main`, secrets present): full `pnpm test` including RLS cross-user suite against hosted CI Supabase project.
 - **Tier 3 CI** (same gating): Playwright with chromium, workerd preview webServer, `auth.setup` + all E2E specs including thin workerd smoke and reversed-order race scenario.
 - **Docs**: test-plan §3 Phase 4 → `implemented`; §4 Playwright row current; §6.3 documents Playwright-for-Risk-#3 pattern; §5 quality gates reflect CI enforcement; AGENTS.md documents CI tiers and fork behavior.
-- **Verify locally**: `pnpm test`, `pnpm test:e2e` green (reversed-order uses `test.fail()` until production fix — see Open Risks).
+- **Verify locally**: `pnpm test` green; E2E via `pnpm test:e2e` (Linux/CI) or `pnpm test:e2e:isolation` on Windows (see AGENTS.md). Reversed-order spec is a passing regression test — see shipped deviations above.
 
 ## What We're NOT Doing
 
@@ -38,7 +40,7 @@ Close **test-plan §3 Phase 4**: wire tiered GitHub Actions jobs for Vitest, Sup
 
 ## Implementation Approach
 
-Three-tier CI with explicit fork gating. E2E remains the Risk #3 layer (cheaper cross-boundary signal on workerd than adding jsdom). Reversed-order race uses `page.evaluate` to force two overlapping `/api/generate` responses (UI button lock prevents double-click path) with `test.fail()` until stale guard ships. Thin workerd smoke is **read-only** (no pantry mutations) to avoid flakes alongside mutating specs.
+Three-tier CI with explicit fork gating. E2E remains the Risk #3 layer (cheaper cross-boundary signal on workerd than adding jsdom). Reversed-order race uses `page.evaluate` to force two overlapping `/api/generate` responses (UI button lock prevents double-click path). Thin workerd smoke is **read-only** (no pantry mutations) to avoid flakes alongside mutating specs.
 
 ## Critical Implementation Details
 
@@ -52,7 +54,7 @@ if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name
 
 on Tier 2 and Tier 3 jobs. Fork PRs run Tier 1 only; document in AGENTS.md that full test signal requires same-repo PR or local run.
 
-### Reversed-order race + `test.fail()`
+### Reversed-order race
 
 UI disables Try Another during load — out-of-order completion cannot be triggered by double UI click alone. The reversed-order spec fires two parallel fetches via `page.evaluate` while `/api/generate` is mocked with inverted delays (call 1: ~800ms → recipe A, call 2: ~100ms → recipe B).
 
@@ -62,7 +64,7 @@ UI disables Try Another during load — out-of-order completion cannot be trigge
 2. `await Promise.all([page.waitForResponse(.../api/generate), page.waitForResponse(...)])` — or equivalent — so both network responses have finished (including the 800ms slow one).
 3. Only then assert: recipe B visible, recipe A not visible.
 
-If assertions run before the slow response lands, a passing test would prove nothing about stale overwrite. Wrap in `test.fail()` with a comment linking to the follow-up production fix — CI stays green while documenting the gap. Remove `test.fail()` when stale guard lands.
+> **Info — shipped (2026-06-10):** Plan originally wrapped this in `test.fail()` to document a MealGenerator request-id gap. CI showed the scenario **passes** without the wrapper (`c05fa8d`) — kept as a regression guard. Production `saveGenerationRef` pattern for favorites remains the reference if a real stale-overwrite bug resurfaces outside mocked overlap.
 
 ### Hosted CI Supabase — migration drift
 
@@ -108,7 +110,9 @@ Add workerd smoke and reversed-order Risk #3 scenario; audit E2E isolation patte
 
 **Intent**: Document Risk #3 out-of-order response gap — late slow response must not overwrite newer fast response.
 
-**Contract**: New test `[Risk #3] out-of-order generate responses keep latest result` using mocked `/api/generate` with per-call delays (call 1: ~800ms → recipe A, call 2: ~100ms → recipe B). After first Generuj + Try Another establishes UI state, use `page.evaluate` to POST two parallel requests (or trigger overlap while route mock tracks in-flight count). **Before DOM assertions:** await both `/api/generate` responses via `page.waitForResponse` (e.g. `Promise.all`) so the slow response has completed — never `waitForTimeout`. Then assert recipe B visible and recipe A not visible (proves stale A did not overwrite B). Mark with `test.fail()` until `MealGenerator` gains generation request-id guard. Provenance header + step comments per E2E-RULES.
+**Contract**: New test `[Risk #3] out-of-order generate responses keep latest result` using mocked `/api/generate` with per-call delays (call 1: ~800ms → recipe A, call 2: ~100ms → recipe B). After first Generuj + Try Another establishes UI state, use `page.evaluate` to POST two parallel requests (or trigger overlap while route mock tracks in-flight count). **Before DOM assertions:** await both `/api/generate` responses via `page.waitForResponse` (e.g. `Promise.all`) so the slow response has completed — never `waitForTimeout`. Then assert recipe B visible and recipe A not visible (proves stale A did not overwrite B). Provenance header + step comments per E2E-RULES.
+
+> **Info — shipped:** Implemented in `try-another-stale-response.spec.ts`; `test.fail()` removed after CI pass (`c05fa8d`).
 
 #### 3. E2E rules touch-up
 
@@ -124,13 +128,13 @@ Add workerd smoke and reversed-order Risk #3 scenario; audit E2E isolation patte
 
 - `pnpm exec playwright test tests/e2e/workerd-smoke.spec.ts` passes locally
 - `pnpm exec playwright test tests/e2e/seed.spec.ts` passes (existing test)
-- Reversed-order test runs and **fails** (expected under `test.fail()` — runner reports pass)
+- Reversed-order test passes as regression guard (`try-another-stale-response.spec.ts`; was `test.fail()` gap doc — see shipped deviations)
 - `pnpm exec playwright test` — full suite green locally with `.env.test` + build secrets
 
 #### Manual Verification:
 
 - Confirm workerd smoke hits preview (not `astro dev`) via webServer log or port 4321
-- Confirm reversed-order test failure message matches stale-overwrite behavior when `test.fail()` removed temporarily
+- Confirm reversed-order test passes under mocked overlap (regression guard since `c05fa8d`)
 - Confirm reversed-order test awaits both `waitForResponse` before assertions (slow mock ~800ms must complete first)
 - Review mutating specs for unique-ingredient + cleanup pattern
 
@@ -205,6 +209,8 @@ Add Tier 3 E2E job: browser install, workerd preview, full Playwright suite.
 **Intent**: Run Playwright on workerd preview for Risk #3, #5, and no_match UI contract in CI.
 
 **Contract**: New job `e2e` with same fork gating as Tier 2. `needs: ci`. Steps: `pnpm exec playwright install --with-deps chromium`, env vars (build secrets + all six test vars), `pnpm exec playwright test`. Reuse existing `playwright.config.ts` webServer (build + preview). `CI=true` enables retries/workers=1.
+
+> **Info — shipped:** Workerd preview needs `.dev.vars` at runtime. `playwright.config.ts` calls `scripts/ensure-dev-vars.mjs` to materialize the file from injected secrets when absent (`8905507`). `test:e2e:isolation` should call the same helper before preview (parity for `.env.test`-only setups).
 
 #### 2. Playwright config CI hardening (if needed)
 
@@ -305,16 +311,15 @@ Update test-plan, AGENTS.md, change.md, and CI contributor docs so agents and hu
 
 ### E2E (Playwright on workerd preview)
 
-- **Risk #3**: `seed.spec.ts` — in-flight UI + reversed-order (`test.fail()` until fix); reversed-order waits for both `waitForResponse` before asserting DOM.
+- **Risk #3**: `seed.spec.ts` — in-flight UI (`Szukam innego…` loading label); `try-another-stale-response.spec.ts` — out-of-order overlap regression guard; both await `waitForResponse` before DOM assertions.
 - **Risk #5**: `workerd-smoke.spec.ts` — route/middleware on preview.
 - **Client wire**: `no-match-info-panel.spec.ts` — HTTP 200 `no_match` → info panel.
 
 ### Manual Testing Steps
 
-1. Run full local suite: `pnpm test && pnpm test:e2e`.
-2. Temporarily remove `test.fail()` on reversed-order test — confirm red, revert.
-3. Push same-repo PR — all three CI tiers green with secrets.
-4. Simulate fork PR — Tier 1 only.
+1. Run `pnpm test`; E2E via `pnpm test:e2e` or `pnpm test:e2e:isolation` (Windows).
+2. Push same-repo PR — all three CI tiers green with secrets (verified `test/e2e` → `main`, 2026-06-10).
+3. Simulate fork PR — Tier 1 only.
 
 ## Performance Considerations
 
@@ -340,7 +345,7 @@ Update test-plan, AGENTS.md, change.md, and CI contributor docs so agents and hu
 
 ## Open Risks & Assumptions
 
-- **Reversed-order `test.fail()`**: CI stays green while gap is documented; removing wrapper without production fix breaks Tier 3.
+- **Reversed-order regression test**: Mocked overlap scenario passes in CI (`c05fa8d`). A future production `saveGenerationRef`-style guard for generation responses remains out of scope for this change.
 - **Hosted CI Supabase**: Team maintains test users on CI project — not production. **Migration drift:** new repo migrations must be manually applied to CI project (documented in AGENTS.md / `.env.test.example`); automate via `supabase db push` in a follow-up if needed.
 - **Reversed-order timing**: Assertions after both `waitForResponse` calls — if the slow mock response is not awaited, the test cannot prove stale overwrite behavior.
 - **Fork PRs**: No integration/E2E in CI by design — accepted tradeoff vs Docker Supabase on runner.
@@ -405,3 +410,4 @@ Update test-plan, AGENTS.md, change.md, and CI contributor docs so agents and hu
 - `try-another-stale-response.spec.ts` no longer uses `test.fail()`; mock overlap scenario passes as a regression guard (`c05fa8d`).
 - `seed.spec.ts` asserts Try another loading via `Szukam innego…`, not idle `Inny przepis`.
 - Live docs synced: `test-plan.md` §6.3/§6.6, `AGENTS.md`, `E2E-RULES.md`.
+- `e2e-verify-isolation.mjs` and `e2e-auth.mjs` call `ensureDevVarsForWorkerdPreview()` for `.env.test`-only local setups.

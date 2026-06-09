@@ -4,20 +4,23 @@
 
 - **Plan**: context/changes/client-session-ci-gates/plan.md
 - **Scope**: Full plan (Phases 1–4)
-- **Date**: 2026-06-09
+- **Date**: 2026-06-09 (triage closed 2026-06-10)
+- **Status**: CLOSED — all findings resolved
 - **Verdict**: APPROVED
-- **Findings**: 0 critical, 4 warnings, 3 observations
+- **Findings**: 0 critical, 4 warnings, 3 observations — **7/7 resolved**
 
 ## Verdicts
 
-| Dimension           | Verdict    |
-| ------------------- | ---------- |
-| Plan Adherence      | WARNING ⚠️ |
-| Scope Discipline    | PASS ✅    |
-| Safety & Quality    | WARNING ⚠️ |
-| Architecture        | PASS ✅    |
-| Pattern Consistency | PASS ✅    |
-| Success Criteria    | PASS ✅    |
+| Dimension           | Verdict |
+| ------------------- | ------- |
+| Plan Adherence      | PASS ✅ |
+| Scope Discipline    | PASS ✅ |
+| Safety & Quality    | PASS ✅ |
+| Architecture        | PASS ✅ |
+| Pattern Consistency | PASS ✅ |
+| Success Criteria    | PASS ✅ |
+
+> Post-triage (2026-06-10): CI Tier 3 green on PR `test/e2e` (`8905507`, `c05fa8d`); docs synced (`23e3bbc`). Plan body annotated with shipped deviations — see plan §Post-implementation notes.
 
 ## Findings
 

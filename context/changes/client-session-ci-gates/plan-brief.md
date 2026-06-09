@@ -17,22 +17,22 @@ Close test-plan **Phase 4**: protect Risk #3 (Try another in-flight UI) and Risk
 
 ## Desired End State
 
-Same-repo PRs and main get three CI tiers: (1) lint + build + CI-safe Vitest always; (2) full Vitest + RLS with hosted Supabase secrets; (3) Playwright E2E on workerd preview. Fork PRs get Tier 1 only. Docs tell contributors how to run locally and configure secrets. Reversed-order race test documents MealGenerator stale-response gap via `test.fail()` until a follow-up fix.
+Same-repo PRs and main get three CI tiers: (1) lint + build + CI-safe Vitest always; (2) full Vitest + RLS with hosted Supabase secrets; (3) Playwright E2E on workerd preview. Fork PRs get Tier 1 only. Docs tell contributors how to run locally and configure secrets. Reversed-order overlap spec (`try-another-stale-response.spec.ts`) is a passing regression guard — plan originally used `test.fail()` as a gap doc; removed after CI pass (`c05fa8d`).
 
 ## Key Decisions Made
 
-| Decision             | Choice                                             | Why                                                    | Source          |
-| -------------------- | -------------------------------------------------- | ------------------------------------------------------ | --------------- |
-| Production scope     | Tests + CI only                                    | Smallest diff; race fix is separate change             | Plan            |
-| Risk #3 layer        | Playwright E2E (not component/jsdom)               | Already installed; workerd cross-boundary signal       | Plan            |
-| CI structure         | Tiered jobs in one PR                              | Green baseline fast; secrets jobs gated                | Plan            |
-| Supabase in CI       | Hosted project + GitHub secrets                    | data-isolation rejected Docker on runner               | Plan + Research |
-| Fork PRs             | Tier 2/3 skipped                                   | Secrets unavailable on fork workflows                  | Plan            |
-| Reversed-order test  | `test.fail()` until fix                            | Documents gap without red CI                           | Plan            |
-| Workerd smoke        | Read-only Playwright spec                          | Risk #5 fast-fail; no DB mutation flakes               | Plan            |
-| Docs                 | Full test-plan + AGENTS sync                       | Single source of truth                                 | Plan            |
-| CI migration sync    | Manual apply to hosted CI project                  | Small diff; avoids extra Supabase CLI secrets now      | Plan            |
-| Reversed-order waits | `waitForResponse` for both mocks before DOM assert | Proves slow response A cannot overwrite B after settle | Plan            |
+| Decision             | Choice                                               | Why                                                                         | Source           |
+| -------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------- | ---------------- |
+| Production scope     | Tests + CI only                                      | Smallest diff; race fix is separate change                                  | Plan             |
+| Risk #3 layer        | Playwright E2E (not component/jsdom)                 | Already installed; workerd cross-boundary signal                            | Plan             |
+| CI structure         | Tiered jobs in one PR                                | Green baseline fast; secrets jobs gated                                     | Plan             |
+| Supabase in CI       | Hosted project + GitHub secrets                      | data-isolation rejected Docker on runner                                    | Plan + Research  |
+| Fork PRs             | Tier 2/3 skipped                                     | Secrets unavailable on fork workflows                                       | Plan             |
+| Reversed-order test  | Passing regression guard (was `test.fail()` gap doc) | Mocked overlap passes in CI; production request-id guard still out of scope | Plan + `c05fa8d` |
+| Workerd smoke        | Read-only Playwright spec                            | Risk #5 fast-fail; no DB mutation flakes                                    | Plan             |
+| Docs                 | Full test-plan + AGENTS sync                         | Single source of truth                                                      | Plan             |
+| CI migration sync    | Manual apply to hosted CI project                    | Small diff; avoids extra Supabase CLI secrets now                           | Plan             |
+| Reversed-order waits | `waitForResponse` for both mocks before DOM assert   | Proves slow response A cannot overwrite B after settle                      | Plan             |
 
 ## Scope
 
@@ -54,9 +54,9 @@ Playwright mocks `/api/generate` for deterministic Risk #3/#UI tests; RLS uses r
 
 | Phase            | What it delivers                                             | Key risk                                                       |
 | ---------------- | ------------------------------------------------------------ | -------------------------------------------------------------- |
-| 1. E2E hardening | workerd smoke + reversed-order `test.fail()`                 | must await both responses before assert — not `waitForTimeout` |
+| 1. E2E hardening | workerd smoke + reversed-order overlap spec                  | must await both responses before assert — not `waitForTimeout` |
 | 2. Vitest CI     | Tier 1 + Tier 2 jobs, fork gating, migration callout in docs | CI project schema drift if migration not applied               |
-| 3. Playwright CI | Tier 3 job, chromium install                                 | CI duration; preview build flakiness                           |
+| 3. Playwright CI | Tier 3 job, chromium install, `ensure-dev-vars.mjs`          | CI duration; workerd preview needs `.dev.vars` at runtime      |
 | 4. Docs sync     | test-plan, AGENTS.md, change.md                              | Doc drift if §6.3 incomplete                                   |
 
 **Prerequisites:** data-isolation implemented; hosted CI Supabase project with migrations + test users A/B; GitHub secrets for six `.env.test` vars (+ existing build secrets).
@@ -65,7 +65,7 @@ Playwright mocks `/api/generate` for deterministic Risk #3/#UI tests; RLS uses r
 
 ## Open Risks & Assumptions
 
-- Reversed-order protection requires follow-up production change; `test.fail()` is intentional.
+- Production MealGenerator request-id guard (like `saveGenerationRef` for favorites) remains a follow-up — mocked overlap regression test passes without it.
 - Fork contributors do not get full CI signal without maintainer/local run.
 - CI Supabase project must stay isolated from production data.
 - **Migration drift:** new `supabase/migrations/` must be manually applied to CI project before merge — documented in AGENTS.md / `.env.test.example`; automate later with `supabase db push --linked` if needed.
