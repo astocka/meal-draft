@@ -79,8 +79,10 @@ Tier 2/3 assume the hosted CI/test Supabase project schema matches `supabase/mig
 ### Test data isolation
 
 - CI Playwright: keep `workers: 1` (already in config for CI).
-- Mutating specs: timestamp-unique pantry ingredients + `try/finally` cleanup (existing seed pattern).
+- Mutating specs: timestamp-unique pantry ingredients + `try/finally` cleanup + `page.unrouteAll()` when route-mocking (seed, no-match, try-another-stale-response).
 - Workerd smoke spec: no DB writes — signin page render + unauthenticated redirect to `/dashboard`.
+- Auth setup: API `request` with `Origin`/`Referer` (Astro origin-check middleware); `scripts/e2e-auth.mjs` for fast local auth outside Playwright workers.
+- Local re-run check: `pnpm test:e2e:isolation` (`scripts/e2e-verify-isolation.mjs`) — each mutating spec twice; pantry cleanup confirmed via preview logs. Verified 2026-06-09.
 
 ---
 
@@ -390,9 +392,9 @@ Update test-plan, AGENTS.md, change.md, and CI contributor docs so agents and hu
 
 #### Automated
 
-- [ ] 4.1 `pnpm run lint` passes after doc edits
-- [ ] 4.2 No broken internal links in edited markdown
+- [x] 4.1 `pnpm run lint` passes after doc edits
+- [x] 4.2 No broken internal links in edited markdown
 
 #### Manual
 
-- [ ] 4.3 test-plan §6.3 and AGENTS.md fork/CI docs reviewed by human
+- [x] 4.3 test-plan §6.3 and AGENTS.md fork/CI docs reviewed by human
