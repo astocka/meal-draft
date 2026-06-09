@@ -2,10 +2,10 @@
  * Standalone E2E auth — writes playwright/.auth/user.json without launching a browser worker.
  * Used by test:e2e:isolation to avoid slow Playwright project transitions on Windows.
  */
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { parse } from "dotenv";
-import { readFileSync, existsSync } from "node:fs";
+import { ensureDevVarsForWorkerdPreview } from "./ensure-dev-vars.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const PREVIEW_PORT = 4321;
@@ -26,6 +26,7 @@ function loadEnv(relativePath, override = false) {
 loadEnv(".env");
 loadEnv(".dev.vars");
 loadEnv(".env.test", true);
+ensureDevVarsForWorkerdPreview();
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${PREVIEW_PORT}`;
 const email = process.env.TEST_USER_A_EMAIL?.trim();

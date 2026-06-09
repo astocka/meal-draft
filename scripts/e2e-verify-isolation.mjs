@@ -5,8 +5,10 @@
  * tests finish but the worker can hang on browser teardown on Windows.
  */
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { parse } from "dotenv";
+import { ensureDevVarsForWorkerdPreview } from "./ensure-dev-vars.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const PREVIEW_PORT = 4321;
@@ -19,6 +21,23 @@ const MUTATING_SPECS = [
   "tests/e2e/no-match-info-panel.spec.ts",
   "tests/e2e/try-another-stale-response.spec.ts",
 ];
+
+function loadEnv(relativePath, override = false) {
+  const envPath = path.join(ROOT, relativePath);
+  if (!existsSync(envPath)) return;
+  const parsed = parse(readFileSync(envPath));
+  for (const [key, value] of Object.entries(parsed)) {
+    if (value.trim() === "") continue;
+    if (override || process.env[key] === undefined) {
+      process.env[key] = value;
+    }
+  }
+}
+
+loadEnv(".env");
+loadEnv(".dev.vars");
+loadEnv(".env.test", true);
+ensureDevVarsForWorkerdPreview();
 
 function run(cmd, args, env = {}) {
   const result = spawnSync(cmd, args, {
