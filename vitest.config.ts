@@ -21,6 +21,8 @@ export default defineConfig({
     environment: "node",
     testTimeout: 30_000,
     env: loadTestEnv(),
+    // Hosted Supabase integration tests share User A/B fixtures; parallel files race on generation_history writes.
+    fileParallelism: false,
   },
   resolve: {
     alias: {
