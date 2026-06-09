@@ -4,8 +4,8 @@
  *
  * UI button lock prevents double-click overlap; page.evaluate dispatches two Try Another
  * clicks synchronously so two in-flight requests start before loadingSource re-renders.
- * Wrapped in test.fail() until MealGenerator gains a generation request-id guard
- * (see saveGenerationRef pattern for favorites).
+ * Uses page.evaluate double-click to bypass the UI button lock and overlap requests.
+ * Asserts the fast response wins on the recipe card (see saveGenerationRef for favorites).
  *
  * Requires TEST_USER_A_* (.env.test), auth setup, running workerd preview.
  */
@@ -35,7 +35,7 @@ const RECIPE_B = {
   steps: ["Gotuj."],
 };
 
-function mockGenerateReversedOrder(page: Page): () => number {
+async function mockGenerateReversedOrder(page: Page): Promise<() => number> {
   let callCount = 0;
 
   const handler = async (route: Route) => {
@@ -67,7 +67,7 @@ function mockGenerateReversedOrder(page: Page): () => number {
     });
   };
 
-  void page.route("**/api/generate", handler);
+  await page.route("**/api/generate", handler);
   return () => callCount;
 }
 
@@ -91,10 +91,8 @@ test.use({ viewport: DESKTOP_VIEWPORT });
 
 test.describe("E2E Risk #3 out-of-order generate responses", () => {
   test("[Risk #3] out-of-order generate responses keep latest result", async ({ page }) => {
-    test.fail(true, "MealGenerator lacks generation request-id guard — remove when stale responses are discarded");
-
     const uniqueIngredient = `Marchew-e2e-${Date.now()}`;
-    const getGenerateCallCount = mockGenerateReversedOrder(page);
+    const getGenerateCallCount = await mockGenerateReversedOrder(page);
 
     try {
       await openDashboard(page);

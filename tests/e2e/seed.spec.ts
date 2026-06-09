@@ -24,7 +24,7 @@ const SECOND_RECIPE = {
   steps: ["Pokrój warzywa."],
 };
 
-function mockGenerateWithDelay(page: Page, firstDelayMs: number, secondDelayMs: number): () => number {
+async function mockGenerateWithDelay(page: Page, firstDelayMs: number, secondDelayMs: number): Promise<() => number> {
   let callCount = 0;
 
   const handler = async (route: Route) => {
@@ -44,7 +44,7 @@ function mockGenerateWithDelay(page: Page, firstDelayMs: number, secondDelayMs: 
     });
   };
 
-  void page.route("**/api/generate", handler);
+  await page.route("**/api/generate", handler);
   return () => callCount;
 }
 
@@ -65,7 +65,7 @@ test.use({ viewport: DESKTOP_VIEWPORT });
 test.describe("E2E seed: Risk #3 Try another in-flight UI", () => {
   test("[Risk #3] Try another keeps recipe card mounted and applies only the latest response", async ({ page }) => {
     const uniqueIngredient = `Pomidor-e2e-${Date.now()}`;
-    const getGenerateCallCount = mockGenerateWithDelay(page, 100, 600);
+    const getGenerateCallCount = await mockGenerateWithDelay(page, 200, 800);
 
     try {
       await openDashboard(page);
@@ -77,15 +77,21 @@ test.describe("E2E seed: Risk #3 Try another in-flight UI", () => {
       await expect(page.getByText(FIRST_RECIPE.name)).toBeVisible();
 
       const tryAnother = page.getByRole("button", { name: "Inny przepis" });
+      const secondGenerate = page.waitForResponse(
+        (response) => response.url().includes("/api/generate") && response.request().method() === "POST",
+      );
       await tryAnother.click();
 
-      // In-flight guard: button locks; previous recipe stays mounted during load.
-      await expect(tryAnother).toBeDisabled();
+      // Loading renames the button — assert the in-flight state, not the idle label.
+      const loadingTryAnother = page.getByRole("button", { name: "Szukam innego…" });
+      await expect(loadingTryAnother).toBeVisible();
+      await expect(loadingTryAnother).toBeDisabled();
       await expect(page.getByText(FIRST_RECIPE.name)).toBeVisible();
 
       // Rapid second click cannot start another in-flight request while loading.
-      await tryAnother.click({ trial: true }).catch(() => undefined);
+      await loadingTryAnother.click({ trial: true }).catch(() => undefined);
 
+      await secondGenerate;
       await expect(page.getByText(SECOND_RECIPE.name)).toBeVisible();
       await expect(page.getByText(FIRST_RECIPE.name)).toBeHidden();
       await expect(tryAnother).toBeEnabled();

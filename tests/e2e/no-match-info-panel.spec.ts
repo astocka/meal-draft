@@ -13,8 +13,8 @@ import { openDashboard } from "./helpers";
 const DESKTOP_VIEWPORT = { width: 1280, height: 720 };
 const NO_MATCH_TITLE = "Nie udało się stworzyć przepisu";
 
-function mockGenerateNoMatch(page: Page): void {
-  void page.route("**/api/generate", async (route) => {
+async function mockGenerateNoMatch(page: Page): Promise<void> {
+  await page.route("**/api/generate", async (route) => {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -40,7 +40,7 @@ test.use({ viewport: DESKTOP_VIEWPORT });
 test.describe("no_match client UI", () => {
   test("HTTP 200 no_match shows info panel and leaves Generuj enabled", async ({ page }) => {
     const uniqueIngredient = `Pomidor-e2e-${Date.now()}`;
-    mockGenerateNoMatch(page);
+    await mockGenerateNoMatch(page);
 
     try {
       await openDashboard(page);
