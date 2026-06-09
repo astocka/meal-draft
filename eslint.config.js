@@ -75,9 +75,32 @@ const redirectOnlyAstroConfig = tseslint.config({
   },
 });
 
+const scriptsConfig = tseslint.config({
+  files: ["scripts/**/*.mjs"],
+  extends: [tseslint.configs.disableTypeChecked],
+  languageOptions: {
+    ecmaVersion: "latest",
+    sourceType: "module",
+    globals: {
+      process: "readonly",
+      console: "readonly",
+      fetch: "readonly",
+      URL: "readonly",
+      URLSearchParams: "readonly",
+      setTimeout: "readonly",
+      setInterval: "readonly",
+      clearInterval: "readonly",
+    },
+  },
+  rules: {
+    "no-console": "off",
+  },
+});
+
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
   baseConfig,
+  scriptsConfig,
   reactConfig,
   eslintPluginAstro.configs["flat/recommended"],
   ...eslintPluginAstro.configs["flat/jsx-a11y-recommended"],

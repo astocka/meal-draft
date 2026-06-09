@@ -9,7 +9,7 @@
 - Assert the business outcome, not implementation details.
 - Use unique identifiers (e.g., timestamp suffix) for test data
   to avoid collisions in parallel runs. Clean up created rows after the test.
-- Authentication uses storageState from `tests/e2e/auth.setup.ts` (see playwright.config.ts).
+- Authentication uses storageState from `tests/e2e/auth.setup.ts` or `scripts/e2e-auth.mjs` (see playwright.config.ts).
   Do not log in through the UI in individual tests — call `page.goto("/dashboard")` instead.
 - Always run Supabase/UI cleanup in `try...finally` or `test.afterEach` so failed
   assertions do not leave orphan test data.
@@ -20,6 +20,9 @@
   user data — use empty `storageState` and assert routes/middleware only.
 - Mutating specs must use timestamp-unique test data and `try...finally` cleanup so
   parallel or repeated runs do not collide (see seed.spec.ts pantry helpers).
+- Local isolation re-run check: `pnpm run test:e2e:isolation` — one build, reused preview,
+  each mutating spec twice (~2 min on Windows vs full `test:e2e`). Confirms unique data +
+  pantry cleanup (`POST` then `DELETE /api/pantry` in preview logs). CI uses full `pnpm test:e2e`.
 - Risk #3 (Try another in-flight / stale response ordering) is covered by Playwright E2E,
   not Vitest integration or jsdom component tests — the oracle is the rendered recipe card
   on workerd preview (`seed.spec.ts`, `try-another-stale-response.spec.ts`).

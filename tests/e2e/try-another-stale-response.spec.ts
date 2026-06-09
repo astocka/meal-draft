@@ -72,7 +72,7 @@ function mockGenerateReversedOrder(page: Page): () => number {
 }
 
 async function clearGenerateMock(page: Page): Promise<void> {
-  await page.unroute("**/api/generate");
+  await page.unrouteAll({ behavior: "ignoreErrors" });
 }
 
 async function addPantryIngredient(page: Page, name: string): Promise<void> {

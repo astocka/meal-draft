@@ -55,6 +55,7 @@ test.describe("no_match client UI", () => {
       await expect(page.getByRole("alert")).toBeHidden();
       await expect(page.getByRole("button", { name: "Generuj" })).toBeEnabled();
     } finally {
+      await page.unrouteAll({ behavior: "ignoreErrors" });
       if (page.url().includes("/dashboard")) {
         await removePantryIngredient(page, uniqueIngredient).catch(() => undefined);
       }

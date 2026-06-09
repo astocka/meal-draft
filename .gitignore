@@ -38,6 +38,7 @@ Thumbs.db
 /playwright/.cache/
 /playwright/.auth/
 /.playwright-cli/
+**/playwright/.auth/
 
 # macOS-specific files
 .DS_Store
