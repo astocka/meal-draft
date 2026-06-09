@@ -2,6 +2,8 @@
 
 > Full plan: `context/changes/client-session-ci-gates/plan.md`
 > Research: `context/changes/data-isolation/research.md` (CI deferred to Phase 4)
+>
+> **Shipped 2026-06-10:** three-tier CI green; `test.fail()` removed from stale-response spec; CI E2E uses `ensure-dev-vars.mjs`.
 
 ## What & Why
 

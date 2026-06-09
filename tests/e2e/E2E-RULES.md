@@ -6,6 +6,8 @@
 - Each test must be independently runnable — no shared state between tests.
 - Never use page.waitForTimeout(). Wait for specific conditions:
   toBeVisible(), waitForURL(), waitForResponse(), toBeHidden().
+- Always `await page.route(...)` before navigation or clicks that should hit the mock.
+- During Try another loading, locate the button by `Szukam innego…`, not `Inny przepis`.
 - Assert the business outcome, not implementation details.
 - Use unique identifiers (e.g., timestamp suffix) for test data
   to avoid collisions in parallel runs. Clean up created rows after the test.

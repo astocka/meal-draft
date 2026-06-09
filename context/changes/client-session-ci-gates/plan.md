@@ -356,8 +356,8 @@ Update test-plan, AGENTS.md, change.md, and CI contributor docs so agents and hu
 
 - [x] 1.1 `pnpm exec playwright test tests/e2e/workerd-smoke.spec.ts` passes locally — ad370f2
 - [x] 1.2 `pnpm exec playwright test tests/e2e/seed.spec.ts` passes (existing test) — ad370f2
-- [x] 1.3 Reversed-order test runs under `test.fail()` — runner reports pass — ad370f2
-- [ ] 1.4 `pnpm exec playwright test` — full suite green locally
+- [x] 1.3 Reversed-order overlap test — `test.fail()` gap doc (ad370f2); passing regression test after wrapper removed (c05fa8d)
+- [x] 1.4 `pnpm exec playwright test` — full suite green locally — Windows: `pnpm test:e2e:isolation`; CI Tier 3 green on PR `test/e2e` (c05fa8d)
 
 #### Manual
 
@@ -380,7 +380,7 @@ Update test-plan, AGENTS.md, change.md, and CI contributor docs so agents and hu
 
 #### Automated
 
-- [ ] 3.1 Tier 3 E2E job green on same-repo PR with secrets
+- [x] 3.1 Tier 3 E2E job green on same-repo PR with secrets — c05fa8d
 - [x] 3.2 All E2E specs run in CI (auth.setup, workerd-smoke, seed, no-match-info-panel)
 - [x] 3.3 `pnpm test:e2e` passes locally
 
@@ -398,3 +398,10 @@ Update test-plan, AGENTS.md, change.md, and CI contributor docs so agents and hu
 #### Manual
 
 - [x] 4.3 test-plan §6.3 and AGENTS.md fork/CI docs reviewed by human
+
+## Post-implementation notes (2026-06-10)
+
+- CI Tier 3 required `scripts/ensure-dev-vars.mjs` — workerd preview reads `.dev.vars`, not process env (`8905507`).
+- `try-another-stale-response.spec.ts` no longer uses `test.fail()`; mock overlap scenario passes as a regression guard (`c05fa8d`).
+- `seed.spec.ts` asserts Try another loading via `Szukam innego…`, not idle `Inny przepis`.
+- Live docs synced: `test-plan.md` §6.3/§6.6, `AGENTS.md`, `E2E-RULES.md`.

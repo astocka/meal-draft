@@ -1,9 +1,9 @@
 ---
 change_id: client-session-ci-gates
 title: Client session and CI gates from phased test rollout
-status: impl_reviewed
+status: implemented
 created: 2026-06-07
-updated: 2026-06-09
+updated: 2026-06-10
 archived_at: null
 ---
 
@@ -24,3 +24,7 @@ Tiered CI enforces Vitest (including RLS integration on same-repo PRs), Playwrig
 ### PRD refs
 
 - NFR (quality / reliability); test-plan interview Q1, Q3 (Try another race, workerd concern); cross-cutting quality gates §5
+
+### Shipped
+
+2026-06-10 — all CI tiers verified on same-repo PR; impl-review F1–F7 closed; `change.md` epilogue complete.

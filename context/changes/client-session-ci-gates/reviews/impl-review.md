@@ -5,7 +5,7 @@
 - **Plan**: context/changes/client-session-ci-gates/plan.md
 - **Scope**: Full plan (Phases 1–4)
 - **Date**: 2026-06-09
-- **Verdict**: NEEDS ATTENTION
+- **Verdict**: APPROVED
 - **Findings**: 0 critical, 4 warnings, 3 observations
 
 ## Verdicts
@@ -17,7 +17,7 @@
 | Safety & Quality    | WARNING ⚠️ |
 | Architecture        | PASS ✅    |
 | Pattern Consistency | PASS ✅    |
-| Success Criteria    | WARNING ⚠️ |
+| Success Criteria    | PASS ✅    |
 
 ## Findings
 
@@ -76,7 +76,7 @@
   - Tradeoff: High time cost; known worker hang after tests pass.
   - Confidence: LOW on Windows.
   - Blind spot: None.
-- **Decision**: DEFERRED — user will commit, open PR, confirm CI green, then re-triage F4 to tick 1.4 + 3.1
+- **Decision**: FIXED via Fix A — 1.4 + 3.1 ticked after PR `test/e2e` → `main` all tiers green (8905507, c05fa8d)
 
 ### F5 — `try-another-stale-response` uses `page.unroute` not `unrouteAll`
 
@@ -95,7 +95,7 @@
 - **Dimension**: Plan Adherence
 - **Location**: context/changes/client-session-ci-gates/change.md:4
 - **Detail**: Expected before epilogue. Epilogue (`status: implemented`) should run after 1.4/3.1 close and user confirms.
-- **Decision**: SKIPPED — keep `impl_reviewed` until epilogue after CI
+- **Decision**: FIXED — epilogue: `change.md` → `status: implemented` after F4 CI verification
 
 ### F7 — Uncommitted work not yet on branch
 
@@ -105,4 +105,4 @@
 - **Location**: git working tree
 - **Detail**: `scripts/`, `test:e2e:isolation`, PLAYWRIGHT_SKIP_SETUP, test-plan/AGENTS updates are local-only. PR will be incomplete until committed.
 - **Fix**: Commit isolation tooling + doc updates after F3 lint fix.
-- **Decision**: SKIPPED — user will commit before PR
+- **Decision**: FIXED — branch `test/e2e` complete; docs synced 2026-06-10 (test-plan, AGENTS, E2E-RULES, plan addendum)

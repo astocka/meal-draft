@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-06-09 (E2E test-data isolation verified; `test:e2e:isolation` script)
+> Last updated: 2026-06-10 (E2E CI `.dev.vars` wiring; stale-response test is a passing regression guard)
 
 ## 1. Strategy
 
@@ -166,8 +166,8 @@ Use Playwright on **workerd preview** for Try another in-flight / stale-response
 **Local setup**
 
 1. Copy `.env.test.example` → `.env.test` (test Supabase + User A/B).
-2. For E2E, align **`.dev.vars`** `SUPABASE_URL` / `SUPABASE_KEY` with the **test** project (preview reads `.dev.vars`; auth users must exist in that project).
-3. Run: `pnpm test:e2e` (config starts `build && preview` on port 4321 — not `astro dev`).
+2. For E2E, align **`.dev.vars`** `SUPABASE_URL` / `SUPABASE_KEY` with the **test** project (workerd preview reads `.dev.vars`; auth users must exist in that project). CI Tier 3 injects secrets as env vars — `playwright.config.ts` calls `scripts/ensure-dev-vars.mjs` to materialize `.dev.vars` when the file is absent.
+3. Run: `pnpm test:e2e` (config starts `build && preview` on port 4321 — not `astro dev`). On Windows, prefer `pnpm test:e2e:isolation` for mutating specs; full suite parity is on CI Tier 3.
 
 **Auth pattern**
 
@@ -178,10 +178,11 @@ Use Playwright on **workerd preview** for Try another in-flight / stale-response
 
 **Mocking `/api/generate`**
 
-- Use `page.route("**/api/generate", handler)` with per-call delays to simulate in-flight overlap.
+- `await page.route("**/api/generate", handler)` before navigation or clicks — handlers only intercept requests registered after the call.
+- Use per-call delays in the handler to simulate in-flight overlap.
 - Assert UI from the **rendered recipe card** (getByRole/getByText), not fetch implementation.
-- For out-of-order completion: await **both** responses via `page.waitForResponse` / `Promise.all` before DOM assertions — never `waitForTimeout` (see E2E-RULES).
-- Document known production gaps with `test.fail()` until a generation request-id guard ships (`try-another-stale-response.spec.ts`).
+- In-flight Try another: assert the loading button (`Szukam innego…`), not the idle label (`Inny przepis`) — see `seed.spec.ts`.
+- Out-of-order overlap: `try-another-stale-response.spec.ts` uses `page.evaluate` double-click plus `waitForResponse`; await **both** responses before DOM assertions — never `waitForTimeout` (see E2E-RULES). Passing in CI is a regression guard (no `test.fail()` wrapper).
 
 **Mutating test data**
 
@@ -214,7 +215,7 @@ TBD — see §3 Phase 3 for strict-pantry validation with mocked LLM responses (
 
 - **Tier 1 — `ci`:** lint, build, CI-safe Vitest (`assert-supabase-anon-key`, `placeholder`) — every PR including forks.
 - **Tier 2 — `integration`:** full `pnpm test` (RLS suite) — same-repo PRs + push to `main` only; requires six repository secrets (see `.env.test.example`).
-- **Tier 3 — `e2e`:** Playwright on workerd preview — same gating and secrets as Tier 2; `workers: 1` in CI.
+- **Tier 3 — `e2e`:** Playwright on workerd preview — same gating and secrets as Tier 2; `workers: 1` in CI. `ensure-dev-vars.mjs` writes `.dev.vars` from injected secrets so workerd preview can reach Supabase.
 
 **Fork PRs:** Tier 1 only. Maintainers or contributors need a same-repo PR or local `pnpm test && pnpm test:e2e` for full signal.
 

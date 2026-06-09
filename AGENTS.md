@@ -48,7 +48,7 @@ Full server-side rendering (`output: "server"` in astro.config.mjs). All pages a
 - `pnpm run preview:wrangler` — build + run local workerd via wrangler dev
 - `pnpm run deploy` — build + deploy to Cloudflare Workers
 - `pnpm test` — Vitest integration/unit tests (requires `.env.test` — copy from `.env.test.example`; see @context/foundation/test-plan.md §6.2). CI runs the full suite in the `integration` job on same-repo PRs. **CRITICAL:** Only use the anon key. An environment guard inside `createClient()` will actively throw an error and abort execution if a `service_role` key is detected to prevent false-positive RLS bypasses.
-- `pnpm test:e2e` — Playwright E2E on workerd preview (`build && preview` via `playwright.config.ts`; see @context/foundation/test-plan.md §6.3). Locally, align `.dev.vars` Supabase URL/key with the test project when running E2E. CI runs in the `e2e` job on same-repo PRs.
+- `pnpm test:e2e` — Playwright E2E on workerd preview (`build && preview` via `playwright.config.ts`; see @context/foundation/test-plan.md §6.3). Locally, align `.dev.vars` Supabase URL/key with the test project when running E2E. CI Tier 3 injects secrets as env vars; `scripts/ensure-dev-vars.mjs` materializes `.dev.vars` when missing so workerd preview can auth.
 - `pnpm test:e2e:isolation` — fast local check that mutating E2E specs use unique pantry data and clean up after themselves: one build, reused preview, each mutating spec twice (~2 min). See `scripts/e2e-verify-isolation.mjs` and @tests/e2e/E2E-RULES.md. On Windows, prefer this over repeated full `test:e2e` runs (Playwright worker teardown can hang between projects).
 - `pnpm run lint` — ESLint with strict type-checked rules
 - `pnpm run lint:fix` — auto-fix lint issues
