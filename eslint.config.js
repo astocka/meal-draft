@@ -97,9 +97,24 @@ const scriptsConfig = tseslint.config({
   },
 });
 
+const codeReviewerConfig = tseslint.config({
+  files: ["packages/code-reviewer/**/*.ts"],
+  languageOptions: {
+    parserOptions: {
+      project: "./packages/code-reviewer/tsconfig.json",
+      tsconfigRootDir: import.meta.dirname,
+      projectService: false,
+    },
+  },
+  rules: {
+    "no-console": "off",
+  },
+});
+
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
   baseConfig,
+  codeReviewerConfig,
   scriptsConfig,
   reactConfig,
   eslintPluginAstro.configs["flat/recommended"],
