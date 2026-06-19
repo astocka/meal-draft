@@ -23,5 +23,11 @@ export async function reviewDiff(diff: string, projectRules?: string): Promise<R
     prompt: buildReviewPrompt(diff),
   });
 
+  // Runtime guard: SDK types output as always defined; fail loudly for CLI/eval consumers.
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- structured output can be absent at runtime
+  if (output == null) {
+    throw new Error("Code review agent returned no structured output.");
+  }
+
   return output;
 }

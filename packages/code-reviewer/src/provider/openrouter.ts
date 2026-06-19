@@ -7,9 +7,18 @@ export function resolveReviewModel(): string {
   return process.env.REVIEW_MODEL ?? DEFAULT_MODEL;
 }
 
+export function requireOpenRouterApiKey(): string {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    throw new Error("Missing OPENROUTER_API_KEY. Set it in src/.env or the environment.");
+  }
+
+  return apiKey;
+}
+
 export function createOpenRouterProvider() {
   return createOpenRouter({
-    apiKey: process.env.OPENROUTER_API_KEY,
+    apiKey: requireOpenRouterApiKey(),
   });
 }
 
