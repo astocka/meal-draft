@@ -22,3 +22,11 @@ None
 ### PRD refs
 
 None — internal agent package (M5 team coursework)
+
+### Review
+
+- **Impl review**: `context/changes/tool-loop-agent/reviews/impl-review.md`
+- **Verdict**: APPROVED (post-triage)
+- **Triage fixes** (F1–F3): applied locally, pending commit
+- **Manual verification**: `pnpm ping` + `pnpm review` with agent-generated simulated diff — confirmed 2026-06-18 (`openai/gpt-4.1-nano`, structured JSON)
+- **Commits**: `26e7ad6` (root config), `aa8d125` (package), `7b4b1b0` (plan docs)

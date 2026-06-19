@@ -303,34 +303,34 @@ No consumer outside the package currently imports `code-reviewer` (standalone pa
 
 #### Automated
 
-- [x] 1.1 `cd packages/code-reviewer && pnpm typecheck` passes
-- [x] 1.2 Lint passes for new `prompts/`, `schemas/`, and `provider/` modules
+- [x] 1.1 `cd packages/code-reviewer && pnpm typecheck` passes — aa8d125
+- [x] 1.2 Lint passes for new `prompts/`, `schemas/`, and `provider/` modules — aa8d125
 
 #### Manual
 
-- [x] 1.3 `SYSTEM_PROMPT` and `REVIEW_SCHEMA` content unchanged from pre-refactor
+- [x] 1.3 `SYSTEM_PROMPT` and `REVIEW_SCHEMA` content unchanged from pre-refactor — aa8d125
 
 ### Phase 2: Extract Agent & Project Rules
 
 #### Automated
 
-- [x] 2.1 `cd packages/code-reviewer && pnpm typecheck` passes
-- [x] 2.2 `pnpm run lint` passes for `packages/code-reviewer`
+- [x] 2.1 `cd packages/code-reviewer && pnpm typecheck` passes — aa8d125
+- [x] 2.2 `pnpm run lint` passes for `packages/code-reviewer` — aa8d125
 
 #### Manual
 
-- [x] 2.3 Agent still uses empty `tools: {}` and `stepCountIs(2)`
+- [x] 2.3 Agent still uses empty `tools: {}` and `stepCountIs(2)` — aa8d125
 
 ### Phase 3: Unified CLI, Barrel & Cleanup
 
 #### Automated
 
-- [x] 3.1 `cd packages/code-reviewer && pnpm typecheck` passes
-- [x] 3.2 `pnpm run lint` passes
-- [x] 3.3 Barrel import smoke test succeeds
+- [x] 3.1 `cd packages/code-reviewer && pnpm typecheck` passes — aa8d125
+- [x] 3.2 `pnpm run lint` passes — aa8d125
+- [x] 3.3 Barrel import smoke test succeeds — aa8d125
 
 #### Manual
 
-- [x] 3.4 `pnpm ping` verifies OpenRouter connectivity via `cli.ts ping`
-- [x] 3.5 `pnpm review` with piped diff returns valid review JSON
-- [x] 3.6 Importing `index.ts` does not trigger CLI execution
+- [x] 3.4 `pnpm ping` verifies OpenRouter connectivity via `cli.ts ping` — aa8d125
+- [x] 3.5 `pnpm review` with piped diff returns valid review JSON — aa8d125
+- [x] 3.6 Importing `index.ts` does not trigger CLI execution — aa8d125
