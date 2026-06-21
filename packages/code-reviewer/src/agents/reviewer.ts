@@ -5,11 +5,11 @@ import { createOpenRouterProvider, resolveReviewModel } from "../provider/openro
 import { buildInstructions, buildReviewPrompt } from "../prompts/review.ts";
 import { REVIEW_SCHEMA, type Review } from "../schemas/review.ts";
 
-export function createReviewerAgent(projectRules = loadProjectRules()) {
+export function createReviewerAgent(projectRules = loadProjectRules(), options?: { model?: string }) {
   const openrouter = createOpenRouterProvider();
 
   return new ToolLoopAgent({
-    model: openrouter(resolveReviewModel()),
+    model: openrouter(options?.model ?? resolveReviewModel()),
     instructions: buildInstructions(projectRules || undefined),
     tools: {},
     output: Output.object({ schema: REVIEW_SCHEMA }),
@@ -17,8 +17,8 @@ export function createReviewerAgent(projectRules = loadProjectRules()) {
   });
 }
 
-export async function reviewDiff(diff: string, projectRules?: string): Promise<Review> {
-  const reviewer = createReviewerAgent(projectRules);
+export async function reviewDiff(diff: string, projectRules?: string, model?: string): Promise<Review> {
+  const reviewer = createReviewerAgent(projectRules, { model });
   const { output } = await reviewer.generate({
     prompt: buildReviewPrompt(diff),
   });
