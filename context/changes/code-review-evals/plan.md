@@ -350,12 +350,12 @@ The six assertions across three providers (18 total assertion evaluations per `p
 
 #### Automated
 
-- [ ] 2.1 `pnpm run typecheck` (production) passes with new optional params
-- [ ] 2.2 `pnpm run typecheck:evals` passes with provider file present
+- [x] 2.1 `pnpm run typecheck` (production) passes with new optional params
+- [x] 2.2 `pnpm run typecheck:evals` passes with provider file present
 
 #### Manual
 
-- [ ] 2.3 `pnpm ping` still works (no regression on existing CLI)
+- [x] 2.3 `pnpm ping` still works (no regression on existing CLI)
 
 ### Phase 3: Fixture and Multi-Model Config
 
