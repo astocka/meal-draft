@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
 
-description: "code-reviewer model comparison — React 16→19 migration with 3 MealDraft violations"
+description: "code-reviewer model comparison — cheap vs premium (gpt-4o-mini, haiku, sonnet) on React 16→19 migration"
 
 providers:
   - id: file://./providers/eval-provider.ts
@@ -12,9 +12,9 @@ providers:
     config:
       model: anthropic/claude-haiku-4.5
   - id: file://./providers/eval-provider.ts
-    label: gemini-2.5-flash
+    label: claude-sonnet-4.6
     config:
-      model: google/gemini-2.5-flash
+      model: anthropic/claude-sonnet-4.6
 
 prompts:
   - "{{diff}}"

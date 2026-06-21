@@ -1,7 +1,7 @@
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { generateText } from "ai";
 
-const DEFAULT_MODEL = "openai/gpt-4.1-nano";
+const DEFAULT_MODEL = "anthropic/claude-haiku-4.5";
 
 export function resolveReviewModel(): string {
   return process.env.REVIEW_MODEL ?? DEFAULT_MODEL;
