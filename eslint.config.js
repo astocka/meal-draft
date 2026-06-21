@@ -98,10 +98,24 @@ const scriptsConfig = tseslint.config({
 });
 
 const codeReviewerConfig = tseslint.config({
-  files: ["packages/code-reviewer/**/*.ts"],
+  files: ["packages/code-reviewer/src/**/*.ts"],
   languageOptions: {
     parserOptions: {
       project: "./packages/code-reviewer/tsconfig.json",
+      tsconfigRootDir: import.meta.dirname,
+      projectService: false,
+    },
+  },
+  rules: {
+    "no-console": "off",
+  },
+});
+
+const codeReviewerEvalsConfig = tseslint.config({
+  files: ["packages/code-reviewer/evals/**/*.ts"],
+  languageOptions: {
+    parserOptions: {
+      project: "./packages/code-reviewer/tsconfig.evals.json",
       tsconfigRootDir: import.meta.dirname,
       projectService: false,
     },
@@ -115,6 +129,7 @@ export default tseslint.config(
   includeIgnoreFile(gitignorePath),
   baseConfig,
   codeReviewerConfig,
+  codeReviewerEvalsConfig,
   scriptsConfig,
   reactConfig,
   eslintPluginAstro.configs["flat/recommended"],
