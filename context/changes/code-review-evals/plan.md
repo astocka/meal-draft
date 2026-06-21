@@ -23,7 +23,7 @@ Introduce [promptfoo](https://promptfoo.dev) ≥ 0.122 inside `packages/code-rev
 
 `pnpm eval` from `packages/code-reviewer/` runs one test case (the React 16→19 migration diff) against three providers in parallel:
 
-- `openai/gpt-4o-mini`, `anthropic/claude-haiku-3.5`, `google/gemini-2.0-flash`
+- `openai/gpt-4o-mini`, `anthropic/claude-haiku-4.5`, `google/gemini-2.5-flash`
 
 For each provider, four assertions run:
 
@@ -174,6 +174,14 @@ export default class ReviewerProvider implements ApiProvider {
 }
 ```
 
+#### 4. ESLint coverage for eval sources (supporting)
+
+**File**: `eslint.config.js` (repo root)
+
+**Intent**: Pre-commit ESLint uses `parserOptions.project`; without a separate block, `evals/**/*.ts` is excluded from the production tsconfig and commits fail on the eval provider.
+
+**Contract**: Add `codeReviewerEvalsConfig` for `packages/code-reviewer/evals/**/*.ts` with `project: "./packages/code-reviewer/tsconfig.evals.json"`. Narrow `codeReviewerConfig` from `packages/code-reviewer/**/*.ts` to `packages/code-reviewer/src/**/*.ts`.
+
 ### Success Criteria
 
 #### Automated Verification
@@ -230,13 +238,13 @@ providers:
     config:
       model: openai/gpt-4o-mini
   - id: file://./providers/eval-provider.ts
-    label: claude-haiku-3.5
+    label: claude-haiku-4.5
     config:
-      model: anthropic/claude-3.5-haiku
+      model: anthropic/claude-haiku-4.5
   - id: file://./providers/eval-provider.ts
-    label: gemini-flash
+    label: gemini-2.5-flash
     config:
-      model: google/gemini-2.0-flash-001
+      model: google/gemini-2.5-flash
 ```
 
 **Prompt** — raw diff passthrough (provider wraps it internally):
