@@ -238,7 +238,7 @@ promptfoo evals need `OPENROUTER_API_KEY`. The package already has a `src/.env.e
 
 ```
 OPENROUTER_API_KEY=
-REVIEW_MODEL=openai/gpt-4.1-nano   # optional override
+REVIEW_MODEL=anthropic/claude-haiku-4.5   # eval-selected default for CLI
 ```
 
 The eval provider should call `loadPackageEnv()` at init time (or use `dotenv` directly) so the evals work standalone without requiring the user to set global env vars.
@@ -276,7 +276,7 @@ The monorepo's Vitest setup (`vitest.config.ts:20`) only covers `tests/**/*.test
 
 3. **Prompt injection guard** (`prompts/review.ts:62`): the `<diff_content>` envelope is already in `buildReviewPrompt()`. Eval fixtures passed as raw diff strings will be automatically wrapped — no fixture needs to include the tags.
 
-4. **`REVIEW_MODEL` env override** (`provider/openrouter.ts:6`): evals can run against a cheaper model (e.g., `openai/gpt-4.1-nano`) in CI and a stronger model (e.g., `anthropic/claude-opus-4.7`) locally by setting `REVIEW_MODEL`.
+4. **`REVIEW_MODEL` env override** (`provider/openrouter.ts:6`): default is `anthropic/claude-haiku-4.5` (eval-selected 2026-06-21). Eval harness compares `gpt-4o-mini`, haiku, and `claude-sonnet-4.6` via per-provider `config.model` without mutating env.
 
 5. **Standalone package, no workspace link**: promptfoo and fixtures stay inside `packages/code-reviewer/` and don't pollute the main app's dependency tree.
 

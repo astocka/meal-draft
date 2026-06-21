@@ -68,9 +68,8 @@
 - **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped
 - **Dimension**: Plan Adherence
 - **Location**: context/changes/code-review-evals/plan.md:24-26, 232-239
-- **Detail**: Desired End State and Phase 3 YAML example still list `claude-haiku-3.5` / `gemini-2.0-flash`. Actual config uses `anthropic/claude-haiku-4.5` and `google/gemini-2.5-flash` (documented only in Progress adaptations). Progress checkboxes also lack commit SHA suffixes.
-- **Fix**: Update plan body model IDs to match `promptfooconfig.yaml`; optionally append SHAs to Progress rows from commits c42ce89, f23abca, ea53f93, b293f8b, d818e25.
-- **Decision**: FIXED — synced Desired End State and Phase 3 YAML to claude-haiku-4.5 / gemini-2.5-flash (SHAs skipped per user)
+- **Detail**: Plan body and YAML synced to `gpt-4o-mini`, `claude-haiku-4.5`, `claude-sonnet-4.6` (gemini removed 2026-06-21 for cheap-vs-premium matrix).
+- **Decision**: FIXED — synced Desired End State and Phase 3 YAML; default `REVIEW_MODEL` set to haiku-4.5 post-eval
 
 ### F4 — Eval provider lacks structured error handling
 
@@ -112,11 +111,11 @@
 - **Impact**: 🔬 HIGH — architectural stakes; think carefully before deciding
 - **Dimension**: Success Criteria
 - **Location**: context/changes/code-review-evals/plan.md:366
-- **Detail**: Only claude-haiku-4.5 passes all four assertions. gpt-4o-mini and gemini-2.5-flash fail assertion 3 (tailwindConventions scored 5–6 despite detecting violation). Manual verification confirms this is the intended model-selection signal.
+- **Detail**: Eval complete (2026-06-21, sonnet lineup, `pnpm eval` ×2): haiku + sonnet PASS all assertions; gpt-4o-mini FAIL assertion 3 (run1 tailwind=6/worker=5, run2 tailwind=4/worker=5). Premium sonnet does not beat haiku on pass rate; haiku ~2× faster. **Default `REVIEW_MODEL`:** `anthropic/claude-haiku-4.5`.
 - **Fix A ⭐ Recommended**: Accept as-is; eval is working as designed for local model comparison.
   - Strength: Preserves useful signal; no false sense that all cheap models are equivalent.
   - Tradeoff: `pnpm eval` exits 100 until models improve or assertions are relaxed.
-  - Confidence: HIGH — user manually verified twice.
+  - Confidence: HIGH — user manually verified twice (stable pass/fail).
   - Blind spot: Model behavior may shift when OpenRouter routes change.
 - **Fix B**: Relax assertion 3 to `verdict === 'fail'` only; keep score checks informational in manual steps.
   - Strength: All providers can go green on static checks.
