@@ -34,6 +34,10 @@ async function runReview(): Promise<void> {
 
   const review = await reviewDiff(diff);
   console.log(JSON.stringify(review, null, 2));
+
+  if (review.verdict === "fail") {
+    process.exit(1);
+  }
 }
 
 async function runPing(): Promise<void> {
