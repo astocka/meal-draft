@@ -1,0 +1,38 @@
+{
+  "name": "code-reviewer",
+  "version": "1.0.0",
+  "description": "MealDraft AI code review agent (Vercel AI SDK + OpenRouter)",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "bin": {
+    "code-review": "./src/cli.ts"
+  },
+  "scripts": {
+    "review": "tsx src/cli.ts",
+    "start": "tsx src/cli.ts",
+    "ping": "tsx src/cli.ts ping",
+    "typecheck": "tsc --noEmit",
+    "eval": "promptfoo eval -c evals/promptfooconfig.yaml",
+    "typecheck:evals": "tsc --noEmit -p tsconfig.evals.json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@openrouter/ai-sdk-provider": "^2.9.1",
+    "ai": "^6.0.206",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.3",
+    "promptfoo": "^0.121.17",
+    "tsx": "^4.22.4",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=20.12"
+  }
+}
