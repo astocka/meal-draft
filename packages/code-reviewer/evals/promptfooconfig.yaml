@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+
+description: "code-reviewer model comparison — React 16→19 migration with 3 MealDraft violations"
+
+providers:
+  - id: file://./providers/eval-provider.ts
+    label: gpt-4o-mini
+    config:
+      model: openai/gpt-4o-mini
+  - id: file://./providers/eval-provider.ts
+    label: claude-haiku-4.5
+    config:
+      model: anthropic/claude-haiku-4.5
+  - id: file://./providers/eval-provider.ts
+    label: gemini-2.5-flash
+    config:
+      model: google/gemini-2.5-flash
+
+prompts:
+  - "{{diff}}"
+
+tests:
+  - description: "React 16→19 migration — 3 MealDraft violations"
+    vars:
+      diff: "file://./fixtures/react16-to-19-migration.diff"
+    assert:
+      # 1. Structural: valid JSON
+      - type: is-json
+
+      # 2. Score range invariant: all five scores are integers 1–10
+      - type: javascript
+        value: |
+          const r = JSON.parse(output);
+          const scores = [r.islandContract, r.tailwindConventions, r.supabaseSecurity,
+                          r.testCoverage, r.workerCompatibility];
+          return scores.every(s => Number.isInteger(s) && s >= 1 && s <= 10);
+
+      # 3. Static: all three hard-fail criteria score ≤ 4 and verdict is fail
+      - type: javascript
+        value: |
+          const r = JSON.parse(output);
+          return r.islandContract <= 4 &&
+                 r.tailwindConventions <= 4 &&
+                 r.workerCompatibility <= 4 &&
+                 r.verdict === 'fail';
+
+      # 4. LLM-as-judge: summary identifies all three specific violations
+      - type: llm-rubric
+        provider: openrouter:openai/gpt-4o
+        value: |
+          The input is a JSON code review of a React 16→19 migration diff.
+          Evaluate whether the 'summary' field correctly identifies all three of the following violations:
+          1. A "use client" directive was added (violates the Astro/React Island Contract — this directive is a Next.js pattern and must not appear in this codebase).
+          2. A Tailwind class string was built with a template literal instead of cn() from @/lib/utils.
+          3. process.env was accessed directly inside the component (violates Cloudflare Workers compatibility — env vars must come from astro:env/server).
+          Pass only if all three violations are clearly identified in the summary. Partial identification is a fail.

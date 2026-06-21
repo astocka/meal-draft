@@ -1,0 +1,87 @@
+diff --git a/src/components/pantry/PantryItem.tsx b/src/components/pantry/PantryItem.tsx
+index 3a1f8c2..d9e7041 100644
+--- a/src/components/pantry/PantryItem.tsx
++++ b/src/components/pantry/PantryItem.tsx
+@@ -1,49 +1,55 @@
+-import React, { Component } from "react";
+-import type { PantryEntry } from "@/types";
+-
+-interface Props {
+-  entry: PantryEntry;
+-  onRemove: (id: string) => void;
+-}
+-
+-interface State {
+-  confirmDelete: boolean;
+-}
+-
+-export class PantryItem extends Component<Props, State> {
+-  state: State = { confirmDelete: false };
+-
+-  handleRemove = () => {
+-    if (this.state.confirmDelete) {
+-      this.props.onRemove(this.props.entry.id);
+-    } else {
+-      this.setState({ confirmDelete: true });
+-    }
+-  };
+-
+-  render() {
+-    const { entry } = this.props;
+-    const { confirmDelete } = this.state;
+-    return (
+-      <li className="flex items-center justify-between px-3 py-2 rounded bg-white border">
+-        <span className="text-sm font-medium">{entry.ingredient}</span>
+-        <button
+-          onClick={this.handleRemove}
+-          className="text-xs text-red-600 hover:text-red-800"
+-        >
+-          {confirmDelete ? "Confirm" : "Remove"}
+-        </button>
+-      </li>
+-    );
+-  }
+-}
++"use client";
++
++import { useState } from "react";
++import type { PantryEntry } from "@/types";
++
++const API_BASE = process.env.SUPABASE_URL;
++
++interface PantryItemProps {
++  entry: PantryEntry;
++  onRemove: (id: string) => void;
++}
++
++export function PantryItem({ entry, onRemove }: PantryItemProps) {
++  const [confirmDelete, setConfirmDelete] = useState(false);
++
++  const handleRemove = () => {
++    if (confirmDelete) {
++      onRemove(entry.id);
++    } else {
++      setConfirmDelete(true);
++    }
++  };
++
++  const status = entry.quantity > 0 ? "green" : "red";
++  const badgeClass = `px-2 py-0.5 rounded text-xs font-medium text-${status}-700 bg-${status}-50`;
++
++  return (
++    <li className="flex items-center justify-between px-3 py-2 rounded bg-white border">
++      <div className="flex items-center gap-2">
++        <span className="text-sm font-medium">{entry.ingredient}</span>
++        <span className={badgeClass}>
++          {entry.quantity} {entry.unit}
++        </span>
++      </div>
++      <button
++        onClick={handleRemove}
++        className="text-xs text-red-600 hover:text-red-800"
++      >
++        {confirmDelete ? "Confirm" : "Remove"}
++      </button>
++    </li>
++  );
++}
