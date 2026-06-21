@@ -14,7 +14,9 @@
     "review": "tsx src/cli.ts",
     "start": "tsx src/cli.ts",
     "ping": "tsx src/cli.ts ping",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "eval": "promptfoo eval -c evals/promptfooconfig.yaml",
+    "typecheck:evals": "tsc --noEmit -p tsconfig.evals.json"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +28,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.9.3",
+    "promptfoo": "^0.121.17",
     "tsx": "^4.22.4",
     "typescript": "^5.9.3"
   },
