@@ -100,12 +100,12 @@ The CI workflow posts a score table using these five fields. Schema: `packages/c
 
 ## Rollout phases
 
-| Phase              | Scope                                                                                                     | Status      |
-| ------------------ | --------------------------------------------------------------------------------------------------------- | ----------- |
-| 1 — Ship MVP       | Workflow + composite action; diff-only input; 5 criteria; PR comment; job gate on fail                    | In progress |
-| 2 — Labels + retry | `ai-cr:passed` / `ai-cr:failed` labels; re-run on `ai-cr:review` label (`pull_request` `labeled` trigger) | Planned     |
-| 3 — PR title       | Wire title into agent prompt                                                                              | Planned     |
-| 4 — Docs           | AGENTS.md CI section; branch protection check name `"AI Code Review / review"`                            | Planned     |
+| Phase              | Scope                                                                                                     | Status   |
+| ------------------ | --------------------------------------------------------------------------------------------------------- | -------- |
+| 1 — Ship MVP       | Workflow + composite action; diff-only input; 5 criteria; PR comment; job gate on fail                    | Complete |
+| 2 — Labels + retry | `ai-cr:passed` / `ai-cr:failed` labels; re-run on `ai-cr:review` label (`pull_request` `labeled` trigger) | Complete |
+| 3 — PR title       | Wire title into agent prompt                                                                              | Planned  |
+| 4 — Docs           | AGENTS.md CI section; branch protection check name `"AI Code Review / review"`                            | Planned  |
 
 **Out of scope for this change:** PR description input, scored complexity/documentation fields, eval CI tier, fork PR reviews (forks skipped — secrets unavailable).
 
@@ -117,12 +117,12 @@ The CI workflow posts a score table using these five fields. Schema: `packages/c
 ## Expected side-effects
 
 - PR comment with summary and five-criterion score table — **implemented**
-- labels: `ai-cr:failed` (red) OR `ai-cr:passed` (green) — **Phase 2**
+- labels: `ai-cr:failed` (red) OR `ai-cr:passed` (green) — **implemented**
 
 ## Expected behavior
 
 - automatic run on every PR to `main` (same-repo only; fork PRs skipped) — **implemented**
-- on-demand retry when label `ai-cr:review` is added — **Phase 2**
+- on-demand retry when label `ai-cr:review` is added — **implemented**
 - job fails (merge gate) when verdict is `fail` — **implemented**; configure required check `"AI Code Review / review"` in branch protection after first successful soak run
 
 ### Label setup (manual — create before Phase 2)

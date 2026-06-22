@@ -11,6 +11,8 @@ archived_at: null
 
 introducing first ci/cd workflow for pr code reviews
 
+**Progress:** Phase 1 (MVP) and Phase 2 (labels + retry) complete; Phase 3 (PR title) next.
+
 ### Outcome
 
 Same-repo PRs to `main` receive automated AI code review: PR comment with five stack-specific scores, pass/fail labels, on-demand retry via `ai-cr:review`, and optional merge gate via **AI Code Review / review** status check.

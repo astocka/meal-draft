@@ -399,13 +399,13 @@ Document AI review CI tier in `AGENTS.md`, branch protection setup (advisory soa
 
 #### Automated
 
-- [x] 2.1 Workflow YAML valid after trigger and permission changes
+- [x] 2.1 Workflow YAML valid after trigger and permission changes — d884926
 
 #### Manual
 
-- [ ] 2.2 Automatic run applies `ai-cr:passed` or `ai-cr:failed`
-- [ ] 2.3 Adding `ai-cr:review` triggers re-run; comment and label update
-- [ ] 2.4 No label-application workflow loop
+- [x] 2.2 Automatic run applies `ai-cr:passed` or `ai-cr:failed` — d884926
+- [x] 2.3 Adding `ai-cr:review` triggers re-run; comment and label update — d884926
+- [x] 2.4 No label-application workflow loop — d884926
 
 ### Phase 3: PR Title Input
 
