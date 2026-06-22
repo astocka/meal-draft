@@ -1,4 +1,3 @@
-"use client";
 import { useState } from "react";
 import MealGenerator from "@/components/meal/MealGenerator";
 import PantryWidget from "@/components/pantry/PantryWidget";
