@@ -385,7 +385,7 @@ Document AI review CI tier in `AGENTS.md`, branch protection setup (advisory soa
 
 #### Automated
 
-- [ ] 1.1 `pnpm --filter code-reviewer typecheck` passes
+- [x] 1.1 `pnpm --filter code-reviewer typecheck` passes
 
 #### Manual
 
