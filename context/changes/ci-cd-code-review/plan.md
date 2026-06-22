@@ -385,21 +385,21 @@ Document AI review CI tier in `AGENTS.md`, branch protection setup (advisory soa
 
 #### Automated
 
-- [x] 1.1 `pnpm --filter code-reviewer typecheck` passes
+- [x] 1.1 `pnpm --filter code-reviewer typecheck` passes — d1d8c87
 
 #### Manual
 
-- [x] 1.2 `OPENROUTER_API_KEY` secret configured in GitHub
-- [x] 1.3 `ai-cr:passed`, `ai-cr:failed`, `ai-cr:review` labels created in GitHub UI
-- [x] 1.4 Feature branch merged; test PR triggers workflow
-- [x] 1.5 PR comment with five scores appears; pass and fail paths verified
-- [x] 1.6 Workflow logs confirm non-empty diff (`fetch-depth: 0` preserved)
+- [x] 1.2 `OPENROUTER_API_KEY` secret configured in GitHub — d1d8c87
+- [x] 1.3 `ai-cr:passed`, `ai-cr:failed`, `ai-cr:review` labels created in GitHub UI — d1d8c87
+- [x] 1.4 Feature branch merged; test PR triggers workflow — d1d8c87
+- [x] 1.5 PR comment with five scores appears; pass and fail paths verified — d1d8c87
+- [x] 1.6 Workflow logs confirm non-empty diff (`fetch-depth: 0` preserved) — d1d8c87
 
 ### Phase 2: Labels and On-Demand Retry
 
 #### Automated
 
-- [ ] 2.1 Workflow YAML valid after trigger and permission changes
+- [x] 2.1 Workflow YAML valid after trigger and permission changes
 
 #### Manual
 
