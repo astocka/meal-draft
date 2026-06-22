@@ -4,7 +4,7 @@ import { generateText } from "ai";
 const DEFAULT_MODEL = "anthropic/claude-haiku-4.5";
 
 export function resolveReviewModel(): string {
-  return process.env.REVIEW_MODEL ?? DEFAULT_MODEL;
+  return process.env.OPENROUTER_MODEL ?? DEFAULT_MODEL;
 }
 
 export function requireOpenRouterApiKey(): string {

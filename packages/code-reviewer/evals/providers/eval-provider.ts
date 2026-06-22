@@ -12,7 +12,7 @@ export default class ReviewerProvider implements ApiProvider {
     const model = typeof cfg?.model === "string" ? cfg.model : undefined;
     if (!model) {
       throw new Error(
-        "eval-provider requires config.model — omitting it would fall back to REVIEW_MODEL and break model comparison",
+        "eval-provider requires config.model — omitting it would fall back to OPENROUTER_MODEL and break model comparison",
       );
     }
     this.model = model;
