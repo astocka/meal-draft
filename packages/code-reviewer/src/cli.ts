@@ -35,7 +35,9 @@ async function runReview(): Promise<void> {
   const review = await reviewDiff(diff);
   console.log(JSON.stringify(review, null, 2));
 
-  if (review.verdict === "fail") {
+  // Local CLI: non-zero exit on fail for pipe-friendly scripts. In GHA the workflow
+  // posts the PR comment first, then fails in a dedicated enforce step.
+  if (review.verdict === "fail" && !process.env.GITHUB_ACTIONS) {
     process.exit(1);
   }
 }

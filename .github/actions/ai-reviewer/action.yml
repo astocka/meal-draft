@@ -40,21 +40,23 @@ runs:
 
         set +e
         REVIEW_JSON=$(pnpm --filter code-reviewer review < /tmp/pr.diff)
+        REVIEW_EXIT=$?
         set -e
 
         if ! echo "$REVIEW_JSON" | jq -e . >/dev/null 2>&1; then
-          echo "Review agent did not return valid JSON:"
+          echo "Review agent did not return valid JSON (exit $REVIEW_EXIT):"
           echo "$REVIEW_JSON"
           exit 1
         fi
 
         VERDICT=$(echo "$REVIEW_JSON" | jq -r '.verdict')
         echo "verdict=$VERDICT" >> "$GITHUB_OUTPUT"
+        DELIM="review_json_$(openssl rand -hex 8)"
         {
-          echo "review_json<<EOF"
+          echo "review_json<<${DELIM}"
           echo "$REVIEW_JSON"
-          echo "EOF"
+          echo "${DELIM}"
         } >> "$GITHUB_OUTPUT"
 
-        # Do not exit 1 on verdict=fail here — the workflow posts the PR comment first,
-        # then fails the job in a dedicated enforce step.
+        # Always succeed here — workflow posts the PR comment, then enforces fail verdict.
+        exit 0
