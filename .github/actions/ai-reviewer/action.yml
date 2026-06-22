@@ -1,0 +1,60 @@
+name: AI Reviewer
+description: Run the MealDraft code review agent against the current PR diff
+
+inputs:
+  api-key:
+    description: OpenRouter API key
+    required: true
+
+outputs:
+  verdict:
+    description: "'pass', 'fail', or 'skip' (empty diff)"
+    value: ${{ steps.agent.outputs.verdict }}
+  review-json:
+    description: Full structured review JSON
+    value: ${{ steps.agent.outputs.review_json }}
+
+runs:
+  using: composite
+  steps:
+    - name: Run agent
+      id: agent
+      shell: bash
+      env:
+        OPENROUTER_API_KEY: ${{ inputs.api-key }}
+      run: |
+        set -euo pipefail
+
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          git diff "${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}" > /tmp/pr.diff
+        else
+          git fetch origin main --depth=1
+          git diff origin/main...HEAD > /tmp/pr.diff
+        fi
+
+        if [ ! -s /tmp/pr.diff ]; then
+          echo "No diff to review — skipping."
+          echo "verdict=skip" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        set +e
+        REVIEW_JSON=$(pnpm --filter code-reviewer review < /tmp/pr.diff)
+        set -e
+
+        if ! echo "$REVIEW_JSON" | jq -e . >/dev/null 2>&1; then
+          echo "Review agent did not return valid JSON:"
+          echo "$REVIEW_JSON"
+          exit 1
+        fi
+
+        VERDICT=$(echo "$REVIEW_JSON" | jq -r '.verdict')
+        echo "verdict=$VERDICT" >> "$GITHUB_OUTPUT"
+        {
+          echo "review_json<<EOF"
+          echo "$REVIEW_JSON"
+          echo "EOF"
+        } >> "$GITHUB_OUTPUT"
+
+        # Do not exit 1 on verdict=fail here — the workflow posts the PR comment first,
+        # then fails the job in a dedicated enforce step.
