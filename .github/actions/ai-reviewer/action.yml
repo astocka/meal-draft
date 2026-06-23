@@ -5,6 +5,10 @@ inputs:
   api-key:
     description: OpenRouter API key
     required: true
+  pr-title:
+    description: Pull request title for intent context
+    required: false
+    default: ""
 
 outputs:
   verdict:
@@ -22,6 +26,7 @@ runs:
       shell: bash
       env:
         OPENROUTER_API_KEY: ${{ inputs.api-key }}
+        PR_TITLE: ${{ inputs.pr-title }}
       run: |
         set -euo pipefail
 

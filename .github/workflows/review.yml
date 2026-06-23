@@ -40,6 +40,7 @@ jobs:
         uses: ./.github/actions/ai-reviewer
         with:
           api-key: ${{ secrets.OPENROUTER_API_KEY }}
+          pr-title: ${{ github.event.pull_request.title || '' }}
 
       - name: Post review comment
         if: github.event_name == 'pull_request' && steps.review.outputs.verdict != 'skip'

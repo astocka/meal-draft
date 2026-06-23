@@ -32,7 +32,7 @@ async function runReview(): Promise<void> {
     process.exit(1);
   }
 
-  const review = await reviewDiff(diff);
+  const review = await reviewDiff(diff, undefined, undefined, process.env.PR_TITLE?.trim());
   console.log(JSON.stringify(review, null, 2));
 
   // Local CLI: non-zero exit on fail for pipe-friendly scripts. In GHA the workflow

@@ -11,7 +11,7 @@ archived_at: null
 
 introducing first ci/cd workflow for pr code reviews
 
-**Progress:** Phase 1 (MVP) and Phase 2 (labels + retry) complete; Phase 3 (PR title) next.
+**Progress:** Phase 1 (MVP) and Phase 2 (labels + retry) complete; Phase 3 (PR title) in progress.
 
 ### Outcome
 

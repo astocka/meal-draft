@@ -411,8 +411,8 @@ Document AI review CI tier in `AGENTS.md`, branch protection setup (advisory soa
 
 #### Automated
 
-- [ ] 3.1 `pnpm --filter code-reviewer typecheck` passes
-- [ ] 3.2 `pnpm run lint` passes on touched files
+- [x] 3.1 `pnpm --filter code-reviewer typecheck` passes
+- [x] 3.2 `pnpm run lint` passes on touched files
 
 #### Manual
 
