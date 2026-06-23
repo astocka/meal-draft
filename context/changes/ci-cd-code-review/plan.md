@@ -423,7 +423,7 @@ Document AI review CI tier in `AGENTS.md`, branch protection setup (advisory soa
 
 #### Automated
 
-- [ ] 4.1 `ci.yml` remote actions SHA-pinned
+- [x] 4.1 `ci.yml` remote actions SHA-pinned
 
 #### Manual
 

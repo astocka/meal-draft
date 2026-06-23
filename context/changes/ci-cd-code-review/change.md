@@ -11,7 +11,7 @@ archived_at: null
 
 introducing first ci/cd workflow for pr code reviews
 
-**Progress:** Phase 3 (PR title) complete; Phase 4 (docs + SHA pinning) next.
+**Progress:** Phase 4 (docs + SHA pinning) in progress.
 
 ### Outcome
 

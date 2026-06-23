@@ -86,6 +86,27 @@ Three tiers in @.github/workflows/ci.yml (triggers on push/PR to `main`):
 
 **Future (out of scope):** optional pre-test `pnpm exec supabase db push --linked` in Tier 2/3 with `SUPABASE_ACCESS_TOKEN` + linked project.
 
+#### AI Code Review
+
+Separate workflow in @.github/workflows/review.yml — not part of the three CI tiers above.
+
+| Field                       | Value                                                                                                            |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Workflow                    | **AI Code Review**                                                                                               |
+| Job                         | `review`                                                                                                         |
+| Trigger                     | Same-repo PRs to `main` (open, sync, reopen, or `ai-cr:review` label); `workflow_dispatch`                       |
+| Fork PRs                    | Skipped (no secrets on untrusted forks)                                                                          |
+| Secret                      | `OPENROUTER_API_KEY`                                                                                             |
+| Labels                      | `ai-cr:passed`, `ai-cr:failed`, `ai-cr:review` — create manually in GitHub UI before first run                   |
+| Required check (after soak) | **AI Code Review / review**                                                                                      |
+| Local equivalent            | `git diff main...HEAD \| pnpm --filter code-reviewer review` (optional: `PR_TITLE="feat: …"` for intent context) |
+
+On each run the job posts or updates a PR comment with five stack-specific scores, applies pass/fail labels, and fails the check when the agent verdict is `fail`. Add `ai-cr:review` to trigger an on-demand re-run.
+
+**Branch protection (after soak):** merge the workflow to `main`, verify on a test PR, then Settings → Branches → `main` → require status check **AI Code Review / review**. Run advisory-only first until the first successful soak, then enable as a merge gate.
+
+**SHA-pinning policy:** pin every remote GitHub Action to a full commit SHA (`owner/repo@<40-char-sha> # vX` comment). Floating tags (`@v4`) can be retargeted without notice; actions run with access to secrets. Local composite actions (`./.github/actions/ai-reviewer`) run checked-out repo code — no remote SHA needed.
+
 ## Cloudflare
 
 - Bump `compatibility_date` in `wrangler.jsonc` quarterly. Current: 2026-05-26.
