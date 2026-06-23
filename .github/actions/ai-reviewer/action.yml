@@ -27,6 +27,7 @@ runs:
       env:
         OPENROUTER_API_KEY: ${{ inputs.api-key }}
         PR_TITLE: ${{ inputs.pr-title }}
+        PROJECT_RULES_GIT_REF: ${{ github.event.pull_request.base.sha || 'origin/main' }}
       run: |
         set -euo pipefail
 
@@ -51,6 +52,12 @@ runs:
         if ! echo "$REVIEW_JSON" | jq -e . >/dev/null 2>&1; then
           echo "Review agent did not return valid JSON (exit $REVIEW_EXIT):"
           echo "$REVIEW_JSON"
+          exit 1
+        fi
+
+        if ! echo "$REVIEW_JSON" | jq -e '.verdict | IN("pass","fail")' >/dev/null 2>&1; then
+          echo "Review agent returned invalid verdict:"
+          echo "$REVIEW_JSON" | jq .
           exit 1
         fi
 
