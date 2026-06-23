@@ -100,12 +100,12 @@ The CI workflow posts a score table using these five fields. Schema: `packages/c
 
 ## Rollout phases
 
-| Phase              | Scope                                                                                                     | Status   |
-| ------------------ | --------------------------------------------------------------------------------------------------------- | -------- |
-| 1 — Ship MVP       | Workflow + composite action; diff-only input; 5 criteria; PR comment; job gate on fail                    | Complete |
-| 2 — Labels + retry | `ai-cr:passed` / `ai-cr:failed` labels; re-run on `ai-cr:review` label (`pull_request` `labeled` trigger) | Complete |
-| 3 — PR title       | Wire title into agent prompt                                                                              | Planned  |
-| 4 — Docs           | AGENTS.md CI section; branch protection check name `"AI Code Review / review"`                            | Planned  |
+| Phase              | Scope                                                                                                     | Status      |
+| ------------------ | --------------------------------------------------------------------------------------------------------- | ----------- |
+| 1 — Ship MVP       | Workflow + composite action; diff-only input; 5 criteria; PR comment; job gate on fail                    | Complete    |
+| 2 — Labels + retry | `ai-cr:passed` / `ai-cr:failed` labels; re-run on `ai-cr:review` label (`pull_request` `labeled` trigger) | Complete    |
+| 3 — PR title       | Wire title into agent prompt                                                                              | Complete    |
+| 4 — Docs           | AGENTS.md CI section; branch protection check name `"AI Code Review / review"`                            | In progress |
 
 **Out of scope for this change:** PR description input, scored complexity/documentation fields, eval CI tier, fork PR reviews (forks skipped — secrets unavailable).
 

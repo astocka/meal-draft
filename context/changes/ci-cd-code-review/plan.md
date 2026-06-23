@@ -421,12 +421,20 @@ Document AI review CI tier in `AGENTS.md`, branch protection setup (advisory soa
 
 ### Phase 4: Documentation and SHA-Pinning Alignment
 
+> **Not complete** — closes after 4.3 (post-merge) and 4.4.
+
 #### Automated
 
 - [x] 4.1 `ci.yml` remote actions SHA-pinned
 
 #### Manual
 
-- [ ] 4.2 AGENTS.md AI Code Review section accurate
-- [ ] 4.3 Branch protection requires **AI Code Review / review** after soak
+- [x] 4.2 AGENTS.md AI Code Review section accurate — impl-review 2026-06-23
+- [ ] 4.3 Branch protection requires **AI Code Review / review** after soak — **after merge to `main`**
 - [ ] 4.4 Tier 1/2/3 CI passes after `ci.yml` pin update
+
+#### Impl-review triage (2026-06-23) — separate from Phase 4 completion
+
+- [x] F1–F4 hardening applied (verdict validation, concurrency, base-branch rules, prompt escape) — uncommitted
+- [x] F7 requirements.md rollout table synced
+- [x] F5/F6/F8 triaged (soak deferred; 4.3 after merge)

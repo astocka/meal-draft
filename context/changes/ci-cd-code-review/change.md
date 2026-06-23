@@ -1,9 +1,9 @@
 ---
 change_id: ci-cd-code-review
 title: Introduce CI/CD workflow for PR code reviews
-status: implementing
+status: impl_reviewed
 created: 2026-06-22
-updated: 2026-06-22
+updated: 2026-06-23
 archived_at: null
 ---
 
@@ -11,7 +11,7 @@ archived_at: null
 
 introducing first ci/cd workflow for pr code reviews
 
-**Progress:** Phase 4 (docs + SHA pinning) in progress.
+**Progress:** Phases 1–3 complete. **Phase 4 in progress** — 4.1–4.2 done; 4.3 (branch protection) after merge to `main`; 4.4 pending. Impl-review triage fixes applied (uncommitted).
 
 ### Outcome
 
