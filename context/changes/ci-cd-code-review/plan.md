@@ -411,13 +411,13 @@ Document AI review CI tier in `AGENTS.md`, branch protection setup (advisory soa
 
 #### Automated
 
-- [x] 3.1 `pnpm --filter code-reviewer typecheck` passes
-- [x] 3.2 `pnpm run lint` passes on touched files
+- [x] 3.1 `pnpm --filter code-reviewer typecheck` passes — a8d6673
+- [x] 3.2 `pnpm run lint` passes on touched files — a8d6673
 
 #### Manual
 
-- [ ] 3.3 Test PR title appears in agent context; summary reflects intent where relevant
-- [ ] 3.4 `workflow_dispatch` and local CLI still work with empty title
+- [x] 3.3 Test PR title appears in agent context; summary reflects intent where relevant — a8d6673
+- [x] 3.4 `workflow_dispatch` and local CLI still work with empty title — a8d6673
 
 ### Phase 4: Documentation and SHA-Pinning Alignment
 
