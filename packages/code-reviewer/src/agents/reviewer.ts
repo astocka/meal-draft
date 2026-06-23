@@ -17,10 +17,10 @@ export function createReviewerAgent(projectRules = loadProjectRules(), options?:
   });
 }
 
-export async function reviewDiff(diff: string, projectRules?: string, model?: string): Promise<Review> {
+export async function reviewDiff(diff: string, projectRules?: string, model?: string, title?: string): Promise<Review> {
   const reviewer = createReviewerAgent(projectRules, { model });
   const { output } = await reviewer.generate({
-    prompt: buildReviewPrompt(diff),
+    prompt: buildReviewPrompt(diff, { title }),
   });
 
   // Runtime guard: SDK types output as always defined; fail loudly for CLI/eval consumers.
