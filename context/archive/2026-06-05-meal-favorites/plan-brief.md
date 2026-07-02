@@ -16,16 +16,16 @@ A logged-in user taps **Dodaj do ulubionych** on a generated recipe, sees brief 
 
 ## Key Decisions Made
 
-| Decision | Choice | Why (1 sentence) | Source |
-| --- | --- | --- | --- |
-| Navigation | Separate `/favorites` page + topbar link | Satisfies FR-012 without crowding the two-column dashboard shell | Plan |
-| Duplicate save | HTTP 409 → inline info message | Matches pantry duplicate UX; not alarm-styled | Plan |
-| Pantry drift | Show recipe snapshot as-is | F-01 snapshot design; read-only bookmarks need no pantry coupling in v1 | Plan |
-| Delete | Trash icon per item (pantry pattern) | Users must curate favorites; RLS already allows DELETE | Plan |
-| List display | Compact row + expand for full recipe | Scannable list with full recipe on demand per US-03 | Plan |
-| Sort order | `saved_at` descending | Most recent bookmarks surface first | Plan |
-| Save button | Spinner during POST, then re-enabled | Clear async feedback; duplicate path stays obvious | Plan |
-| Out of scope | No re-generate, pantry check, edit, search | Thin v1 slice per PRD Socrates resolutions and RLS constraints | Plan |
+| Decision       | Choice                                     | Why (1 sentence)                                                        | Source |
+| -------------- | ------------------------------------------ | ----------------------------------------------------------------------- | ------ |
+| Navigation     | Separate `/favorites` page + topbar link   | Satisfies FR-012 without crowding the two-column dashboard shell        | Plan   |
+| Duplicate save | HTTP 409 → inline info message             | Matches pantry duplicate UX; not alarm-styled                           | Plan   |
+| Pantry drift   | Show recipe snapshot as-is                 | F-01 snapshot design; read-only bookmarks need no pantry coupling in v1 | Plan   |
+| Delete         | Trash icon per item (pantry pattern)       | Users must curate favorites; RLS already allows DELETE                  | Plan   |
+| List display   | Compact row + expand for full recipe       | Scannable list with full recipe on demand per US-03                     | Plan   |
+| Sort order     | `saved_at` descending                      | Most recent bookmarks surface first                                     | Plan   |
+| Save button    | Spinner during POST, then re-enabled       | Clear async feedback; duplicate path stays obvious                      | Plan   |
+| Out of scope   | No re-generate, pantry check, edit, search | Thin v1 slice per PRD Socrates resolutions and RLS constraints          | Plan   |
 
 ## Scope
 
@@ -39,11 +39,11 @@ Three layers following pantry-crud: API routes validate `MealRecipe` via existin
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-| --- | --- | --- |
-| 1. Favorites API | GET/POST/DELETE endpoints with auth + duplicate handling | Recipe Zod vs DB CHECK mismatch on edge shapes |
-| 2. Save in Generator | Dodaj do ulubionych button + inline Polish feedback | Stale save message if not cleared on re-generate |
-| 3. Page + Navigation | `/favorites`, expandable list, topbar, middleware | Mobile nav + expanded recipe readability |
+| Phase                | What it delivers                                         | Key risk                                         |
+| -------------------- | -------------------------------------------------------- | ------------------------------------------------ |
+| 1. Favorites API     | GET/POST/DELETE endpoints with auth + duplicate handling | Recipe Zod vs DB CHECK mismatch on edge shapes   |
+| 2. Save in Generator | Dodaj do ulubionych button + inline Polish feedback      | Stale save message if not cleared on re-generate |
+| 3. Page + Navigation | `/favorites`, expandable list, topbar, middleware        | Mobile nav + expanded recipe readability         |
 
 **Prerequisites:** S-03 done; F-01 schema applied locally/remotely.
 **Estimated effort:** ~2 sessions across 3 phases.

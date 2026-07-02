@@ -1,4 +1,5 @@
 <!-- IMPL-REVIEW-REPORT -->
+
 # Implementation Review: Meal Favorites Implementation Plan
 
 - **Plan**: context/changes/meal-favorites/plan.md
@@ -9,14 +10,14 @@
 
 ## Verdicts
 
-| Dimension | Verdict |
-|-----------|---------|
-| Plan Adherence | PASS |
-| Scope Discipline | PASS |
-| Safety & Quality | PASS |
-| Architecture | PASS |
-| Pattern Consistency | PASS |
-| Success Criteria | PASS |
+| Dimension           | Verdict |
+| ------------------- | ------- |
+| Plan Adherence      | PASS    |
+| Scope Discipline    | PASS    |
+| Safety & Quality    | PASS    |
+| Architecture        | PASS    |
+| Pattern Consistency | PASS    |
+| Success Criteria    | PASS    |
 
 ## Findings
 
@@ -59,7 +60,7 @@
 - **Impact**: 🔎 MEDIUM — real tradeoff; pause to reason through it
 - **Dimension**: Safety & Quality
 - **Location**: src/components/meal/MealGenerator.tsx:80-91, 142-169
-- **Detail**: `handleGenerate` resets `saveStatus` and `isFavorited`, but an in-flight `handleSaveFavorite` can still complete afterward and call `setIsFavorited(true)` / `setSaveStatus("saved")` on the *new* recipe. The star can show "saved" for a meal that was never favorited (DB state for the prior recipe may still be correct).
+- **Detail**: `handleGenerate` resets `saveStatus` and `isFavorited`, but an in-flight `handleSaveFavorite` can still complete afterward and call `setIsFavorited(true)` / `setSaveStatus("saved")` on the _new_ recipe. The star can show "saved" for a meal that was never favorited (DB state for the prior recipe may still be correct).
 - **Fix**: Track a save generation token or use `AbortController`; ignore stale responses when `lastRecipe` has changed or generation has restarted.
   - Strength: Eliminates false-positive saved state without blocking generate.
   - Tradeoff: Small state-machine addition.
@@ -109,10 +110,10 @@
 
 ## Automated Verification Results
 
-| Command | Result | Notes |
-|---------|--------|-------|
-| `pnpm run lint` | PASS | Exit 0 |
-| `pnpm run build` | PASS | Exit 0, server built successfully |
+| Command          | Result | Notes                             |
+| ---------------- | ------ | --------------------------------- |
+| `pnpm run lint`  | PASS   | Exit 0                            |
+| `pnpm run build` | PASS   | Exit 0, server built successfully |
 
 ## Manual Verification (Progress section)
 
@@ -123,6 +124,7 @@ All 21 manual checkboxes marked `[x]` with commit SHAs (9b07f36, 8de88de, 20b048
 Meal-favorites source commits: `9b07f36`, `8de88de`, `20b0485`, `a11719f`, `3841059`.
 
 Changed source files (7):
+
 - src/pages/api/favorites/index.ts
 - src/pages/api/favorites/[id].ts
 - src/components/meal/MealGenerator.tsx
