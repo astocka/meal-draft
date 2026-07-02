@@ -23,6 +23,7 @@ Cookie-based Supabase SSR auth (`@supabase/ssr`) is wired. `src/middleware.ts` r
 ## Desired End State
 
 A user can:
+
 1. Register with email + password → land on `/auth/confirm-email` (dev: auto-confirmed; prod: check-email message)
 2. Click the Supabase email confirmation link → `/auth/callback` exchanges the code for a session → `/dashboard`
 3. Sign in with valid credentials → `/dashboard` (protected)
@@ -85,7 +86,7 @@ Add `prerender = false` to all three API routes, introduce zod input validation 
 
 **Intent**: Add `prerender = false`, validate with zod, and set `emailRedirectTo` so Supabase confirmation emails point to the app's `/auth/callback` route.
 
-**Contract**: Export `const prerender = false`. Schema: `z.object({ email: z.email(), password: z.string().min(10) })`. Pass `options: { emailRedirectTo: \`${SITE_URL}/auth/callback\` }` to `supabase.auth.signUp`. Redirect target on success stays `/auth/confirm-email`.
+**Contract**: Export `const prerender = false`. Schema: `z.object({ email: z.email(), password: z.string().min(10) })`. Pass `options: { emailRedirectTo: \`${SITE_URL}/auth/callback\` }`to`supabase.auth.signUp`. Redirect target on success stays `/auth/confirm-email`.
 
 #### 3. `src/pages/api/auth/signout.ts`
 
@@ -156,7 +157,7 @@ Create `src/pages/auth/callback.astro` to handle the Supabase PKCE email-confirm
 
 #### 1. `src/pages/auth/callback.astro`
 
-**File**: `src/pages/auth/callback.astro` *(new file)*
+**File**: `src/pages/auth/callback.astro` _(new file)_
 
 **Intent**: Receive the `?code=` query param from Supabase's email confirmation redirect, exchange it for a session via `supabase.auth.exchangeCodeForSession`, and send the user to `/dashboard` on success or `/auth/signin?error=...` on failure.
 

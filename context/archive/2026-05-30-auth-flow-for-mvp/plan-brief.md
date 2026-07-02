@@ -16,18 +16,19 @@ A user can register, confirm their email (or skip confirmation in dev), sign in 
 
 ## Key Decisions Made
 
-| Decision | Choice | Why (1 sentence) |
-|---|---|---|
-| Post-login destination | `/dashboard` | Matches S-01's stated outcome — "reach a protected core screen after authentication". |
-| Post-signout destination | `/auth/signin` | Clear UX: signed-out users are placed at the login screen, not the ambiguous public home page. |
-| Auth-page guard | Redirect authenticated users to `/dashboard` | Prevents redundant/confusing re-login for already-signed-in users. |
-| Email callback route | Add `/auth/callback` (PKCE code exchange) | Without it, Supabase confirmation emails lead to a URL the app doesn't handle. |
-| Dashboard content | Keep as minimal stub | Pantry UI is S-02; S-01 only needs to prove route protection works. |
-| Zod installation | `pnpm add zod` (Phase 1 prerequisite) | Not yet in `package.json`; AGENTS.md requires zod for all API route validation. |
+| Decision                 | Choice                                       | Why (1 sentence)                                                                               |
+| ------------------------ | -------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Post-login destination   | `/dashboard`                                 | Matches S-01's stated outcome — "reach a protected core screen after authentication".          |
+| Post-signout destination | `/auth/signin`                               | Clear UX: signed-out users are placed at the login screen, not the ambiguous public home page. |
+| Auth-page guard          | Redirect authenticated users to `/dashboard` | Prevents redundant/confusing re-login for already-signed-in users.                             |
+| Email callback route     | Add `/auth/callback` (PKCE code exchange)    | Without it, Supabase confirmation emails lead to a URL the app doesn't handle.                 |
+| Dashboard content        | Keep as minimal stub                         | Pantry UI is S-02; S-01 only needs to prove route protection works.                            |
+| Zod installation         | `pnpm add zod` (Phase 1 prerequisite)        | Not yet in `package.json`; AGENTS.md requires zod for all API route validation.                |
 
 ## Scope
 
 **In scope:**
+
 - `prerender = false` + zod validation on all three auth API routes
 - Sign-in redirect fix: `/` → `/dashboard`
 - Sign-out redirect fix: `/` → `/auth/signin`
@@ -36,6 +37,7 @@ A user can register, confirm their email (or skip confirmation in dev), sign in 
 - New `src/pages/auth/callback.astro` handling PKCE code exchange
 
 **Out of scope:**
+
 - `?next=` / intended-destination redirect
 - Dashboard page content (stays as is)
 - Auth form components (client-side validation already solid)
@@ -48,11 +50,11 @@ Classic server-side redirect flow with no new UI. Phase 1 touches only the three
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-|---|---|---|
-| 1. API Route Compliance + Redirect Fixes | All three API routes are AGENTS.md-compliant; login → `/dashboard`; signout → `/auth/signin` | zod must be installed first or imports will fail |
-| 2. Middleware Auth-Page Guard | Signed-in users bounced off `/auth/signin` and `/auth/signup` | Ordering matters — guard runs after user is resolved, before `PROTECTED_ROUTES` check |
-| 3. Email Confirmation Callback | `/auth/callback` exchanges Supabase PKCE code for a session | Requires Supabase dashboard allow-list update for the callback URL in production |
+| Phase                                    | What it delivers                                                                             | Key risk                                                                              |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| 1. API Route Compliance + Redirect Fixes | All three API routes are AGENTS.md-compliant; login → `/dashboard`; signout → `/auth/signin` | zod must be installed first or imports will fail                                      |
+| 2. Middleware Auth-Page Guard            | Signed-in users bounced off `/auth/signin` and `/auth/signup`                                | Ordering matters — guard runs after user is resolved, before `PROTECTED_ROUTES` check |
+| 3. Email Confirmation Callback           | `/auth/callback` exchanges Supabase PKCE code for a session                                  | Requires Supabase dashboard allow-list update for the callback URL in production      |
 
 **Prerequisites:** Supabase project connected (local or hosted). For Phase 3 manual testing: hosted Supabase with email confirmation enabled + callback URL added to the allow-list.
 **Estimated effort:** ~1 session across 3 phases (Phase 1 is the bulk; Phases 2 and 3 are each a single file change).

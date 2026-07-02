@@ -60,11 +60,11 @@ npx wrangler secret put SITE_URL
 
 Confirm these **encrypted secrets** exist:
 
-| Name | Value |
-|------|--------|
-| `SUPABASE_URL` | `https://xxx.supabase.co` |
-| `SUPABASE_KEY` | Supabase anon public key |
-| `SITE_URL` | `https://meal-draft.bluemoon-labs.workers.dev` |
+| Name           | Value                                          |
+| -------------- | ---------------------------------------------- |
+| `SUPABASE_URL` | `https://xxx.supabase.co`                      |
+| `SUPABASE_KEY` | Supabase anon public key                       |
+| `SITE_URL`     | `https://meal-draft.bluemoon-labs.workers.dev` |
 
 ### Step 4: GitHub Actions — not needed ❌
 
@@ -134,10 +134,10 @@ Keep `{{ .ConfirmationURL }}` in the link. Do not hardcode `/auth/callback` — 
 
 ### Step 6: Test end-to-end
 
-| Environment | Status |
-|-------------|--------|
-| Local (`pnpm run preview`) | ✅ Passed — email link → dashboard |
-| Production | ⬜ Pending — test after merge + deploy |
+| Environment                | Status                                 |
+| -------------------------- | -------------------------------------- |
+| Local (`pnpm run preview`) | ✅ Passed — email link → dashboard     |
+| Production                 | ⬜ Pending — test after merge + deploy |
 
 Production test steps:
 
@@ -147,30 +147,30 @@ Production test steps:
 
 Troubleshooting:
 
-| Symptom | Cause |
-|---------|-------|
-| `/auth/callback` returns 404 | Auth branch not deployed to production yet |
-| Supabase error on signup | Callback URL not in Redirect URLs allowlist |
-| "Site URL is not configured" on signup | `SITE_URL` Worker secret missing — add in dashboard |
-| Email link points to localhost on production | `SITE_URL` secret has wrong value |
-| "Invalid confirmation link" | Link expired (~10 min) or already used |
-| Password rejected by Supabase | Supabase min still at 6, needs to be 10 |
+| Symptom                                      | Cause                                               |
+| -------------------------------------------- | --------------------------------------------------- |
+| `/auth/callback` returns 404                 | Auth branch not deployed to production yet          |
+| Supabase error on signup                     | Callback URL not in Redirect URLs allowlist         |
+| "Site URL is not configured" on signup       | `SITE_URL` Worker secret missing — add in dashboard |
+| Email link points to localhost on production | `SITE_URL` secret has wrong value                   |
+| "Invalid confirmation link"                  | Link expired (~10 min) or already used              |
+| Password rejected by Supabase                | Supabase min still at 6, needs to be 10             |
 
 ---
 
 ## Quick reference
 
-| Item | Where | Required? | Status |
-|------|-------|-----------|--------|
-| `SITE_URL` local | `.dev.vars`, `.env` | Yes | ✅ Done |
-| `SITE_URL` production | Cloudflare Worker **secret** | Yes | ⚠️ Add in dashboard |
-| `SUPABASE_*` Worker secrets | Cloudflare dashboard | Yes | ✅ Done |
-| GitHub Actions secrets | GitHub repo settings | No | Skip |
-| Supabase Redirect URLs | Auth → URL Configuration | Yes | ✅ Done (local test passed) |
-| Supabase Site URL field | Auth → URL Configuration | No | Optional |
-| Email confirmation ON | Auth → Providers → Email | Yes | ✅ Done (local test passed) |
-| Password min 10 | Auth → Providers → Email | Yes | ✅ Done |
-| Production E2E test | Live app after deploy | Yes | ⬜ After merge |
+| Item                        | Where                        | Required? | Status                      |
+| --------------------------- | ---------------------------- | --------- | --------------------------- |
+| `SITE_URL` local            | `.dev.vars`, `.env`          | Yes       | ✅ Done                     |
+| `SITE_URL` production       | Cloudflare Worker **secret** | Yes       | ⚠️ Add in dashboard         |
+| `SUPABASE_*` Worker secrets | Cloudflare dashboard         | Yes       | ✅ Done                     |
+| GitHub Actions secrets      | GitHub repo settings         | No        | Skip                        |
+| Supabase Redirect URLs      | Auth → URL Configuration     | Yes       | ✅ Done (local test passed) |
+| Supabase Site URL field     | Auth → URL Configuration     | No        | Optional                    |
+| Email confirmation ON       | Auth → Providers → Email     | Yes       | ✅ Done (local test passed) |
+| Password min 10             | Auth → Providers → Email     | Yes       | ✅ Done                     |
+| Production E2E test         | Live app after deploy        | Yes       | ⬜ After merge              |
 
 ---
 

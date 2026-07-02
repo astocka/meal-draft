@@ -1,29 +1,30 @@
 <!-- IMPL-REVIEW-REPORT -->
+
 # Implementation Review: Auth Flow for MVP
 
 - **Plan**: context/changes/auth-flow-for-mvp/plan.md
 - **Scope**: All Phases (1–3 of 3)
 - **Date**: 2026-05-30
 - **Verdict**: APPROVED (post-triage)
-- **Findings**: 0 critical  5 warnings  5 observations
+- **Findings**: 0 critical 5 warnings 5 observations
 
 ## Verdicts
 
-| Dimension | Verdict |
-|-----------|---------|
-| Plan Adherence | PASS |
-| Scope Discipline | WARNING |
-| Safety & Quality | WARNING |
-| Architecture | PASS |
+| Dimension           | Verdict |
+| ------------------- | ------- |
+| Plan Adherence      | PASS    |
+| Scope Discipline    | WARNING |
+| Safety & Quality    | WARNING |
+| Architecture        | PASS    |
 | Pattern Consistency | WARNING |
-| Success Criteria | PASS |
+| Success Criteria    | PASS    |
 
 ## Success Criteria
 
-| Check | Result |
-|-------|--------|
-| `pnpm run lint` | ✅ PASS |
-| `pnpm run build` | ✅ PASS |
+| Check                             | Result        |
+| --------------------------------- | ------------- |
+| `pnpm run lint`                   | ✅ PASS       |
+| `pnpm run build`                  | ✅ PASS       |
 | Manual: all 8 Progress checkboxes | ✅ marked [x] |
 
 ## Findings
@@ -54,7 +55,7 @@
 - **Dimension**: Safety & Quality
 - **Location**: src/pages/api/auth/signin.ts:13, src/pages/api/auth/signup.ts:13
 - **Detail**: `context.request.formData()` is called without try/catch in both signin and signup. If the request Content-Type is missing or not a recognised form type (`multipart/form-data` or `application/x-www-form-urlencoded`), the call throws a TypeError that propagates as an unhandled 500. In Cloudflare Workers this surfaces as a generic error response with no useful feedback.
-- **Fix**: Wrap in try/catch and redirect with an error on failure: `let form: FormData; try { form = await context.request.formData(); } catch { return context.redirect(\`/auth/signin?error=${encodeURIComponent("Invalid request")}\`); }` (same pattern in signup, pointing to `/auth/signup`).
+- **Fix**: Wrap in try/catch and redirect with an error on failure: `let form: FormData; try { form = await context.request.formData(); } catch { return context.redirect(\`/auth/signin?error=${encodeURIComponent("Invalid request")}\`); }`(same pattern in signup, pointing to`/auth/signup`).
 - **Decision**: FIXED — try/catch added in signin.ts and signup.ts
 
 ### F3 — signOut() error silently discarded — FIXED

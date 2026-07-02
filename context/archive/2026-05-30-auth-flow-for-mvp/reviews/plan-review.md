@@ -1,4 +1,5 @@
 <!-- PLAN-REVIEW-REPORT -->
+
 # Plan Review: Auth Flow for MVP
 
 - **Plan**: `context/changes/auth-flow-for-mvp/plan.md`
@@ -9,13 +10,13 @@
 
 ## Verdicts
 
-| Dimension | Verdict |
-|-----------|---------|
-| End-State Alignment | PASS |
-| Lean Execution | PASS |
-| Architectural Fitness | PASS |
-| Blind Spots | PASS |
-| Plan Completeness | PASS (fixed) |
+| Dimension             | Verdict      |
+| --------------------- | ------------ |
+| End-State Alignment   | PASS         |
+| Lean Execution        | PASS         |
+| Architectural Fitness | PASS         |
+| Blind Spots           | PASS         |
+| Plan Completeness     | PASS (fixed) |
 
 ## Grounding
 

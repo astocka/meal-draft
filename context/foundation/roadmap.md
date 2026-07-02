@@ -209,3 +209,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-04** try-another-suggestion — **Inny przepis** with session `exclude_names`, exhaustion panel, rejected-count indicator, 20-cap guard, `generation-copy.ts` Polish UX (2026-06-05)
 - **S-05** meal-favorites — save/unsave star on generator, `/favorites` page with expandable list, topbar nav, impl-review fixes (2026-06-05)
 - **F-01: (foundation) pantry, favorites, and generation-history tables exist with per-user row-level security enforcing account-private data.** � Archived 2026-07-02 � `context/archive/2026-05-28-domain-data-schema/`. Lesson: �.
+- **S-01: user can register with email and password, log in, log out, and reach a protected core screen; unauthenticated access to protected routes redirects to login.** � Archived 2026-07-02 � `context/archive/2026-05-30-auth-flow-for-mvp/`. Lesson: �.
