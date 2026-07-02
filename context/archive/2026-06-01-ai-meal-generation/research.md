@@ -5,7 +5,21 @@ git_commit: c2a7e1e1a6953e22c429b7e2afd9efb1bd10eeb5
 branch: main
 repository: meal-draft
 topic: "F-02 AI meal generation — codebase readiness and integration surface"
-tags: [research, codebase, ai-meal-generation, supabase, cloudflare-workers, api-routes, llm-providers, history-logging, prompt-strategy, structured-output, vercel-ai-sdk, openrouter]
+tags:
+  [
+    research,
+    codebase,
+    ai-meal-generation,
+    supabase,
+    cloudflare-workers,
+    api-routes,
+    llm-providers,
+    history-logging,
+    prompt-strategy,
+    structured-output,
+    vercel-ai-sdk,
+    openrouter,
+  ]
 status: complete
 last_updated: 2026-06-01
 last_updated_by: AI agent
@@ -39,27 +53,27 @@ All three tables are live with correct shapes. F-02 reads from `pantry_products`
 
 **`public.pantry_products`** — the generation input source:
 
-| Column | Type | Notes |
-|--------|------|-------|
-| `id` | uuid PK | |
-| `user_id` | uuid FK → `auth.users` CASCADE | |
-| `name` | text NOT NULL | Unique per user: `lower(trim(name))` |
-| `created_at` | timestamptz | |
-| `updated_at` | timestamptz | auto-set via trigger |
+| Column       | Type                           | Notes                                |
+| ------------ | ------------------------------ | ------------------------------------ |
+| `id`         | uuid PK                        |                                      |
+| `user_id`    | uuid FK → `auth.users` CASCADE |                                      |
+| `name`       | text NOT NULL                  | Unique per user: `lower(trim(name))` |
+| `created_at` | timestamptz                    |                                      |
+| `updated_at` | timestamptz                    | auto-set via trigger                 |
 
 Reference: `supabase/migrations/20260528120000_domain_data_schema.sql:9-15`
 
 **`public.generation_history`** — the generation output sink:
 
-| Column | Type | Notes |
-|--------|------|-------|
-| `id` | uuid PK | |
-| `user_id` | uuid FK → `auth.users` CASCADE | |
-| `name` | text NOT NULL | Dish name for list views |
-| `meal_type` | `public.meal_type` enum | `'breakfast' \| 'lunch' \| 'dinner'` |
-| `generated_at` | timestamptz | auto `now()` |
-| `recipe` | jsonb **NULLABLE** | Full `MealRecipe`; nullable allows logging a failed attempt |
-| `seq` | bigint GENERATED IDENTITY | Tie-breaker for prune ordering |
+| Column         | Type                           | Notes                                                       |
+| -------------- | ------------------------------ | ----------------------------------------------------------- |
+| `id`           | uuid PK                        |                                                             |
+| `user_id`      | uuid FK → `auth.users` CASCADE |                                                             |
+| `name`         | text NOT NULL                  | Dish name for list views                                    |
+| `meal_type`    | `public.meal_type` enum        | `'breakfast' \| 'lunch' \| 'dinner'`                        |
+| `generated_at` | timestamptz                    | auto `now()`                                                |
+| `recipe`       | jsonb **NULLABLE**             | Full `MealRecipe`; nullable allows logging a failed attempt |
+| `seq`          | bigint GENERATED IDENTITY      | Tie-breaker for prune ordering                              |
 
 Reference: `supabase/migrations/20260528120000_domain_data_schema.sql:62-71`,  
 `supabase/migrations/20260528140000_fix_history_prune_ordering.sql:4-5`
@@ -81,11 +95,11 @@ Reference: `supabase/migrations/20260528120000_domain_data_schema.sql:46-53`
 
 **RLS summary:**
 
-| Table | SELECT | INSERT | UPDATE | DELETE |
-|-------|--------|--------|--------|--------|
-| `pantry_products` | ✓ own | ✓ own | ✓ own | ✓ own |
-| `generation_history` | ✓ own | ✓ own | — | — |
-| `favorite_meals` | ✓ own | ✓ own | — | ✓ own |
+| Table                | SELECT | INSERT | UPDATE | DELETE |
+| -------------------- | ------ | ------ | ------ | ------ |
+| `pantry_products`    | ✓ own  | ✓ own  | ✓ own  | ✓ own  |
+| `generation_history` | ✓ own  | ✓ own  | —      | —      |
+| `favorite_meals`     | ✓ own  | ✓ own  | —      | ✓ own  |
 
 All policies: `TO authenticated`, `(select auth.uid()) = user_id`.
 
@@ -120,6 +134,7 @@ export interface GenerationHistoryEntry {
 `MealRecipe` matches the DB CHECK constraint on `favorite_meals.recipe` exactly. `GenerationHistoryEntry` mirrors the `generation_history` table row.
 
 **Gaps — types not yet in `src/types.ts`:**
+
 - `GenerateRequest` DTO: `{ meal_type: MealType; max_prep_time_minutes: number | null }`
 - `GenerateResponse` DTO: `{ recipe: MealRecipe; history_id: string }`
 - Error union type for generation-specific failures (no match, provider error, etc.)
@@ -198,10 +213,10 @@ Shared Zod validators live in `src/lib/` (e.g. `src/lib/pantry-name.ts`). Follow
 
 **Two viable integration paths for planning:**
 
-| Path | How | Pros | Cons |
-|------|-----|------|------|
-| **External API via `fetch`** (e.g. OpenRouter / OpenAI direct) | Add API key as Wrangler secret + `astro:env/server` field; call with `fetch` in the route handler | No new SDK; infra.md recommendation | Slightly more prompt/response parsing boilerplate |
-| **Cloudflare Workers AI binding** | Add `"ai": { "binding": "AI" }` to `wrangler.jsonc`; use `env.AI.run(...)` | No external API key; zero-egress | Limited model selection; Cloudflare-only; harder local dev |
+| Path                                                           | How                                                                                               | Pros                                | Cons                                                       |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------- | ---------------------------------------------------------- |
+| **External API via `fetch`** (e.g. OpenRouter / OpenAI direct) | Add API key as Wrangler secret + `astro:env/server` field; call with `fetch` in the route handler | No new SDK; infra.md recommendation | Slightly more prompt/response parsing boilerplate          |
+| **Cloudflare Workers AI binding**                              | Add `"ai": { "binding": "AI" }` to `wrangler.jsonc`; use `env.AI.run(...)`                        | No external API key; zero-egress    | Limited model selection; Cloudflare-only; harder local dev |
 
 OpenRouter (external fetch) aligns with `infrastructure.md` and avoids Cloudflare-only lock-in. This is the recommended default for planning.
 
@@ -229,22 +244,22 @@ The generation rule (PRD Business Logic, lines 173–179):
 
 ## Code References
 
-| File | Purpose |
-|------|---------|
-| `src/types.ts:1-33` | All domain types; `MealRecipe`, `MealType`, `GenerationHistoryEntry` |
-| `src/lib/supabase.ts:4-23` | `createClient` — must be called per-handler |
-| `src/middleware.ts:1-33` | User resolution; `/api/*` not middleware-protected |
-| `src/pages/api/pantry/index.ts:1-76` | Canonical JSON API pattern to copy |
-| `src/pages/api/pantry/[id].ts:1-80` | PATCH/DELETE variant of the pattern |
-| `src/lib/pantry-name.ts:1-14` | How shared Zod validators are extracted to `src/lib/` |
-| `src/pages/dashboard.astro:9-24` | Server-prefetch pattern for pantry data |
-| `src/components/MealGeneratorPlaceholder.astro` | Static placeholder F-02 does NOT replace |
-| `astro.config.mjs:17-22` | env schema — where to add `OPENROUTER_API_KEY` (or equivalent) |
-| `wrangler.jsonc:1-15` | Cloudflare config — where to add AI binding if using Workers AI |
-| `supabase/migrations/20260528120000_domain_data_schema.sql:62-104` | `generation_history` table + prune trigger |
-| `supabase/migrations/20260528140000_fix_history_prune_ordering.sql:4-8` | `seq` tie-breaker column + composite index |
-| `context/foundation/infrastructure.md` | OpenRouter recommendation + latency pre-mortem |
-| `context/foundation/dashboard-layout.md` | Mobile tab pattern planned for S-03 |
+| File                                                                    | Purpose                                                              |
+| ----------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `src/types.ts:1-33`                                                     | All domain types; `MealRecipe`, `MealType`, `GenerationHistoryEntry` |
+| `src/lib/supabase.ts:4-23`                                              | `createClient` — must be called per-handler                          |
+| `src/middleware.ts:1-33`                                                | User resolution; `/api/*` not middleware-protected                   |
+| `src/pages/api/pantry/index.ts:1-76`                                    | Canonical JSON API pattern to copy                                   |
+| `src/pages/api/pantry/[id].ts:1-80`                                     | PATCH/DELETE variant of the pattern                                  |
+| `src/lib/pantry-name.ts:1-14`                                           | How shared Zod validators are extracted to `src/lib/`                |
+| `src/pages/dashboard.astro:9-24`                                        | Server-prefetch pattern for pantry data                              |
+| `src/components/MealGeneratorPlaceholder.astro`                         | Static placeholder F-02 does NOT replace                             |
+| `astro.config.mjs:17-22`                                                | env schema — where to add `OPENROUTER_API_KEY` (or equivalent)       |
+| `wrangler.jsonc:1-15`                                                   | Cloudflare config — where to add AI binding if using Workers AI      |
+| `supabase/migrations/20260528120000_domain_data_schema.sql:62-104`      | `generation_history` table + prune trigger                           |
+| `supabase/migrations/20260528140000_fix_history_prune_ordering.sql:4-8` | `seq` tie-breaker column + composite index                           |
+| `context/foundation/infrastructure.md`                                  | OpenRouter recommendation + latency pre-mortem                       |
+| `context/foundation/dashboard-layout.md`                                | Mobile tab pattern planned for S-03                                  |
 
 ---
 
@@ -308,15 +323,16 @@ All LLM calls originate from the workerd runtime. The `global_fetch_strictly_pub
 
 #### 1. Groq (direct API)
 
-| Model | Input $/1M | Output $/1M | TTFT | TPS | JSON mode |
-|---|---|---|---|---|---|
-| `llama-3.1-8b-instant` | $0.05 | $0.08 | ~150 ms | 840 | `json_object` |
-| `llama-4-scout-17b` | $0.11 | $0.34 | ~150 ms | 594 | `json_object` |
-| `llama-3.3-70b-versatile` | $0.59 | $0.79 | ~150–200 ms | 394 | `json_object` |
+| Model                     | Input $/1M | Output $/1M | TTFT        | TPS | JSON mode     |
+| ------------------------- | ---------- | ----------- | ----------- | --- | ------------- |
+| `llama-3.1-8b-instant`    | $0.05      | $0.08       | ~150 ms     | 840 | `json_object` |
+| `llama-4-scout-17b`       | $0.11      | $0.34       | ~150 ms     | 594 | `json_object` |
+| `llama-3.3-70b-versatile` | $0.59      | $0.79       | ~150–200 ms | 394 | `json_object` |
 
 **Notes**: Groq runs custom LPU hardware. TTFT is measured at ~38 ms (p50 warm) to ~150 ms in published benchmarks — the fastest of any cloud provider. Tokens/second far exceeds GPU-based APIs (5–14× faster). API is OpenAI-compatible (`baseURL: "https://api.groq.com/openai/v1"`). Supports `response_format: { type: "json_object" }` but **not** `json_schema` schema enforcement — you get valid JSON but not schema-validated output. Prompt discipline + server-side Zod validation required. Free tier: 30 RPM / 6 000 TPM / 14 400 RPD, no credit card.
 
 **For MealDraft F-02 (300-token recipe):**
+
 - `llama-3.1-8b-instant` at 840 TPS → recipe generates in ~0.35 s after first token. Total round trip ~0.5 s. Effectively instant.
 - 1 000 monthly requests × avg 600 tokens = 600 K tokens → **$0.033/month** on 8B.
 - Risk: 8B model may not reliably honour strict-pantry constraints. Retry logic or server-side pantry check is mandatory.
@@ -329,14 +345,14 @@ OpenRouter aggregates 400+ models behind one OpenAI-compatible endpoint (`https:
 
 **Best models for F-02 via OpenRouter:**
 
-| Model | Input $/1M | Output $/1M | TTFT (approx) | json_schema? |
-|---|---|---|---|---|
-| `openai/gpt-4.1-nano` | $0.10 | $0.40 | ~120 ms | **Yes** |
-| `openai/gpt-4.1-mini` | $0.40 | $1.60 | ~200 ms | **Yes** |
-| `meta-llama/llama-4-scout` | $0.11 | $0.34 | ~150 ms | `json_object` only |
-| `google/gemini-2.5-flash` | $0.30 | $2.50 | ~640 ms | **Yes** |
-| `x-ai/grok-4.1-fast` | $0.20 | $0.50 | ~130 ms | Yes |
-| `deepseek/deepseek-v3` | ~$0.30 | ~$0.89 | ~2 000 ms | `json_object` |
+| Model                      | Input $/1M | Output $/1M | TTFT (approx) | json_schema?       |
+| -------------------------- | ---------- | ----------- | ------------- | ------------------ |
+| `openai/gpt-4.1-nano`      | $0.10      | $0.40       | ~120 ms       | **Yes**            |
+| `openai/gpt-4.1-mini`      | $0.40      | $1.60       | ~200 ms       | **Yes**            |
+| `meta-llama/llama-4-scout` | $0.11      | $0.34       | ~150 ms       | `json_object` only |
+| `google/gemini-2.5-flash`  | $0.30      | $2.50       | ~640 ms       | **Yes**            |
+| `x-ai/grok-4.1-fast`       | $0.20      | $0.50       | ~130 ms       | Yes                |
+| `deepseek/deepseek-v3`     | ~$0.30     | ~$0.89      | ~2 000 ms     | `json_object`      |
 
 **GPT-4.1 Nano** is the standout: cheapest provider with first-class `json_schema` enforcement, sub-200 ms TTFT, and the strongest instruction-following-per-dollar. 1M context window covers any realistic pantry prompt. 1 000 monthly requests → **$0.02–$0.05/month** (negligible).
 
@@ -348,10 +364,10 @@ OpenRouter aggregates 400+ models behind one OpenAI-compatible endpoint (`https:
 
 #### 3. Google AI Studio (direct API)
 
-| Model | Input $/1M | Output $/1M | TTFT | TPS | json_schema? |
-|---|---|---|---|---|---|
-| `gemini-2.5-flash` | $0.30 | $2.50 | ~640 ms | ~225 | **Yes** |
-| `gemini-2.5-flash-8b` (Flash-Lite successor) | $0.075 | $0.30 | ~100 ms | ~180 | **Yes** |
+| Model                                        | Input $/1M | Output $/1M | TTFT    | TPS  | json_schema? |
+| -------------------------------------------- | ---------- | ----------- | ------- | ---- | ------------ |
+| `gemini-2.5-flash`                           | $0.30      | $2.50       | ~640 ms | ~225 | **Yes**      |
+| `gemini-2.5-flash-8b` (Flash-Lite successor) | $0.075     | $0.30       | ~100 ms | ~180 | **Yes**      |
 
 Google AI Studio offers a **generous free tier** (requests/day, no credit card). `gemini-2.5-flash-8b` at $0.075/$0.30 is the cheapest option with `json_schema` enforcement. TTFT ~100 ms. For a 300-token recipe at 180 TPS → ~1.7 s total (TTFT + generation). Acceptable under the NFR.
 
@@ -361,14 +377,15 @@ Google AI Studio offers a **generous free tier** (requests/day, no credit card).
 
 #### 4. Cloudflare Workers AI (binding, no external API key)
 
-| Model | Input $/1M | Output $/1M | JSON mode | Free neurons/day |
-|---|---|---|---|---|
-| `@cf/meta/llama-3.1-8b-instruct-fp8-fast` | $0.045 | $0.384 | `json_schema` | 10 000 neurons (~200 req/day) |
-| `@cf/meta/llama-3.3-70b-instruct-fp8-fast` | $0.293 | $2.253 | `json_schema` | same pool |
+| Model                                      | Input $/1M | Output $/1M | JSON mode     | Free neurons/day              |
+| ------------------------------------------ | ---------- | ----------- | ------------- | ----------------------------- |
+| `@cf/meta/llama-3.1-8b-instruct-fp8-fast`  | $0.045     | $0.384      | `json_schema` | 10 000 neurons (~200 req/day) |
+| `@cf/meta/llama-3.3-70b-instruct-fp8-fast` | $0.293     | $2.253      | `json_schema` | same pool                     |
 
 Workers AI runs on Cloudflare's edge, co-located with the Worker. Zero external network hop. Configured via `wrangler.jsonc` `"ai": { "binding": "AI" }` — no API key needed. Supports `json_schema` mode (GA since Feb 2025). Also integrates with the Vercel AI SDK via `workers-ai-provider`.
 
 **Limitations**:
+
 - Free tier is ~200 LLM requests/day on 8B models (10 000 neurons ÷ ~50 neurons/call). Not suitable for production traffic beyond prototyping.
 - `json_schema` compliance is best-effort: Cloudflare docs note the model "may not satisfy the request in extreme situations" and returns `JSON Mode couldn't be met` error that must be handled.
 - Model selection is narrower than external providers; quality for complex reasoning is lower than GPT-4.1 Nano or Gemini 2.5 Flash.
@@ -379,11 +396,11 @@ Workers AI runs on Cloudflare's edge, co-located with the Worker. Zero external 
 
 All three external options (Groq, OpenRouter, Google) are OpenAI-compatible. The two viable integration patterns for Cloudflare Workers:
 
-| Pattern | Dependencies | Bundle impact | Structured output |
-|---|---|---|---|
-| **Plain `fetch`** | none | zero | Manual `response_format` JSON parsing |
-| **`openai` npm SDK** | `openai` | ~80 KB | `response_format: { type: "json_schema" }` |
-| **Vercel AI SDK** (`ai` + `@ai-sdk/openai`) | `ai`, `@ai-sdk/openai` | ~150 KB | `generateObject` with Zod schema |
+| Pattern                                     | Dependencies           | Bundle impact | Structured output                          |
+| ------------------------------------------- | ---------------------- | ------------- | ------------------------------------------ |
+| **Plain `fetch`**                           | none                   | zero          | Manual `response_format` JSON parsing      |
+| **`openai` npm SDK**                        | `openai`               | ~80 KB        | `response_format: { type: "json_schema" }` |
+| **Vercel AI SDK** (`ai` + `@ai-sdk/openai`) | `ai`, `@ai-sdk/openai` | ~150 KB       | `generateObject` with Zod schema           |
 
 The Vercel AI SDK has first-class Cloudflare Workers support (official docs page), Zod-native schema binding, and a `workers-ai-provider` package for the CF binding path. It would remove manual JSON parsing and align with the existing Zod usage pattern in the codebase. The `openai` SDK is lighter and sufficient if using plain `response_format`.
 
@@ -393,19 +410,19 @@ The Vercel AI SDK has first-class Cloudflare Workers support (official docs page
 
 **Primary (OpenRouter + GPT-4.1 Nano)** — aligns with `infrastructure.md`, gives `json_schema` enforcement, lowest cost with proper schema validation, fastest TTFT with reliable instruction following.
 
-| Property | Value |
-|---|---|
-| Provider | OpenRouter |
-| Model | `openai/gpt-4.1-nano` |
-| Input cost | $0.10 / 1M tokens |
-| Output cost | $0.40 / 1M tokens |
-| Est. monthly cost (1 000 req) | < $0.05 |
-| TTFT | ~120 ms |
-| TPS | ~150 t/s → ~2 s for a 300-token recipe |
-| json_schema | Yes — enforces `MealRecipe` shape |
-| Cloudflare Workers compat | Yes — `fetch`-based |
-| Env var | `OPENROUTER_API_KEY` as Wrangler secret |
-| SDK | `openai` npm SDK with `baseURL: "https://openrouter.ai/api/v1"` |
+| Property                      | Value                                                           |
+| ----------------------------- | --------------------------------------------------------------- |
+| Provider                      | OpenRouter                                                      |
+| Model                         | `openai/gpt-4.1-nano`                                           |
+| Input cost                    | $0.10 / 1M tokens                                               |
+| Output cost                   | $0.40 / 1M tokens                                               |
+| Est. monthly cost (1 000 req) | < $0.05                                                         |
+| TTFT                          | ~120 ms                                                         |
+| TPS                           | ~150 t/s → ~2 s for a 300-token recipe                          |
+| json_schema                   | Yes — enforces `MealRecipe` shape                               |
+| Cloudflare Workers compat     | Yes — `fetch`-based                                             |
+| Env var                       | `OPENROUTER_API_KEY` as Wrangler secret                         |
+| SDK                           | `openai` npm SDK with `baseURL: "https://openrouter.ai/api/v1"` |
 
 **Budget / speed alternative (Groq + Llama 3.1 8B Instant)** — 10× cheaper, fastest TTFT (~150 ms), but `json_object` mode only (no schema enforcement). Requires robust server-side pantry re-validation and retry logic. Viable if quality testing passes.
 
@@ -435,7 +452,7 @@ The Vercel AI SDK has first-class Cloudflare Workers support (official docs page
 
 Every auditing and observability reference reaches the same structural conclusion: **a user-visible history list and an internal operations log are different artefacts with different audiences, different access patterns, and different retention needs, and conflating them into one table creates coupling that grows expensive over time.**
 
-From Martin Fowler's *Audit Log*: an audit log records "any time something significant happens" — including failures. From the Veld Systems audit-log guide: "Not logging failures [is a mistake]. Failed login attempts, denied permission checks, and validation errors are often more important for security investigations than successful operations." From the AI observability literature (2026): LLM "no result" events — model refusals, empty outputs, schema violations — are first-class operational signals that must be captured to detect prompt drift and degradation.
+From Martin Fowler's _Audit Log_: an audit log records "any time something significant happens" — including failures. From the Veld Systems audit-log guide: "Not logging failures [is a mistake]. Failed login attempts, denied permission checks, and validation errors are often more important for security investigations than successful operations." From the AI observability literature (2026): LLM "no result" events — model refusals, empty outputs, schema violations — are first-class operational signals that must be captured to detect prompt drift and degradation.
 
 At the same time, the NNGroup empty-state and AI-UX failure-mode research is equally clear: users should **never** see blank or meaningless entries in a history list. A "no match" attempt that shows up as an empty row in S-06 creates confusion about system status and erodes trust. The UX recommendation is to show failure states in-context (at the time of generation, not in the history list), offer a path forward, and then drop the failed attempt from the permanent record.
 
@@ -447,12 +464,12 @@ The recommended architecture when these two needs collide: **two distinct tables
 
 The `generation_history` table was designed as a **user-facing feature** (S-06 renders it). The prune trigger already enforces a UX contract: show the 20 most recent successful meals. Inserting null-recipe rows into this same table creates four concrete problems:
 
-| Problem | Consequence |
-|---|---|
-| Null rows count toward the 20-row prune cap | A user who hits "no match" 10 times in a row loses 10 of their 20 available history slots; successful recipes are pruned faster |
-| S-06 must filter `WHERE recipe IS NOT NULL` | Any query, view, or future API that reads history inherits this filter requirement; missed filters expose null rows to users |
-| Prune trigger must be updated to exclude nulls from the cap | Otherwise the UX contract (20 recent meals) is silently broken |
-| Debugging signal and UX history become coupled | Changing retention policy for one breaks the other |
+| Problem                                                     | Consequence                                                                                                                     |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Null rows count toward the 20-row prune cap                 | A user who hits "no match" 10 times in a row loses 10 of their 20 available history slots; successful recipes are pruned faster |
+| S-06 must filter `WHERE recipe IS NOT NULL`                 | Any query, view, or future API that reads history inherits this filter requirement; missed filters expose null rows to users    |
+| Prune trigger must be updated to exclude nulls from the cap | Otherwise the UX contract (20 recent meals) is silently broken                                                                  |
+| Debugging signal and UX history become coupled              | Changing retention policy for one breaks the other                                                                              |
 
 Fixing these requires either (a) modifying the prune trigger to count only `recipe IS NOT NULL` rows toward the cap, and (b) adding `WHERE recipe IS NOT NULL` to every S-06 read path — essentially building the separation manually inside one table, which is harder to maintain than just using two tables.
 
@@ -481,10 +498,10 @@ The row shape for this case:
 
 ```typescript
 await supabase.from("generation_history").insert({
-  user_id:    user.id,
-  name:       "[generation failed]",   // sentinel name, not user-visible in S-06
-  meal_type:  input.meal_type,
-  recipe:     null,
+  user_id: user.id,
+  name: "[generation failed]", // sentinel name, not user-visible in S-06
+  meal_type: input.meal_type,
+  recipe: null,
   // generated_at is auto-set by now()
 });
 ```
@@ -493,11 +510,11 @@ S-06 history UI queries: `WHERE recipe IS NOT NULL` to exclude these sentinel ro
 
 #### Summary table
 
-| Outcome | DB insert? | Response to caller | Operational log |
-|---|---|---|---|
-| Semantic "no match" | **No** | `{ recipe: null, reason: "no_match" }` | `console.warn` → `wrangler tail` |
-| Provider/parse error after retry | **Yes** (`recipe: null`, `name: "[generation failed]"`) | `{ error: "generation_failed" }` HTTP 500 | `console.error` + DB row |
-| Successful generation | **Yes** (full recipe) | `{ recipe: MealRecipe, history_id }` | implicit in DB row |
+| Outcome                          | DB insert?                                              | Response to caller                        | Operational log                  |
+| -------------------------------- | ------------------------------------------------------- | ----------------------------------------- | -------------------------------- |
+| Semantic "no match"              | **No**                                                  | `{ recipe: null, reason: "no_match" }`    | `console.warn` → `wrangler tail` |
+| Provider/parse error after retry | **Yes** (`recipe: null`, `name: "[generation failed]"`) | `{ error: "generation_failed" }` HTTP 500 | `console.error` + DB row         |
+| Successful generation            | **Yes** (full recipe)                                   | `{ recipe: MealRecipe, history_id }`      | implicit in DB row               |
 
 ---
 
@@ -545,17 +562,19 @@ Each component is justified below.
 
 Prompt-only instructions ("respond only in valid JSON") fail in production. LLMs add explanatory preamble, use code fences, insert trailing commas, or deviate from the schema when they "think" a different format is more helpful. The 2026 unblockdevs.com guide quantifies the gap:
 
-| Approach | Reliability |
-|---|---|
-| Prompt-only ("respond in JSON") | ~70% |
-| `json_object` mode (syntactically valid JSON, no schema) | ~90% |
-| `json_schema` with `strict: true` (constrained decoding) | ~99.9% |
+| Approach                                                 | Reliability |
+| -------------------------------------------------------- | ----------- |
+| Prompt-only ("respond in JSON")                          | ~70%        |
+| `json_object` mode (syntactically valid JSON, no schema) | ~90%        |
+| `json_schema` with `strict: true` (constrained decoding) | ~99.9%      |
 
 OpenRouter fully supports `response_format: { type: "json_schema", strict: true }` for all OpenAI GPT-4.x models (including the recommended `openai/gpt-4.1-nano`), Google Gemini, Anthropic Claude Sonnet 4.5+, and most open-source models. To guarantee only schema-capable providers are routed to, set `require_parameters: true` in the `provider` preferences object:
 
 ```typescript
 // force OpenRouter to only route to providers that support json_schema
-provider: { require_parameters: true }
+provider: {
+  require_parameters: true;
+}
 ```
 
 ---
@@ -564,14 +583,15 @@ provider: { require_parameters: true }
 
 The LLMStructBench benchmark (arXiv 2602.14743, 2026) evaluated five prompt configurations across dozens of model families. The two most reliable strategies were:
 
-| Tag | API `response_format` | System prompt | Best for |
-|---|---|---|---|
-| **P** | not set | Schema + example JSON | well-aligned large models (Gemma 12B+, LLaMA 70B, Qwen 1.7B+) |
-| **PJ+** | `json_schema` object | Schema + example JSON | all models incl. smaller/less reliable ones |
+| Tag     | API `response_format` | System prompt         | Best for                                                      |
+| ------- | --------------------- | --------------------- | ------------------------------------------------------------- |
+| **P**   | not set               | Schema + example JSON | well-aligned large models (Gemma 12B+, LLaMA 70B, Qwen 1.7B+) |
+| **PJ+** | `json_schema` object  | Schema + example JSON | all models incl. smaller/less reliable ones                   |
 
 For production deployments where model routing can shift (as it does via OpenRouter), **PJ+ is the safer choice**: it sends the schema to the model both through the constrained-decoding API parameter and through a natural-language description in the system prompt. The dual signal is redundant for strong models (no downside) and critical for weaker fallback routes.
 
 The system prompt should include:
+
 - The `MealRecipe` JSON schema described in natural language with field names and types
 - The strict-pantry constraint ("use ONLY ingredients from the list below — no substitutions, no additions")
 - The prep-time constraint ("total preparation time must not exceed `{max_prep_time_minutes}` minutes")
@@ -592,6 +612,7 @@ From thepromptbench.com (May 2026):
 > "A robust extraction setup is 80% schema, 15% example, 5% prompt wording. Usually one good one is enough if the schema is clear. Use 2–3 when there is an edge case the schema cannot express. Past 3 examples you have probably under-specified the schema."
 
 For MealDraft specifically:
+
 - The `MealRecipe` schema is simple, well-typed, and fully expressible in the Zod/JSON schema — no edge cases that only examples can capture.
 - The recipe domain is extremely well-represented in GPT-4.1-nano's training data — the model does not need "what a recipe looks like" demonstrated.
 - The strict-pantry constraint is the hard part; an example recipe would anchor to specific ingredients, not help the model reason about pantry constraints.
@@ -606,9 +627,9 @@ For MealDraft specifically:
 The officially supported integration pattern for OpenRouter on Cloudflare Workers is:
 
 ```typescript
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import { generateObject } from 'ai';
-import { z } from 'zod';
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+import { generateObject } from "ai";
+import { z } from "zod";
 
 const openrouter = createOpenRouter({ apiKey: env.OPENROUTER_API_KEY });
 
@@ -620,22 +641,23 @@ const MealRecipeSchema = z.object({
 });
 
 // Model with Response Healing plugin enabled
-const model = openrouter('openai/gpt-4.1-nano', {
-  plugins: [{ id: 'response-healing' }],
+const model = openrouter("openai/gpt-4.1-nano", {
+  plugins: [{ id: "response-healing" }],
   provider: { require_parameters: true },
 });
 
 const { object } = await generateObject({
   model,
   schema: MealRecipeSchema,
-  schemaName: 'MealRecipe',
-  schemaDescription: 'A single meal recipe using only the listed pantry ingredients.',
+  schemaName: "MealRecipe",
+  schemaDescription: "A single meal recipe using only the listed pantry ingredients.",
   system: buildSystemPrompt(pantryItems, mealType, maxPrepTime),
-  prompt: 'Generate exactly one meal recipe.',
+  prompt: "Generate exactly one meal recipe.",
 });
 ```
 
 The `@openrouter/ai-sdk-provider` package:
+
 - Wraps OpenRouter's OpenAI-compatible API with full Vercel AI SDK type safety
 - Passes `response_format: { type: "json_schema", strict: true }` automatically when you use `generateObject`
 - Supports the `plugins` option for Response Healing
@@ -649,15 +671,16 @@ Install: `pnpm add @openrouter/ai-sdk-provider ai`
 
 Three layers, each catching what the previous missed:
 
-| Layer | Mechanism | What it catches |
-|---|---|---|
-| **1 — Constrained decoding** | OpenRouter `json_schema` + `strict: true` | Model-level schema violations (~99.9% reliability) |
-| **2 — Response Healing plugin** | `plugins: [{ id: 'response-healing' }]` | Syntax errors: missing brackets, trailing commas, markdown code fences, mixed text |
-| **3 — Zod `safeParse`** | Validate `MealRecipeSchema` after `generateObject` | Semantic violations: wrong types, missing fields, values outside constraints |
+| Layer                           | Mechanism                                          | What it catches                                                                    |
+| ------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| **1 — Constrained decoding**    | OpenRouter `json_schema` + `strict: true`          | Model-level schema violations (~99.9% reliability)                                 |
+| **2 — Response Healing plugin** | `plugins: [{ id: 'response-healing' }]`            | Syntax errors: missing brackets, trailing commas, markdown code fences, mixed text |
+| **3 — Zod `safeParse`**         | Validate `MealRecipeSchema` after `generateObject` | Semantic violations: wrong types, missing fields, values outside constraints       |
 
 Response Healing only applies to **non-streaming requests**. Since F-02 returns a complete recipe in one shot (not streamed character-by-character to the user), non-streaming is the correct mode.
 
 If Layer 3 (Zod) fails:
+
 - Log `console.error` with the raw model output and the Zod error
 - Treat as Outcome B from §9 (technical/provider error): insert `{ recipe: null, name: "[generation failed]" }` into `generation_history`
 - Return HTTP 500 `{ error: "generation_failed" }` to the API caller
@@ -670,10 +693,7 @@ If Layer 3 (Zod) fails:
 When the system prompt instructs the model to return `{ "no_match": true }` for impossible pantry constraints, the Zod schema must handle this discriminated union:
 
 ```typescript
-const GenerationResultSchema = z.union([
-  z.object({ no_match: z.literal(true) }),
-  MealRecipeSchema,
-]);
+const GenerationResultSchema = z.union([z.object({ no_match: z.literal(true) }), MealRecipeSchema]);
 ```
 
 A `no_match: true` response is **not** a Layer 3 Zod failure — it is a valid structured response. The service maps it to `{ type: "no_match" }` without any DB insert (per §9 recommendation).
@@ -725,18 +745,19 @@ Should the generation logic (pantry fetch, prompt build, LLM call, Zod validatio
 
 **Use `src/lib/generation.ts`.**
 
-| Concern | Service file (`src/lib/`) | Inline in route |
-|---|---|---|
-| Astro/Cloudflare compatibility | ✅ plain TS module, zero risk | ✅ same |
-| Route handler size | ✅ thin (~30 lines) | ❌ ~150+ lines |
-| Reuse in S-04 (try another) | ✅ pass exclusion list as param | ❌ duplicate or refactor |
-| Protocol independence | ✅ service knows nothing about HTTP | ❌ mixed HTTP + business logic |
-| Testability | ✅ call service function directly | ❌ must mock HTTP context |
-| Consistency with existing `src/lib/` | ✅ follows established pattern | ❌ breaks pattern |
+| Concern                              | Service file (`src/lib/`)           | Inline in route                |
+| ------------------------------------ | ----------------------------------- | ------------------------------ |
+| Astro/Cloudflare compatibility       | ✅ plain TS module, zero risk       | ✅ same                        |
+| Route handler size                   | ✅ thin (~30 lines)                 | ❌ ~150+ lines                 |
+| Reuse in S-04 (try another)          | ✅ pass exclusion list as param     | ❌ duplicate or refactor       |
+| Protocol independence                | ✅ service knows nothing about HTTP | ❌ mixed HTTP + business logic |
+| Testability                          | ✅ call service function directly   | ❌ must mock HTTP context      |
+| Consistency with existing `src/lib/` | ✅ follows established pattern      | ❌ breaks pattern              |
 
 ### Canonical split
 
 **`src/pages/api/generate.ts`** (thin route — HTTP adapter):
+
 - Export `prerender = false`
 - Auth guard (from `context.locals.user`)
 - Parse + validate request body with Zod
@@ -744,6 +765,7 @@ Should the generation logic (pantry fetch, prompt build, LLM call, Zod validatio
 - Map `GenerationResult` discriminated union → HTTP response codes and JSON body
 
 **`src/lib/generation.ts`** (service — protocol-agnostic):
+
 - `buildSystemPrompt(pantryItems, mealType, maxPrepTime): string`
 - `generateMeal(supabase, userId, input, options?): Promise<GenerationResult>` — orchestrates: pantry fetch → prompt build → `generateObject` → Zod validation → history insert → return discriminated union
 - `GenerationResult` discriminated union type: `{ status: "ok"; meal: MealRecipe } | { status: "no_match" } | { status: "error"; technicalError: true }`
@@ -766,46 +788,46 @@ This split matches `§10`'s already-decided service function signatures and the 
 
 ### Area 1 — F-01 Prerequisites (6/6 CONFIRMED)
 
-| Claim | File | Evidence |
-|-------|------|----------|
-| `generation_history` table + nullable `recipe` JSONB | `supabase/migrations/20260528120000_domain_data_schema.sql:65–72` | `recipe jsonb` (no NOT NULL) at line 71 |
-| INSERT-only RLS on `generation_history` (SELECT+INSERT; no UPDATE/DELETE) | same migration, lines 157–167 | `generation_history_select_own` + `generation_history_insert_own`; GRANT SELECT, INSERT line 175 |
-| Fix-prune migration exists | `supabase/migrations/20260528140000_fix_history_prune_ordering.sql` | `seq` identity column, `ORDER BY generated_at DESC, seq DESC`, `LIMIT 20` |
-| 20-row prune trigger | domain migration lines 78–104 | `LIMIT 20` at line 92; trigger `generation_history_prune` AFTER INSERT |
-| `pantry_products` with `name` + `user_id` columns | domain migration lines 9–14 | `user_id uuid NOT NULL`, `name text NOT NULL` |
-| DB `meal_type` enum = TS `"breakfast"\|"lunch"\|"dinner"` | migration line 3 + `src/types.ts:1` | Exact match |
-| `MealRecipe`, `MealType`, `GenerationHistoryEntry` in `src/types.ts` | `src/types.ts:1,3–8,25–33` | Present |
-| `GenerateRequest`, `GenerateResponse`, `GenerationResult` absent | `src/types.ts` (full) | Not present — Phase 1 adds them correctly |
+| Claim                                                                     | File                                                                | Evidence                                                                                         |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `generation_history` table + nullable `recipe` JSONB                      | `supabase/migrations/20260528120000_domain_data_schema.sql:65–72`   | `recipe jsonb` (no NOT NULL) at line 71                                                          |
+| INSERT-only RLS on `generation_history` (SELECT+INSERT; no UPDATE/DELETE) | same migration, lines 157–167                                       | `generation_history_select_own` + `generation_history_insert_own`; GRANT SELECT, INSERT line 175 |
+| Fix-prune migration exists                                                | `supabase/migrations/20260528140000_fix_history_prune_ordering.sql` | `seq` identity column, `ORDER BY generated_at DESC, seq DESC`, `LIMIT 20`                        |
+| 20-row prune trigger                                                      | domain migration lines 78–104                                       | `LIMIT 20` at line 92; trigger `generation_history_prune` AFTER INSERT                           |
+| `pantry_products` with `name` + `user_id` columns                         | domain migration lines 9–14                                         | `user_id uuid NOT NULL`, `name text NOT NULL`                                                    |
+| DB `meal_type` enum = TS `"breakfast"\|"lunch"\|"dinner"`                 | migration line 3 + `src/types.ts:1`                                 | Exact match                                                                                      |
+| `MealRecipe`, `MealType`, `GenerationHistoryEntry` in `src/types.ts`      | `src/types.ts:1,3–8,25–33`                                          | Present                                                                                          |
+| `GenerateRequest`, `GenerateResponse`, `GenerationResult` absent          | `src/types.ts` (full)                                               | Not present — Phase 1 adds them correctly                                                        |
 
 ---
 
 ### Area 2 — Pattern File Anchors (9/9 CONFIRMED)
 
-| Claim | File | Evidence |
-|-------|------|----------|
-| Pantry API pattern ~76 lines with auth/supabase/json/zod/error-map structure | `src/pages/api/pantry/index.ts:1–76` | Auth guard lines 13–17, Supabase client 19–22, JSON parse 48–53, Zod 55–58, DB error map 68–72 |
-| `astro.config.mjs` `env.schema` at lines 17–22 with 3 existing vars, no OPENROUTER | `astro.config.mjs:17–22` | Exact match |
-| `.env.example` exists, no `OPENROUTER_API_KEY` | `.env.example` | 3 lines; OPENROUTER absent |
-| `src/lib/pantry-name.ts` exists | `src/lib/pantry-name.ts` | Exports `pantryNameSchema`, `getPantryNameError` |
-| `src/lib/supabase.ts` exports `createClient` | `src/lib/supabase.ts:5–8` | Returns null if env vars missing |
-| `src/lib/generation.ts` absent | — | Correctly absent; Phase 2 creates it |
-| `src/lib/generation-schema.ts` absent | — | Correctly absent; Phase 3 creates it |
-| `src/pages/api/generate.ts` absent | — | Correctly absent; Phase 3 creates it |
-| `global_fetch_strictly_public` in `wrangler.jsonc` | `wrangler.jsonc:6` | `"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"]` |
+| Claim                                                                              | File                                 | Evidence                                                                                       |
+| ---------------------------------------------------------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| Pantry API pattern ~76 lines with auth/supabase/json/zod/error-map structure       | `src/pages/api/pantry/index.ts:1–76` | Auth guard lines 13–17, Supabase client 19–22, JSON parse 48–53, Zod 55–58, DB error map 68–72 |
+| `astro.config.mjs` `env.schema` at lines 17–22 with 3 existing vars, no OPENROUTER | `astro.config.mjs:17–22`             | Exact match                                                                                    |
+| `.env.example` exists, no `OPENROUTER_API_KEY`                                     | `.env.example`                       | 3 lines; OPENROUTER absent                                                                     |
+| `src/lib/pantry-name.ts` exists                                                    | `src/lib/pantry-name.ts`             | Exports `pantryNameSchema`, `getPantryNameError`                                               |
+| `src/lib/supabase.ts` exports `createClient`                                       | `src/lib/supabase.ts:5–8`            | Returns null if env vars missing                                                               |
+| `src/lib/generation.ts` absent                                                     | —                                    | Correctly absent; Phase 2 creates it                                                           |
+| `src/lib/generation-schema.ts` absent                                              | —                                    | Correctly absent; Phase 3 creates it                                                           |
+| `src/pages/api/generate.ts` absent                                                 | —                                    | Correctly absent; Phase 3 creates it                                                           |
+| `global_fetch_strictly_public` in `wrangler.jsonc`                                 | `wrangler.jsonc:6`                   | `"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"]`                     |
 
 ---
 
 ### Area 3 — Environment, Packages, Conflicts (7/7 CONFIRMED)
 
-| Claim | File | Evidence |
-|-------|------|----------|
-| `ai` and `@openrouter/ai-sdk-provider` not in `package.json` | `package.json:17–59` | Absent from both `dependencies` and `devDependencies` |
-| No `src/` imports from AI SDK packages | `src/**` grep | Zero matches |
-| No generation-related code under `src/pages/api/` or `src/lib/` | directory listing | Current API routes: auth + pantry only; lib: supabase, utils, pantry-name, config-status, auth |
-| `src/middleware.ts` sets `context.locals.user` | `src/middleware.ts:17–19` | `context.locals.user = user ?? null`; typed in `src/env.d.ts:2–4` |
-| `MealGeneratorPlaceholder.astro` exists (F-02 does not touch it) | `src/components/meal/MealGeneratorPlaceholder.astro` | Placeholder UI "coming in next step" |
-| `.dev.vars` exists; no `OPENROUTER_API_KEY` | `.dev.vars` | 3 vars (SUPABASE_URL, SUPABASE_KEY, SITE_URL) only |
-| `pnpm-lock.yaml` present | `pnpm-lock.yaml:1` | `lockfileVersion: '9.0'`, matches `pnpm@11.2.2` |
+| Claim                                                            | File                                                 | Evidence                                                                                       |
+| ---------------------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `ai` and `@openrouter/ai-sdk-provider` not in `package.json`     | `package.json:17–59`                                 | Absent from both `dependencies` and `devDependencies`                                          |
+| No `src/` imports from AI SDK packages                           | `src/**` grep                                        | Zero matches                                                                                   |
+| No generation-related code under `src/pages/api/` or `src/lib/`  | directory listing                                    | Current API routes: auth + pantry only; lib: supabase, utils, pantry-name, config-status, auth |
+| `src/middleware.ts` sets `context.locals.user`                   | `src/middleware.ts:17–19`                            | `context.locals.user = user ?? null`; typed in `src/env.d.ts:2–4`                              |
+| `MealGeneratorPlaceholder.astro` exists (F-02 does not touch it) | `src/components/meal/MealGeneratorPlaceholder.astro` | Placeholder UI "coming in next step"                                                           |
+| `.dev.vars` exists; no `OPENROUTER_API_KEY`                      | `.dev.vars`                                          | 3 vars (SUPABASE_URL, SUPABASE_KEY, SITE_URL) only                                             |
+| `pnpm-lock.yaml` present                                         | `pnpm-lock.yaml:1`                                   | `lockfileVersion: '9.0'`, matches `pnpm@11.2.2`                                                |
 
 ---
 
@@ -821,9 +843,9 @@ The plan's Phase 1 only calls out `.env.example` (template) and the `astro.confi
 
 ### Plan + Review Status
 
-| Artifact | Status |
-|----------|--------|
-| `context/changes/ai-meal-generation/plan.md` | Complete — 3 phases, all findings from plan-review triaged and fixed |
+| Artifact                                                    | Status                                                                                                                     |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `context/changes/ai-meal-generation/plan.md`                | Complete — 3 phases, all findings from plan-review triaged and fixed                                                       |
 | `context/changes/ai-meal-generation/reviews/plan-review.md` | SOUND — 4/4 warnings fixed (F1 top-level try/catch, F2 maxRetries:0, F3 z.union pre-flight check, F4 TypeScript narrowing) |
-| `context/changes/ai-meal-generation/change.md` | `status: plan_reviewed`, `plan_review_verdict: SOUND` |
-| Roadmap F-02 | `status: ready`, all prerequisites (F-01) marked done |
+| `context/changes/ai-meal-generation/change.md`              | `status: plan_reviewed`, `plan_review_verdict: SOUND`                                                                      |
+| Roadmap F-02                                                | `status: ready`, all prerequisites (F-01) marked done                                                                      |

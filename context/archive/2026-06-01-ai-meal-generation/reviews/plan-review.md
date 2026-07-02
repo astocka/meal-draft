@@ -1,4 +1,5 @@
 <!-- PLAN-REVIEW-REPORT -->
+
 # Plan Review: AI Meal Generation — Implementation Plan (F-02)
 
 - **Plan**: `context/changes/ai-meal-generation/plan.md`
@@ -9,13 +10,13 @@
 
 ## Verdicts
 
-| Dimension | Verdict |
-|-----------|---------|
-| End-State Alignment | PASS |
-| Lean Execution | PASS |
-| Architectural Fitness | PASS (F3 fixed) |
-| Blind Spots | PASS (F1, F2 fixed) |
-| Plan Completeness | PASS (F4 fixed) |
+| Dimension             | Verdict             |
+| --------------------- | ------------------- |
+| End-State Alignment   | PASS                |
+| Lean Execution        | PASS                |
+| Architectural Fitness | PASS (F3 fixed)     |
+| Blind Spots           | PASS (F1, F2 fixed) |
+| Plan Completeness     | PASS (F4 fixed)     |
 
 ## Grounding
 

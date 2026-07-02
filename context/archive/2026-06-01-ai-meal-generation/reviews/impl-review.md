@@ -1,4 +1,5 @@
 <!-- IMPL-REVIEW-REPORT -->
+
 # Implementation Review: AI Meal Generation — F-02
 
 - **Plan**: context/changes/ai-meal-generation/plan.md
@@ -23,24 +24,24 @@
 
 ## Automated Verification
 
-| Check                         | Result                                                              |
-| ----------------------------- | ------------------------------------------------------------------- |
-| `pnpm run build` (all phases) | ✅ PASS — exit 0                                                    |
-| `pnpm run lint` (all phases)  | ✅ PASS — exit 0 (no-console suppressions added in F4 triage)       |
+| Check                         | Result                                                        |
+| ----------------------------- | ------------------------------------------------------------- |
+| `pnpm run build` (all phases) | ✅ PASS — exit 0                                              |
+| `pnpm run lint` (all phases)  | ✅ PASS — exit 0 (no-console suppressions added in F4 triage) |
 
 ## Triage summary
 
-| ID  | Title                                              | Decision                                      |
-| --- | -------------------------------------------------- | --------------------------------------------- |
-| F1  | COOKING_STAPLES too broad                          | FIXED (custom A+B — trim + plan addendum)     |
-| F2  | generateText undocumented                          | FIXED (comment + plan addendum)               |
-| F3  | Schema required vs optional in plan                | FIXED (plan schema updated)                   |
-| F4  | no-console lint warnings                           | FIXED (eslint-disable on 9 statements)        |
-| F5  | Phase 3 files untracked                            | NOTED (commit when ready)                     |
-| F6  | exclude_names prompt injection                     | FIXED (combined with F7)                      |
-| F7  | No input bounds                                    | FIXED (combined with F6)                      |
-| F8  | No AbortSignal timeout                             | FIXED (`AbortSignal.timeout(25000)`)          |
-| F9  | No rate limiting                                   | FIXED via Fix A (KV rate limit + wrangler types) |
+| ID  | Title                               | Decision                                         |
+| --- | ----------------------------------- | ------------------------------------------------ |
+| F1  | COOKING_STAPLES too broad           | FIXED (custom A+B — trim + plan addendum)        |
+| F2  | generateText undocumented           | FIXED (comment + plan addendum)                  |
+| F3  | Schema required vs optional in plan | FIXED (plan schema updated)                      |
+| F4  | no-console lint warnings            | FIXED (eslint-disable on 9 statements)           |
+| F5  | Phase 3 files untracked             | NOTED (commit when ready)                        |
+| F6  | exclude_names prompt injection      | FIXED (combined with F7)                         |
+| F7  | No input bounds                     | FIXED (combined with F6)                         |
+| F8  | No AbortSignal timeout              | FIXED (`AbortSignal.timeout(25000)`)             |
+| F9  | No rate limiting                    | FIXED via Fix A (KV rate limit + wrangler types) |
 
 **Production follow-up (F9):** Run `wrangler kv namespace create RATE_LIMIT` and replace the placeholder id in `wrangler.jsonc` before deploy. Regenerate bindings types with `pnpm run cf:types` after wrangler config changes.
 

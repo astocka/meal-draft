@@ -66,6 +66,7 @@ Three phases in dependency order:
    > `generateText + Output.object` from the same `ai` package. This uses the AI SDK v5
    > structured-output API which has better OpenRouter compatibility. The result is accessed as
    > `{ output }` instead of `{ object }` but behaviour is identical.
+
 3. **API route** (`src/pages/api/generate.ts`) — thin HTTP adapter following the pantry pattern:
    auth → Supabase client → Zod parse → call service → map result to HTTP codes.
 
@@ -106,10 +107,10 @@ Run these two MCP sequences in Cursor **before writing any code**. The Vercel AI
 
 **Results:**
 
-| Library | Context7 ID | Notes |
-|---|---|---|
-| Vercel AI SDK | `/vercel/ai` | Stable versions: v4 (`ai_4_3_19`), v5 (`ai_5_0_0`). `generateObject` is deprecated in v6 beta only — still fully available in stable. Uses standard `fetch` internally; no Node.js-only APIs. Workerd compatible. |
-| OpenRouter AI SDK Provider | `/openrouterteam/ai-sdk-provider` | v0.7.5. `createOpenRouter({ apiKey })` confirmed. `plugins: [{ id: 'response-healing' }]` and `provider: { require_parameters: true }` syntax confirmed. |
+| Library                    | Context7 ID                       | Notes                                                                                                                                                                                                             |
+| -------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Vercel AI SDK              | `/vercel/ai`                      | Stable versions: v4 (`ai_4_3_19`), v5 (`ai_5_0_0`). `generateObject` is deprecated in v6 beta only — still fully available in stable. Uses standard `fetch` internally; no Node.js-only APIs. Workerd compatible. |
+| OpenRouter AI SDK Provider | `/openrouterteam/ai-sdk-provider` | v0.7.5. `createOpenRouter({ apiKey })` confirmed. `plugins: [{ id: 'response-healing' }]` and `provider: { require_parameters: true }` syntax confirmed.                                                          |
 
 **Workerd verdict**: No blocking compatibility issues. External HTTPS fetch to OpenRouter works via `global_fetch_strictly_public`. Do not skip `pnpm run build && pnpm run preview` before marking complete.
 
@@ -277,31 +278,31 @@ Orchestrates the full pipeline:
 6. **Attempt loop** (max 2 iterations; index `attempt` starts at 1):
 
    a. Call `generateObject` with:
-      - `model`: `openrouter("openai/gpt-4.1-nano", { plugins: [{ id: "response-healing" }], provider: { require_parameters: true } })`
-      - `schema`: `GenerationOutputSchema` (flat `z.object` — Fix B; see Zod schemas below)
-      - `schemaName: "MealRecipeOrNoMatch"`
-      - `system`: `systemPrompt`
-      - `prompt`: `userMessage`
-      - `maxRetries: 0` — disables the SDK's internal retry (default: 2). The outer attempt loop owns all retry logic; letting the SDK retry 3× per attempt would produce up to 6 LLM calls in the worst case (outer retry-once × SDK retry-twice), conflating provider errors that should be retried with LLM semantic failures (pantry violation) that should not. With `maxRetries: 0`, one SDK call per outer attempt — worst case stays at 2 LLM calls.
+   - `model`: `openrouter("openai/gpt-4.1-nano", { plugins: [{ id: "response-healing" }], provider: { require_parameters: true } })`
+   - `schema`: `GenerationOutputSchema` (flat `z.object` — Fix B; see Zod schemas below)
+   - `schemaName: "MealRecipeOrNoMatch"`
+   - `system`: `systemPrompt`
+   - `prompt`: `userMessage`
+   - `maxRetries: 0` — disables the SDK's internal retry (default: 2). The outer attempt loop owns all retry logic; letting the SDK retry 3× per attempt would produce up to 6 LLM calls in the worst case (outer retry-once × SDK retry-twice), conflating provider errors that should be retried with LLM semantic failures (pantry violation) that should not. With `maxRetries: 0`, one SDK call per outer attempt — worst case stays at 2 LLM calls.
 
    b. If `generateObject` **throws** (network error, provider error, Zod parse failure after
-      healing):
-      - If `attempt < 2`: increment `attempt`, `continue`.
-      - If `attempt === 2`: `console.error("generation_error after retry", err)`;
-        insert sentinel row `{ user_id: userId, name: "[generation failed]", meal_type: input.meal_type, recipe: null }`;
-        return `{ status: "error" }`.
+   healing):
+   - If `attempt < 2`: increment `attempt`, `continue`.
+   - If `attempt === 2`: `console.error("generation_error after retry", err)`;
+     insert sentinel row `{ user_id: userId, name: "[generation failed]", meal_type: input.meal_type, recipe: null }`;
+     return `{ status: "error" }`.
 
    c. If result is `{ no_match: true }` — use `result.no_match === true` for the check (Fix B: both branches share the same flat type, so `"no_match" in result` is not needed for TypeScript narrowing):
-      - `console.warn("no_match: model decision", { meal_type, max_prep_time_minutes, pantry_size: pantryItems.length })`.
-      - Return `{ status: "no_match" }` immediately (do **not** retry).
+   - `console.warn("no_match: model decision", { meal_type, max_prep_time_minutes, pantry_size: pantryItems.length })`.
+   - Return `{ status: "no_match" }` immediately (do **not** retry).
 
    d. **Strict-pantry validation**: call `MealRecipeSchema.parse(result)` first to obtain a fully-typed `MealRecipe` and surface any unexpected schema gaps from the model as a caught error (treat as a `generateObject` throw — apply retry logic from step 6b). Then for each `ingredient` in the parsed recipe, check that
-      `ingredient.toLowerCase().trim()` is in `pantryNamesLower` OR in `COOKING_STAPLES`. If any
-      ingredient fails:
-      - If `attempt < 2`: `console.warn("pantry_violation: retrying", { attempt, ingredient })`;
-        increment `attempt`, `continue`.
-      - If `attempt === 2`: `console.warn("no_match: pantry violation after retry", { meal_type, pantry_size: pantryItems.length })`;
-        return `{ status: "no_match" }`.
+   `ingredient.toLowerCase().trim()` is in `pantryNamesLower` OR in `COOKING_STAPLES`. If any
+   ingredient fails:
+   - If `attempt < 2`: `console.warn("pantry_violation: retrying", { attempt, ingredient })`;
+     increment `attempt`, `continue`.
+   - If `attempt === 2`: `console.warn("no_match: pantry violation after retry", { meal_type, pantry_size: pantryItems.length })`;
+     return `{ status: "no_match" }`.
 
    e. **History insert**: use the `MealRecipeSchema.parse(result)`-typed value (call it `recipe`) from step 6d. `supabase.from("generation_history").insert({ user_id: userId, name: recipe.name, meal_type: input.meal_type, recipe }).select("id").single()`. If insert errors, log and return `{ status: "error" }`.
 
@@ -372,6 +373,7 @@ validation, delegating to `generateMeal`, and mapping the discriminated union to
 `src/lib/pantry-name.ts` so it can be imported by the route and potentially reused elsewhere.
 
 **Contract**: Exports `generateRequestSchema` — a Zod object schema that validates:
+
 - `meal_type`: `z.enum(["breakfast", "lunch", "dinner"])`
 - `max_prep_time_minutes`: `z.number().int().positive().nullable()` — positive integer or null
 - `exclude_names`: `z.array(z.string()).optional().default([])` — defaults to empty array
@@ -446,7 +448,7 @@ complete.
 
 - GPT-4.1-nano via OpenRouter: TTFT ~120 ms, ~150 t/s → a 300-token recipe arrives in ~2 s total.
 - Retry-once worst case: ~4 s. This is within acceptable bounds given the NFR ("visible feedback at
-  >1 s") is S-03's responsibility (spinner shown while the request is in flight).
+  > 1 s") is S-03's responsibility (spinner shown while the request is in flight).
 - The pantry fetch is a simple indexed `user_id` query — sub-10 ms.
 - No additional caching layer is needed at F-02 scale (<1 000 req/month).
 
