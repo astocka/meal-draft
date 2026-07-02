@@ -37,14 +37,14 @@ MealDraft to responsywna aplikacja webowa dla zapracowanych dorosłych stojącyc
 
 ### Stan implementacji vs roadmap
 
-| Obszar                         | Dokument     | Kod                                                 |
-| ------------------------------ | ------------ | --------------------------------------------------- |
-| Schema + RLS (F-01)            | done         | `20260528120000_domain_data_schema.sql`             |
-| Generowanie AI (F-02, S-03)    | done         | `src/lib/generation.ts`, `POST /api/generate`       |
-| Spiżarnia CRUD (S-02)          | done         | `src/pages/api/pantry/`, `PantryWidget.tsx`         |
-| Inny przepis (S-04)            | done         | `MealGenerator.tsx` (`shownNames`, `exclude_names`) |
-| Ulubione (S-05)                | done         | `src/pages/api/favorites/`                          |
-| Historia generowania UI (S-06) | **proposed** | zapis w DB, **brak strony/API listy**               |
+| Obszar                         | Dokument      | Kod                                                                                        |
+| ------------------------------ | ------------- | ------------------------------------------------------------------------------------------ |
+| Schema + RLS (F-01)            | done          | `20260528120000_domain_data_schema.sql`                                                    |
+| Generowanie AI (F-02, S-03)    | done          | `src/lib/generation.ts`, `POST /api/generate`                                              |
+| Spiżarnia CRUD (S-02)          | done          | `src/pages/api/pantry/`, `PantryWidget.tsx`                                                |
+| Inny przepis (S-04)            | done          | `MealGenerator.tsx` (`shownNames`, `exclude_names`)                                        |
+| Ulubione (S-05)                | done          | `src/pages/api/favorites/`                                                                 |
+| Historia generowania UI (S-06) | **cancelled** | zapis w DB pozostaje; strona/API listy — deferred post-MVP (ulubione pełnią rolę historii) |
 
 ---
 
@@ -85,7 +85,7 @@ Terminy w kolejności odkrycia. Definicje oparte na dokumentach; lokalizacja w k
 | **Ograniczenia czasu i typu posiłku**                          |  ✓   |            |         | FR-007–009, Business Logic (`prd.md:149-154,177-179`)                                                                         |
 | **Zarządzanie spiżarnią (CRUD)**                               |      |     ✓      |         | Konieczne wejście do core loop (US-02), ale nie różnicuje produktu vs notes app (Socrates FR-004, `prd.md:141`)               |
 | **Ulubione**                                                   |      |     ✓      |         | Celowe zakładki (FR-011); snapshot niezależny od spiżarni (`roadmap.md:155`)                                                  |
-| **Historia generowania**                                       |      |     ✓      |         | Pasywny log (FR-013); zapis już istnieje, UI w toku (S-06 proposed)                                                           |
+| **Historia generowania**                                       |      |     ✓      |         | Pasywny log (FR-013); zapis w DB istnieje; UI/API listy — cancelled (S-06), ulubione pełnią rolę historii w MVP v1            |
 | **Uwierzytelnianie + izolacja danych**                         |      |            |    ✓    | Środek do prywatności (Access Control `prd.md:185-186`); email+password to decyzja implementacyjna v1, nie tożsamość produktu |
 | **Rate limiting generowania**                                  |      |            |    ✓    | Ochrona infrastruktury; brak w PRD — `generate.ts:7-8,50-52`                                                                  |
 | **UI / copy po polsku**                                        |      |            |    ✓    | NFR (`prd.md:169`); prezentacja, nie reguła domenowa                                                                          |
@@ -161,7 +161,7 @@ Model docelowy (koncepcyjny — nie odzwierciedlony jako obiekty w kodzie).
 | 1   | Strict Pantry: składniki **tylko** z zadeklarowanej spiżarni, zero tolerancji (`prd.md:43-44,60`) | Dozwolone dodatkowo `COOKING_STAPLES` (sól, olej, mąka…) bez wpisu w spiżarni                                                                  | `generation.ts:9-31,67,238-241`; plan F-02 świadomie: `ai-meal-generation/plan-brief.md:35`             |
 | 2   | Wygenerowany posiłek **zawsze** respektuje limit czasu (`prd.md:44,61`)                           | Limit czasu tylko w prompcie LLM; brak odrzucenia gdy `prep_time_minutes > max`                                                                | Prompt `generation.ts:85-86`; brak check po `MealRecipeSchema.parse` `generation.ts:227-260`            |
 | 3   | Vision: ograniczenia obejmują też **wyposażenie** (`prd.md:23`)                                   | Brak filtra wyposażenia                                                                                                                        | **BRAK w kodzie**; wycięte v1: `shape-notes.md:28-29`                                                   |
-| 4   | Użytkownik przegląda historię ostatnich N posiłków (US-04, FR-013)                                | Historia zapisywana przy sukcesie; **brak widoku/listy API poza generatorem**                                                                  | INSERT `generation.ts:263-271`; brak `src/pages/*history*`; S-06 `roadmap.md:158-169` status proposed   |
+| 4   | Użytkownik przegląda historię ostatnich N posiłków (US-04, FR-013)                                | Historia zapisywana przy sukcesie; brak widoku/API listy — S-06 cancelled; ulubione pełnią rolę historii w MVP v1                              | INSERT `generation.ts:263-271`; brak `src/pages/*history*`; S-06 cancelled `roadmap.md`                 |
 | 5   | „Try another” nie powtarza wcześniejszych wyników w sesji (`prd.md:121-123`)                      | Wykluczenia jako sugestia w promptcie LLM; serwer nie weryfikuje unikalności nazwy vs `exclude_names`                                          | `generation.ts:178-182`; brak walidacji po parse                                                        |
 | 6   | PRD Open Question: wartość N dla historii nieustalona (`prd.md:199`)                              | N=20 zhardkodowane w triggerze DB                                                                                                              | `20260528120000_domain_data_schema.sql:77`                                                              |
 | 7   | Business Logic: „no ingredient substitution” (`prd.md:177-178`)                                   | LLM instruowany „use EXACTLY as in pantry list” + retry przy violation; dopasowanie **stringowe** (lower/trim), bez kanonicznych ID składników | `generation.ts:66,172,238-241`; `v2-ideas.md:20-21`                                                     |
@@ -228,4 +228,4 @@ flowchart LR
 
 - Nie analizowano pełnego diffu wszystkich plików `context/changes/` — tylko wybrane change notes i research wspierające rozjazdy.
 - Testy integracyjne generacji (mock LLM) nie istnieją w repo (`test-plan.md:72,208`); status egzekucji oparty na inspekcji kodu produkcyjnego.
-- Data dokumentu: stan repo po S-05 (favorites), przed S-06 (history UI).
+- Data dokumentu: stan repo po S-05 (favorites). S-06 (history UI) cancelled dla MVP v1 — ulubione pełnią rolę historii.
