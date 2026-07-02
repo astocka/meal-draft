@@ -25,32 +25,32 @@ Busy working adults waste time and food every day because opening the fridge tri
 
 > **North star** here means the smallest end-to-end slice whose successful delivery would prove the core product hypothesis — placed as early as prerequisites allow because everything else only matters if this works.
 >
-> **Delivered 2026-06-03 (S-03).** S-04 (Try another) and S-05 (favorites) shipped 2026-06-05. **Current focus:** S-06 (generation history).
+> **Delivered 2026-06-03 (S-03).** S-04 (Try another) and S-05 (favorites) shipped 2026-06-05. **MVP v1 complete at S-05.** S-06 cancelled — favorites already serve as persistent recipe history for MVP v1.
 
 ## At a glance
 
-| ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
-|---|---|---|---|---|---|
-| F-01 | domain-data-schema | (foundation) pantry, favorites, and generation-history tables exist with per-user RLS | — | NFR (privacy), Access Control | done |
-| F-02 | ai-meal-generation | (foundation) server-side meal generation returns one strict-pantry recipe from pantry + constraints | F-01 | NFR (feedback >1s), Business Logic | done |
-| S-01 | auth-flow-for-mvp | register, log in, log out, and reach a protected core screen after authentication | — | US-05, FR-001, FR-002 | done |
-| S-02 | pantry-crud | add, view, edit, and remove pantry products with immediate UI updates and session persistence | F-01, S-01 | US-02, FR-003, FR-004, FR-005, FR-006 | done |
-| S-03 | strict-pantry-meal-generation | set time and meal-type constraints, tap Generate, and see exactly one compliant meal suggestion | F-01, F-02, S-02 | US-01, FR-007, FR-008, FR-009 | done |
-| S-04 | try-another-suggestion | tap Try another for a different non-repeating suggestion within the same session, with exhaustion messaging | S-03 | US-06, FR-010 | done |
-| S-05 | meal-favorites | save a generated meal to favorites and browse the favorites list from navigation | S-03 | US-03, FR-011, FR-012 | done |
-| S-06 | generation-history | browse the last N generated meals in reverse chronological order | S-03 | US-04, FR-013 | proposed |
+| ID   | Change ID                     | Outcome (user can …)                                                                                        | Prerequisites    | PRD refs                              | Status        |
+| ---- | ----------------------------- | ----------------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------- | ------------- |
+| F-01 | domain-data-schema            | (foundation) pantry, favorites, and generation-history tables exist with per-user RLS                       | —                | NFR (privacy), Access Control         | done          |
+| F-02 | ai-meal-generation            | (foundation) server-side meal generation returns one strict-pantry recipe from pantry + constraints         | F-01             | NFR (feedback >1s), Business Logic    | done          |
+| S-01 | auth-flow-for-mvp             | register, log in, log out, and reach a protected core screen after authentication                           | —                | US-05, FR-001, FR-002                 | done          |
+| S-02 | pantry-crud                   | add, view, edit, and remove pantry products with immediate UI updates and session persistence               | F-01, S-01       | US-02, FR-003, FR-004, FR-005, FR-006 | done          |
+| S-03 | strict-pantry-meal-generation | set time and meal-type constraints, tap Generate, and see exactly one compliant meal suggestion             | F-01, F-02, S-02 | US-01, FR-007, FR-008, FR-009         | done          |
+| S-04 | try-another-suggestion        | tap Try another for a different non-repeating suggestion within the same session, with exhaustion messaging | S-03             | US-06, FR-010                         | done          |
+| S-05 | meal-favorites                | save a generated meal to favorites and browse the favorites list from navigation                            | S-03             | US-03, FR-011, FR-012                 | done          |
+| S-06 | generation-history            | browse the last N generated meals in reverse chronological order                                            | S-03             | US-04, FR-013                         | **cancelled** |
 
-**Unlocked now** (prerequisites met): **S-06**. **Current focus:** S-06 (generation history). **S-04 shipped** 2026-06-05; **S-05 shipped** 2026-06-05.
+**MVP v1 complete** (S-01–S-05 done). S-06 cancelled — favorites (S-05) already provide persistent recipe snapshots; separate history UI deferred post-MVP.
 
 ## Streams
 
 Navigation aid — groups items that share a Prerequisites chain. Canonical ordering still lives in the dependency graph below; this table is the proposed reading order across parallel tracks.
 
-| Stream | Theme | Chain | Note |
-|---|---|---|---|
-| A | Schema & pantry | `F-01` (done) → `S-02` (done) | Pantry schema + CRUD complete; joined Stream C at `S-02`. |
-| B | Generation loop | `F-02` (done) → `S-03` (done) → `S-04` (done) / `S-05` (done) / `S-06` | North star shipped; generation loop complete except history UI. |
-| C | Account access | `S-01` (done) | MVP auth complete (register, sign-in, sign-out, protected routes). Joined Stream A at `S-02`. |
+| Stream | Theme           | Chain                                                         | Note                                                                                          |
+| ------ | --------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| A      | Schema & pantry | `F-01` (done) → `S-02` (done)                                 | Pantry schema + CRUD complete; joined Stream C at `S-02`.                                     |
+| B      | Generation loop | `F-02` (done) → `S-03` (done) → `S-04` (done) / `S-05` (done) | North star shipped; generation loop complete. S-06 cancelled for MVP v1.                      |
+| C      | Account access  | `S-01` (done)                                                 | MVP auth complete (register, sign-in, sign-out, protected routes). Joined Stream A at `S-02`. |
 
 ## Baseline
 
@@ -127,7 +127,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:** —
-- **UX (mobile):** Tab navigation (*Spiżarnia* | *Generator posiłków*) on viewports &lt; 768px — shipped in `DashboardShell`; see @context/foundation/dashboard-layout.md.
+- **UX (mobile):** Tab navigation (_Spiżarnia_ | _Generator posiłków_) on viewports &lt; 768px — shipped in `DashboardShell`; see @context/foundation/dashboard-layout.md.
 - **Risk:** This is the north star — the validation milestone that proves MealDraft is not another recipe list app; strict-pantry zero-tolerance is the hardest contract to satisfy.
 - **Status:** done
 
@@ -163,27 +163,25 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Prerequisites:** S-03
 - **Parallel with:** S-04, S-05
 - **Blockers:** —
-- **Unknowns:**
-  - What is the specific value of N for generation history limit? — Owner: user. Block: no.
 - **Risk:** Parallel with favorites after north star; N can be decided during implementation but affects UX expectations.
-- **Status:** proposed
+- **Status:** **cancelled** — Favorites (S-05) already provide persistent recipe snapshots for MVP v1. Separate history UI deferred post-MVP. DB table and trigger remain (generation_history insert still runs on success); only read UI/API was deferred.
 
 ## Backlog Handoff
 
-| Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
-|---|---|---|---|---|
-| F-01 | domain-data-schema | Add pantry, favorites, and history schema with RLS | no | Done — see ## Done |
-| F-02 | ai-meal-generation | Integrate server-side strict-pantry meal generation | no | Done — see ## Done |
-| S-01 | auth-flow-for-mvp | Complete MVP auth flow and route protection | no | Done — see ## Done |
-| S-02 | pantry-crud | Build pantry add/view/edit/remove UI and API | no | Done — see ## Done |
-| S-03 | strict-pantry-meal-generation | Ship first strict-pantry meal generation (north star) | no | Done — see ## Done |
-| S-04 | try-another-suggestion | Add Try another with session exclusion | no | Done — see ## Done |
-| S-05 | meal-favorites | Add save-to-favorites and favorites list | no | Done — see ## Done |
-| S-06 | generation-history | Add read-only generation history (last N) | yes | **Next up** — run `/10x-new generation-history` when starting |
+| Roadmap ID | Change ID                     | Suggested issue title                                 | Ready for `/10x-plan` | Notes                                                                    |
+| ---------- | ----------------------------- | ----------------------------------------------------- | --------------------- | ------------------------------------------------------------------------ |
+| F-01       | domain-data-schema            | Add pantry, favorites, and history schema with RLS    | no                    | Done — see ## Done                                                       |
+| F-02       | ai-meal-generation            | Integrate server-side strict-pantry meal generation   | no                    | Done — see ## Done                                                       |
+| S-01       | auth-flow-for-mvp             | Complete MVP auth flow and route protection           | no                    | Done — see ## Done                                                       |
+| S-02       | pantry-crud                   | Build pantry add/view/edit/remove UI and API          | no                    | Done — see ## Done                                                       |
+| S-03       | strict-pantry-meal-generation | Ship first strict-pantry meal generation (north star) | no                    | Done — see ## Done                                                       |
+| S-04       | try-another-suggestion        | Add Try another with session exclusion                | no                    | Done — see ## Done                                                       |
+| S-05       | meal-favorites                | Add save-to-favorites and favorites list              | no                    | Done — see ## Done                                                       |
+| S-06       | generation-history            | Add read-only generation history (last N)             | no                    | **Cancelled for MVP v1** — favorites serve as history; deferred post-MVP |
 
 ## Open Roadmap Questions
 
-1. **What is the specific value of N for generation history limit?** — Owner: user. Block: S-06 (planning only; implementation can proceed with a default).
+1. ~~**What is the specific value of N for generation history limit?**~~ — Resolved: S-06 cancelled for MVP v1; N=20 hardcoded in DB trigger as implementation detail, no UI needed.
 2. **What are the exact time budget presets?** — Resolved in S-03: **15 / 30 / 60** min + **Dowolny czas** (default `null`).
 3. **What happens when a user removes a favorited meal's ingredients from pantry?** — Owner: user. Block: no (S-05 shipped; favorites are recipe snapshots independent of pantry).
 

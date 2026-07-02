@@ -25,21 +25,21 @@
 
 ### Alternatives considered (not chosen for v1)
 
-| Approach | Why not (for mobile) |
-|----------|----------------------|
-| Stack both columns vertically | Generator/results steal vertical space; poor when pantry list grows |
-| Always show both, smaller | Unreadable; cramped inputs and meal cards |
-| Separate `/generate` route | Extra navigation; splits the “one screen” mental model from the PRD dashboard home |
+| Approach                      | Why not (for mobile)                                                               |
+| ----------------------------- | ---------------------------------------------------------------------------------- |
+| Stack both columns vertically | Generator/results steal vertical space; poor when pantry list grows                |
+| Always show both, smaller     | Unreadable; cramped inputs and meal cards                                          |
+| Separate `/generate` route    | Extra navigation; splits the “one screen” mental model from the PRD dashboard home |
 
 ## Traceability
 
-| Slice | What ships |
-|-------|------------|
-| S-02 (`pantry-crud`) | Two-column shell, placeholder right, pantry CRUD, mobile hide placeholder + touch delete — **done** |
-| S-03 (`strict-pantry-meal-generation`) | `MealGenerator`, `DashboardShell` mobile tabs, `loadError`, Polish copy — **done** |
-| S-04 (`try-another-suggestion`) | **Inny przepis** beside Generuj, session `exclude_names`, exhaustion panel, rejected-count indicator — **done** |
-| S-05 (`meal-favorites`) | Save/unsave star on recipe card, `/favorites` page with expandable list, **Ulubione** in topbar — **done** |
-| S-06+ | Same shell; tabs still apply on mobile unless a later change revises this doc |
+| Slice                                  | What ships                                                                                                      |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| S-02 (`pantry-crud`)                   | Two-column shell, placeholder right, pantry CRUD, mobile hide placeholder + touch delete — **done**             |
+| S-03 (`strict-pantry-meal-generation`) | `MealGenerator`, `DashboardShell` mobile tabs, `loadError`, Polish copy — **done**                              |
+| S-04 (`try-another-suggestion`)        | **Inny przepis** beside Generuj, session `exclude_names`, exhaustion panel, rejected-count indicator — **done** |
+| S-05 (`meal-favorites`)                | Save/unsave star on recipe card, `/favorites` page with expandable list, **Ulubione** in topbar — **done**      |
+| S-06                                   | Cancelled for MVP v1 — favorites serve as history; shell layout unchanged                                       |
 
 ## References
 
