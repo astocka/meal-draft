@@ -1,14 +1,20 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase";
-import { authErrorMessage } from "@/lib/auth/auth-error-message";
-import { getSiteUrl } from "@/lib/auth/get-site-url";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { SUPABASE_URL, INVITE_CODE, SUPABASE_SERVICE_ROLE_KEY } from "astro:env/server";
+import {
+  AUTH_FORM_INVALID_INPUT,
+  AUTH_FORM_INVALID_REQUEST,
+  AUTH_SERVICE_UNAVAILABLE,
+  authErrorMessage,
+} from "@/lib/auth/auth-error-message";
 
 export const prerender = false;
 
 const signUpSchema = z.object({
-  email: z.email(),
-  password: z.string().min(10),
+  email: z.email({ error: "Podaj prawidłowy adres e-mail." }),
+  password: z.string().min(12, { error: "Hasło musi mieć co najmniej 12 znaków." }),
+  inviteCode: z.string().min(15, { error: "Kod zaproszenia jest za krótki." }),
 });
 
 export const POST: APIRoute = async (context) => {
@@ -16,40 +22,44 @@ export const POST: APIRoute = async (context) => {
   try {
     form = await context.request.formData();
   } catch {
-    return context.redirect(`/auth/signup?error=${encodeURIComponent("Invalid request")}`);
+    return context.redirect(`/auth/signup?error=${encodeURIComponent(AUTH_FORM_INVALID_REQUEST)}`);
   }
+
   const parsed = signUpSchema.safeParse({
     email: form.get("email"),
     password: form.get("password"),
+    inviteCode: form.get("inviteCode"),
   });
 
   if (!parsed.success) {
-    const message = parsed.error.issues[0]?.message ?? "Invalid input";
+    const message = parsed.error.issues[0]?.message ?? AUTH_FORM_INVALID_INPUT;
     return context.redirect(`/auth/signup?error=${encodeURIComponent(message)}`);
   }
 
-  const { email, password } = parsed.data;
+  const { email, password, inviteCode } = parsed.data;
 
-  const siteUrl = getSiteUrl();
-  if (!siteUrl) {
-    return context.redirect(`/auth/signup?error=${encodeURIComponent("Site URL is not configured")}`);
+  if (!INVITE_CODE || inviteCode !== INVITE_CODE) {
+    return context.redirect(`/auth/signup?error=${encodeURIComponent("Nieprawidłowy kod zaproszenia.")}`);
   }
 
-  const supabase = createClient(context.request.headers, context.cookies);
-  if (!supabase) {
-    return context.redirect(`/auth/signup?error=${encodeURIComponent("Supabase is not configured")}`);
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    return context.redirect(`/auth/signup?error=${encodeURIComponent(AUTH_SERVICE_UNAVAILABLE)}`);
   }
-  const { error } = await supabase.auth.signUp({
+
+  // Intentionally bypasses @/lib/supabase wrapper — service role is required to create users
+  // when public sign-ups are disabled. The anon-key guard in createClient() must not be triggered here.
+  const adminClient = createAdminClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+  const { error } = await adminClient.auth.admin.createUser({
     email,
     password,
-    options: {
-      emailRedirectTo: `${siteUrl}/auth/callback`,
-    },
+    email_confirm: true,
   });
 
   if (error) {
     return context.redirect(`/auth/signup?error=${encodeURIComponent(authErrorMessage(error.code))}`);
   }
 
-  return context.redirect("/auth/confirm-email");
+  return context.redirect(
+    `/auth/signin?success=${encodeURIComponent("Konto zostało utworzone. Możesz się teraz zalogować.")}`,
+  );
 };

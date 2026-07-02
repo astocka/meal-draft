@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { Mail, Lock, UserPlus } from "lucide-react";
+import { Mail, Lock, UserPlus, KeyRound } from "lucide-react";
 import { FormField } from "@/components/auth/FormField";
 import { PasswordToggle } from "@/components/auth/PasswordToggle";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
 
-const MIN_PASSWORD_LENGTH = 6;
+const MIN_PASSWORD_LENGTH = 12;
 
 interface Props {
   serverError?: string | null;
@@ -15,9 +15,15 @@ export default function SignUpForm({ serverError }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+    confirmPassword?: string;
+    inviteCode?: string;
+  }>({});
 
   function validate() {
     const next: typeof errors = {};
@@ -38,6 +44,12 @@ export default function SignUpForm({ serverError }: Props) {
       next.confirmPassword = "Potwierdź hasło";
     } else if (password !== confirmPassword) {
       next.confirmPassword = "Hasła nie są identyczne";
+    }
+
+    if (!inviteCode.trim()) {
+      next.inviteCode = "Kod zaproszenia jest wymagany";
+    } else if (inviteCode.trim().length < 15) {
+      next.inviteCode = "Kod zaproszenia jest za krótki";
     }
 
     setErrors(next);
@@ -87,7 +99,7 @@ export default function SignUpForm({ serverError }: Props) {
           setPassword(v);
           clearError("password");
         }}
-        placeholder="Min. 6 znaków"
+        placeholder="Min. 12 znaków"
         error={errors.password}
         hint={passwordHint}
         icon={<Lock className="size-4" />}
@@ -122,6 +134,20 @@ export default function SignUpForm({ serverError }: Props) {
             }}
           />
         }
+      />
+
+      <FormField
+        id="inviteCode"
+        label="Kod zaproszenia"
+        type="password"
+        value={inviteCode}
+        onChange={(v) => {
+          setInviteCode(v);
+          clearError("inviteCode");
+        }}
+        placeholder="Wpisz kod zaproszenia"
+        error={errors.inviteCode}
+        icon={<KeyRound className="size-4" />}
       />
 
       <ServerError message={serverError} />
