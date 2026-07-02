@@ -58,7 +58,7 @@ Three phases in dependency order:
 
 **Cap guard:** When `shownNames.length >= 20`, disable Try another before fetch; show inline copy (not an API error). User recovers via **Generuj**.
 
-**Loading source:** Add `loadingSource: 'generate' | 'try_another' | null`. **Generuj** sets `loadingSource: 'generate'` and `status: 'loading'` (clears card per `resetRecipeOnLoad`). **Try another** sets `loadingSource: 'try_another'` but keeps `status: 'success'` so the button stays mounted and can show *Szukam innego…*; disable both buttons while `loadingSource !== null`.
+**Loading source:** Add `loadingSource: 'generate' | 'try_another' | null`. **Generuj** sets `loadingSource: 'generate'` and `status: 'loading'` (clears card per `resetRecipeOnLoad`). **Try another** sets `loadingSource: 'try_another'` but keeps `status: 'success'` so the button stays mounted and can show _Szukam innego…_; disable both buttons while `loadingSource !== null`.
 
 ---
 
@@ -77,6 +77,7 @@ Introduce session-scoped exclusion state and a single fetch path used by both Ge
 **Intent**: Track meal names shown in the current session so Try another can pass them as `exclude_names`.
 
 **Contract**:
+
 - Add `shownNames: string[]` state (starts `[]`).
 - On **Generuj** submit: set `shownNames` to `[]` before fetch (fresh session).
 - On **Try another** submit (append-before-fetch): `setShownNames(prev => [...prev, lastRecipe.name])`, then send `shownNames` as `exclude_names` (guard: only when `lastRecipe` non-null and `status === "success"`).
@@ -90,6 +91,7 @@ Introduce session-scoped exclusion state and a single fetch path used by both Ge
 **Intent**: Deduplicate fetch/parse/state-transition logic between Generuj and Try another; differ only in exclusion list and pre-fetch UI reset behavior.
 
 **Contract**:
+
 - Extract something like `requestGeneration({ excludeNames, resetRecipeOnLoad: boolean, loadingSource: 'generate' | 'try_another' })`.
 - Request body: `{ meal_type, max_prep_time_minutes, exclude_names: excludeNames }`.
 - **Generuj**: `resetRecipeOnLoad: true`, `loadingSource: 'generate'` — set `status: 'loading'`, clear `lastRecipe`, `historyId` at start (current behavior).
@@ -139,6 +141,7 @@ Add the Try another button with correct visibility, loading, and cap-disable beh
 **Intent**: Expose the secondary action when a recipe is on screen.
 
 **Contract**:
+
 - Label: **Spróbuj inny** (or copy constant from `generation-copy.ts`).
 - Render in the control bar beside **Generuj** (`flex` row, `justify-end`, gap).
 - Visible when `lastRecipe !== null` and (`status === "success"` or `loadingSource === "try_another"`); enabled when `status === "success"`, `loadingSource === null`, plus existing guards (`!loadError`, `pantryCount > 0`, cap not reached).
@@ -152,8 +155,9 @@ Add the Try another button with correct visibility, loading, and cap-disable beh
 **Intent**: Differentiate loading feedback between Generuj and Try another per plan decision.
 
 **Contract**:
-- **Generuj** loading: `loadingSource === 'generate'` — spinner + *Tworzę przepis…* on primary button; `status === 'loading'`.
-- **Try another** loading: `loadingSource === 'try_another'` — spinner + *Szukam innego…* on Try another button only; `status` stays `'success'`; **Generuj** disabled while `loadingSource !== null`.
+
+- **Generuj** loading: `loadingSource === 'generate'` — spinner + _Tworzę przepis…_ on primary button; `status === 'loading'`.
+- **Try another** loading: `loadingSource === 'try_another'` — spinner + _Szukam innego…_ on Try another button only; `status` stays `'success'`; **Generuj** disabled while `loadingSource !== null`.
 - Recipe card remains rendered during Try another loading.
 
 #### 3. Twenty-exclusion cap guard
@@ -163,6 +167,7 @@ Add the Try another button with correct visibility, loading, and cap-disable beh
 **Intent**: Prevent Zod 400 when session exclusions hit the API max.
 
 **Contract**:
+
 - When `shownNames.length >= 20` (or equivalent pre-fetch count), disable Try another.
 - Show short inline copy near buttons: user must tap **Generuj** to start a new session.
 - Do not call the API when disabled.
@@ -200,8 +205,9 @@ Meet PRD US-06 acceptance criteria for shrinking-pool indication and distinct ex
 **Intent**: When Try another exhausts options, show actionable copy distinct from first-time no_match.
 
 **Contract**:
+
 - Condition: `feedback === "exhausted"` (set when `kind === "no_match"` and request-scoped `hadExclusions` was true) — distinct from first-time `feedback === "no_match"`.
-- Distinct title, e.g. *Wykorzystano propozycje w tej sesji* (final copy in `generation-copy.ts`).
+- Distinct title, e.g. _Wykorzystano propozycje w tej sesji_ (final copy in `generation-copy.ts`).
 - Body + hints: suggest relaxing meal type and/or time budget (always show meal-type hint; show time hint when `maxPrepMinutes !== null` at submit — mirror S-03 `showTimeHintOnNoMatch` pattern).
 - Info panel styling (purple border/bg) — same as S-03 no_match, not error styling.
 - First-time Generuj `no_match` (empty `exclude_names`) keeps existing `NO_MATCH_TITLE` + hints unchanged.
@@ -213,6 +219,7 @@ Meet PRD US-06 acceptance criteria for shrinking-pool indication and distinct ex
 **Intent**: Show honest pool-shrinking signal per PRD — count of rejected meals, not fake remaining count.
 
 **Contract**:
+
 - Display when `shownNames.length > 0` (includes post-exhaustion state where card is cleared but rejections remain).
 - Format: **Odrzucono: N** near recipe card or control bar (subtle `text-white/50` / `text-xs`).
 - Increment N as user rejects meals (length of `shownNames` or equivalent).

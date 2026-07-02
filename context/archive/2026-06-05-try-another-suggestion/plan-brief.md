@@ -16,17 +16,17 @@ After a successful generation, user sees **Spróbuj inny** beside **Generuj**, a
 
 ## Key Decisions Made
 
-| Decision | Choice | Why (1 sentence) | Source |
-| -------- | ------ | ------------------ | ------ |
-| Scope | Frontend-only | F-02 forward-compat; `exclude_names` pipeline already shipped | Plan |
-| Session reset | **Generuj** only | PRD "same session"; constraint tweaks keep rejection history | Plan |
-| Pool indicator | Rejected count (Odrzucono: N) | Honest signal without fake "remaining" counts | Plan |
-| Exhaustion UX | Distinct panel | First-time no_match copy misleads when session is exhausted | Plan |
-| Loading UX | Keep card during Try another | Avoid layout jump; user retains context | Plan |
-| Button placement | Beside Generuj | Matches `dashboard-layout.md` S-04+ | Plan |
-| 20-cap handling | Disable Try another + recovery copy | Prevents Zod 400; points to Generuj reset | Plan |
-| LLM duplicate name | Show anyway (v1) | Prompt-only exclusion; no backend dedup scope | Plan |
-| Backend changes | None | Exhaustion inferred client-side from `no_match` + exclusions | Plan |
+| Decision           | Choice                              | Why (1 sentence)                                              | Source |
+| ------------------ | ----------------------------------- | ------------------------------------------------------------- | ------ |
+| Scope              | Frontend-only                       | F-02 forward-compat; `exclude_names` pipeline already shipped | Plan   |
+| Session reset      | **Generuj** only                    | PRD "same session"; constraint tweaks keep rejection history  | Plan   |
+| Pool indicator     | Rejected count (Odrzucono: N)       | Honest signal without fake "remaining" counts                 | Plan   |
+| Exhaustion UX      | Distinct panel                      | First-time no_match copy misleads when session is exhausted   | Plan   |
+| Loading UX         | Keep card during Try another        | Avoid layout jump; user retains context                       | Plan   |
+| Button placement   | Beside Generuj                      | Matches `dashboard-layout.md` S-04+                           | Plan   |
+| 20-cap handling    | Disable Try another + recovery copy | Prevents Zod 400; points to Generuj reset                     | Plan   |
+| LLM duplicate name | Show anyway (v1)                    | Prompt-only exclusion; no backend dedup scope                 | Plan   |
+| Backend changes    | None                                | Exhaustion inferred client-side from `no_match` + exclusions  | Plan   |
 
 ## Scope
 
@@ -52,11 +52,11 @@ MealGenerator
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-| ----- | ---------------- | -------- |
-| 1. Session state & fetch | `shownNames`, shared handler, `exclude_names` wired | Append-timing bugs causing repeats or lost exclusions |
-| 2. Try another UI | Button, keep-card loading, 20-cap guard | Mobile control bar crowding |
-| 3. Exhaustion & indicator | Distinct panel, Odrzucono: N, copy module | Mis-classifying first-time vs exhaustion no_match |
+| Phase                     | What it delivers                                    | Key risk                                              |
+| ------------------------- | --------------------------------------------------- | ----------------------------------------------------- |
+| 1. Session state & fetch  | `shownNames`, shared handler, `exclude_names` wired | Append-timing bugs causing repeats or lost exclusions |
+| 2. Try another UI         | Button, keep-card loading, 20-cap guard             | Mobile control bar crowding                           |
+| 3. Exhaustion & indicator | Distinct panel, Odrzucono: N, copy module           | Mis-classifying first-time vs exhaustion no_match     |
 
 **Prerequisites:** S-03 (done). **Estimated effort:** ~1–2 focused sessions across 3 phases.
 

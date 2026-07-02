@@ -1,4 +1,5 @@
 <!-- PLAN-REVIEW-REPORT -->
+
 # Plan Review: Try Another Suggestion (S-04)
 
 - **Plan**: `context/changes/try-another-suggestion/plan.md`
@@ -10,23 +11,23 @@
 
 ## Verdicts
 
-| Dimension | Verdict (initial) | Verdict (post-triage) |
-|-----------|-------------------|------------------------|
-| End-State Alignment | WARNING ⚠️ | PASS ✅ |
-| Lean Execution | PASS ✅ | PASS ✅ |
-| Architectural Fitness | PASS ✅ | PASS ✅ |
-| Blind Spots | WARNING ⚠️ | PASS ✅ |
-| Plan Completeness | WARNING ⚠️ | PASS ✅ |
+| Dimension             | Verdict (initial) | Verdict (post-triage) |
+| --------------------- | ----------------- | --------------------- |
+| End-State Alignment   | WARNING ⚠️        | PASS ✅               |
+| Lean Execution        | PASS ✅           | PASS ✅               |
+| Architectural Fitness | PASS ✅           | PASS ✅               |
+| Blind Spots           | WARNING ⚠️        | PASS ✅               |
+| Plan Completeness     | WARNING ⚠️        | PASS ✅               |
 
 ## Triage Summary
 
-| ID | Decision | Plan change |
-|----|----------|-------------|
-| F1 | FIXED via Fix A | Added `loadingSource`; Try another keeps `status: 'success'` during fetch |
-| F2 | FIXED via Fix A | Pinned append-before-fetch as canonical `shownNames` strategy |
-| F3 | FIXED | Request-scoped `hadExclusions`; `feedback: 'exhausted'` vs first-time `no_match` |
-| F4 | FIXED | Preserve `shownNames` on exhaustion `no_match` |
-| F5 | FIXED | Leave S-03 inline `NO_MATCH_*` strings unchanged |
+| ID  | Decision        | Plan change                                                                      |
+| --- | --------------- | -------------------------------------------------------------------------------- |
+| F1  | FIXED via Fix A | Added `loadingSource`; Try another keeps `status: 'success'` during fetch        |
+| F2  | FIXED via Fix A | Pinned append-before-fetch as canonical `shownNames` strategy                    |
+| F3  | FIXED           | Request-scoped `hadExclusions`; `feedback: 'exhausted'` vs first-time `no_match` |
+| F4  | FIXED           | Preserve `shownNames` on exhaustion `no_match`                                   |
+| F5  | FIXED           | Leave S-03 inline `NO_MATCH_*` strings unchanged                                 |
 
 ## Grounding
 
@@ -41,7 +42,7 @@ Grounding: 5/5 paths ✓, 4/4 symbols ✓, brief↔plan ✓
 - **Dimension**: End-State Alignment
 - **Location**: Phase 2 — Try another button visibility + Phase 1 shared fetch
 - **Status**: ✅ FIXED
-- **Detail**: Phase 2 requires Try another visible when `status === "success"` and `!isLoading`, but the shared handler sets `status === "loading"` on any fetch (current `MealGenerator.tsx:65`, `isLoading = status === "loading"` at line 58). During Try another, `status` becomes `"loading"` so the button hides and the planned spinner + *Szukam innego…* cannot render. Desired End State item 2 ("loading on that button only; card stays visible") is unreachable if followed literally.
+- **Detail**: Phase 2 requires Try another visible when `status === "success"` and `!isLoading`, but the shared handler sets `status === "loading"` on any fetch (current `MealGenerator.tsx:65`, `isLoading = status === "loading"` at line 58). During Try another, `status` becomes `"loading"` so the button hides and the planned spinner + _Szukam innego…_ cannot render. Desired End State item 2 ("loading on that button only; card stays visible") is unreachable if followed literally.
 - **Fix applied**: Fix A — `loadingSource: 'generate' | 'try_another' | null`; keep `status === "success"` during Try another loading.
 - **Decision**: FIXED via Fix A
 
