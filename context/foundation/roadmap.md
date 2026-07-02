@@ -54,14 +54,14 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 
 ## Baseline
 
-What's already in place in the codebase as of `2026-06-06` (auto-researched + slice completions).
+What's already in place in the codebase as of `2026-07-02` (MVP v1 + test rollout phases 1 & 4).
 Foundations below assume these are present and do NOT re-scaffold them.
 
 - **Frontend:** present — Astro 6 SSR + React 19 islands, Tailwind 4, file routing (`src/pages/`); shadcn `button`, `tabs`, `card`; `DashboardShell` + `MealGenerator` on `/dashboard` (mobile tabs); `/favorites` with `FavoritesShell`; save/unsave star on generator; topbar nav (S-02, S-03, S-04, S-05; layout per @context/foundation/dashboard-layout.md)
-- **Backend / API:** partial — Astro SSR on Cloudflare; auth API routes (`src/pages/api/auth/`); pantry CRUD; favorites CRUD (`/api/favorites`); `POST /api/generate` with client wire (`generation-schema`, `parse-generate-response`, `generation-copy`) (F-02, S-02, S-03, S-04, S-05)
-- **Data:** partial — Supabase client wired (`src/lib/supabase.ts`); pantry, favorites, and generation-history tables with per-user RLS (F-01)
+- **Backend / API:** present — Astro SSR on Cloudflare; auth API routes (`src/pages/api/auth/`); pantry CRUD; favorites CRUD (`/api/favorites`); `POST /api/generate` with client wire (`generation-schema`, `parse-generate-response`, `generation-copy`) (F-02, S-02, S-03, S-04, S-05)
+- **Data:** present — Supabase client wired (`src/lib/supabase.ts`); pantry, favorites, and generation-history tables with per-user RLS (F-01)
 - **Auth:** present (MVP complete, S-01) — register, sign-in, sign-out, email confirmation, protected routes for `/dashboard` and `/favorites`
-- **Deploy / infra:** present (partial CI) — Cloudflare Workers (`wrangler.jsonc`); GitHub Actions lint + build; no deploy workflow in repo
+- **Deploy / infra:** present — Cloudflare Workers (`wrangler.jsonc`); production auto-deploy on push to `main` via Cloudflare Git integration; GitHub Actions three-tier CI (`ci`, `integration`, `e2e`) plus **AI Code Review** workflow (`.github/workflows/review.yml`, `OPENROUTER_API_KEY`); course change `ci-cd-code-review` still active under `context/changes/` pending branch-protection soak (plan 4.3)
 - **Observability:** absent — no app-level logging or error tracking; Cloudflare platform observability only
 
 ## Foundations
@@ -201,17 +201,10 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ## Done
 
-- **F-01** domain-data-schema — pantry, favorites, and generation-history tables with per-user RLS (2026-05-29)
-- **S-01** auth-flow-for-mvp — register, sign-in, sign-out, protected routes, email confirmation callback (2026-05-30)
-- **S-02** pantry-crud — add, view, edit, and remove pantry products with immediate UI updates and session persistence (2026-05-31)
-- **F-02** ai-meal-generation — `POST /api/generate` + `src/lib/generation.ts` strict-pantry generation via OpenRouter (2026-06-02)
-- **S-03** strict-pantry-meal-generation — `MealGenerator` + `DashboardShell` (mobile tabs), Zod wire parser, `loadError`, Polish UX, workerd verification (2026-06-03)
-- **S-04** try-another-suggestion — **Inny przepis** with session `exclude_names`, exhaustion panel, rejected-count indicator, 20-cap guard, `generation-copy.ts` Polish UX (2026-06-05)
-- **S-05** meal-favorites — save/unsave star on generator, `/favorites` page with expandable list, topbar nav, impl-review fixes (2026-06-05)
-- **F-01: (foundation) pantry, favorites, and generation-history tables exist with per-user row-level security enforcing account-private data.** — Archived 2026-07-02 → `context/archive/2026-05-28-domain-data-schema/`. Lesson: —.
-- **S-01: user can register with email and password, log in, log out, and reach a protected core screen; unauthenticated access to protected routes redirects to login.** — Archived 2026-07-02 → `context/archive/2026-05-30-auth-flow-for-mvp/`. Lesson: —.
-- **S-02: user can add, view, edit, and remove pantry products with immediate UI updates; pantry state persists across sessions.** — Archived 2026-07-02 → `context/archive/2026-05-31-pantry-crud/`. Lesson: —.
-- **F-02: (foundation) a server-side generation path accepts pantry ingredients + constraints and returns one structured meal (name, time, ingredients, steps) with strict-pantry validation.** — Archived 2026-07-02 → `context/archive/2026-06-01-ai-meal-generation/`. Lesson: —.
-- **S-03: user can set a time budget and meal type, tap Generate, and see exactly one meal suggestion using only declared pantry ingredients, respecting all constraints, with a clear message when no valid meal exists.** — Archived 2026-07-02 → `context/archive/2026-06-03-strict-pantry-meal-generation/`. Lesson: —.
-- **S-04: user can tap Try another for a different non-repeating suggestion within the same session, see the pool shrinking, and get helpful exhaustion messaging when no options remain.** — Archived 2026-07-02 → `context/archive/2026-06-05-try-another-suggestion/`. Lesson: —.
-- **S-05: user can save a generated meal to favorites and browse their favorites list from main navigation; duplicate saves are handled gracefully.** — Archived 2026-07-02 → `context/archive/2026-06-05-meal-favorites/`. Lesson: —.
+- **F-01** domain-data-schema — pantry, favorites, and generation-history tables with per-user RLS (shipped 2026-05-29; archived → `context/archive/2026-05-28-domain-data-schema/`)
+- **S-01** auth-flow-for-mvp — register, sign-in, sign-out, protected routes, email confirmation callback (shipped 2026-05-30; archived → `context/archive/2026-05-30-auth-flow-for-mvp/`)
+- **S-02** pantry-crud — add, view, edit, and remove pantry products with immediate UI updates and session persistence (shipped 2026-05-31; archived → `context/archive/2026-05-31-pantry-crud/`)
+- **F-02** ai-meal-generation — `POST /api/generate` + `src/lib/generation.ts` strict-pantry generation via OpenRouter (shipped 2026-06-02; archived → `context/archive/2026-06-01-ai-meal-generation/`)
+- **S-03** strict-pantry-meal-generation — `MealGenerator` + `DashboardShell` (mobile tabs), Zod wire parser, `loadError`, Polish UX, workerd verification (shipped 2026-06-03; archived → `context/archive/2026-06-03-strict-pantry-meal-generation/`)
+- **S-04** try-another-suggestion — **Inny przepis** with session `exclude_names`, exhaustion panel, rejected-count indicator, 20-cap guard, `generation-copy.ts` Polish UX (shipped 2026-06-05; archived → `context/archive/2026-06-05-try-another-suggestion/`)
+- **S-05** meal-favorites — save/unsave star on generator, `/favorites` page with expandable list, topbar nav, impl-review fixes (shipped 2026-06-05; archived → `context/archive/2026-06-05-meal-favorites/`)
