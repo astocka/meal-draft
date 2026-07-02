@@ -16,20 +16,21 @@ A logged-in user sees a two-column app screen: pantry management on the left (fi
 
 ## Key Decisions Made
 
-| Decision | Choice | Why (1 sentence) | Source |
-|---|---|---|---|
-| Page structure | Pantry embedded in `/dashboard` | Dashboard becomes the app home rather than a dead-end stub | Plan |
-| Edit UX | Inline edit (click name → input) | Fastest path for name-only edits; no modal overhead | Plan |
-| Add/delete strategy | Fully optimistic | Satisfies "immediate UI updates" PRD requirement with near-zero perceived latency | Plan |
-| Rename strategy | Semi-optimistic (edit stays active during call) | Avoids the revert flash that full optimism causes on 409 duplicate errors | Plan |
-| Duplicate error | Inline error below the relevant input | Contextual; no toast library needed | Plan |
-| Sort order | Alphabetical (A→Z) | Predictable scan pattern matching mental model of a fridge or cabinet | Plan |
-| Add input placement | Fixed zone at top, scrollable list below | Most-recently-added items are visible without scroll; consistent with task-list conventions | Plan |
-| Navigation | Sign-out moves to top-right corner; two-column layout replaces the card | PRD US-05: user should land on pantry after login | Plan |
+| Decision            | Choice                                                                  | Why (1 sentence)                                                                            | Source |
+| ------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------ |
+| Page structure      | Pantry embedded in `/dashboard`                                         | Dashboard becomes the app home rather than a dead-end stub                                  | Plan   |
+| Edit UX             | Inline edit (click name → input)                                        | Fastest path for name-only edits; no modal overhead                                         | Plan   |
+| Add/delete strategy | Fully optimistic                                                        | Satisfies "immediate UI updates" PRD requirement with near-zero perceived latency           | Plan   |
+| Rename strategy     | Semi-optimistic (edit stays active during call)                         | Avoids the revert flash that full optimism causes on 409 duplicate errors                   | Plan   |
+| Duplicate error     | Inline error below the relevant input                                   | Contextual; no toast library needed                                                         | Plan   |
+| Sort order          | Alphabetical (A→Z)                                                      | Predictable scan pattern matching mental model of a fridge or cabinet                       | Plan   |
+| Add input placement | Fixed zone at top, scrollable list below                                | Most-recently-added items are visible without scroll; consistent with task-list conventions | Plan   |
+| Navigation          | Sign-out moves to top-right corner; two-column layout replaces the card | PRD US-05: user should land on pantry after login                                           | Plan   |
 
 ## Scope
 
 **In scope:**
+
 - `GET /api/pantry`, `POST /api/pantry`, `PATCH /api/pantry/[id]`, `DELETE /api/pantry/[id]`
 - `PantryWidget` React island (optimistic CRUD, inline edit, empty state)
 - Dashboard redesign: two-column layout, top bar with sign-out, server-rendered initial data
@@ -37,6 +38,7 @@ A logged-in user sees a two-column app screen: pantry management on the left (fi
 - `MealGeneratorPlaceholder` Astro component (right column stub)
 
 **Out of scope:**
+
 - Product quantity, expiry, or category (name-only v1)
 - Separate `/pantry` route
 - Service layer — Supabase calls live directly in API handlers
@@ -49,11 +51,11 @@ Dashboard server-fetches initial pantry items and passes them as props to `Pantr
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-|---|---|---|
-| 1. API endpoints | Four JSON routes for list/add/rename/delete | First `.from()` queries — verify RLS scoping works end-to-end |
-| 2. PantryWidget | Full interactive CRUD island with optimistic state | Optimistic insert + alphabetical sort must match server response order |
-| 3. Dashboard shell | Two-column app home with server-rendered initial data | Dashboard redesign must keep `bg-cosmic` theme and responsive layout |
+| Phase              | What it delivers                                      | Key risk                                                               |
+| ------------------ | ----------------------------------------------------- | ---------------------------------------------------------------------- |
+| 1. API endpoints   | Four JSON routes for list/add/rename/delete           | First `.from()` queries — verify RLS scoping works end-to-end          |
+| 2. PantryWidget    | Full interactive CRUD island with optimistic state    | Optimistic insert + alphabetical sort must match server response order |
+| 3. Dashboard shell | Two-column app home with server-rendered initial data | Dashboard redesign must keep `bg-cosmic` theme and responsive layout   |
 
 **Prerequisites:** F-01 done (pantry table + RLS), S-01 done (auth flow + protected `/dashboard`)
 **Estimated effort:** ~2–3 sessions across 3 phases

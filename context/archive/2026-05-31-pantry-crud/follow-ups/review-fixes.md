@@ -12,5 +12,6 @@
 > "We're having trouble loading your pantry, please refresh the page"
 
 **Files to change**:
+
 - `src/pages/dashboard.astro` — pass `loadError={!!error}` prop
 - `src/components/pantry/PantryWidget.tsx` — add `loadError?: boolean` to Props interface; render the message in place of (or above) the list area when `loadError` is true

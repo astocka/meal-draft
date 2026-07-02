@@ -81,6 +81,7 @@ Create four JSON API endpoints covering the full pantry CRUD surface. These are 
 **Intent**: Handle GET (list user's pantry, alphabetically sorted) and POST (add a new item). These two operations share auth and client setup, so they co-locate in `index.ts`.
 
 **Contract**:
+
 - `export const prerender = false`
 - Both handlers: null-check `context.locals.user`; if null return `Response` with `status: 401` and JSON body `{ error: 'Unauthorized' }`.
 - Both handlers: call `createClient(context.request.headers, context.cookies)`; if null return 503.
@@ -94,6 +95,7 @@ Create four JSON API endpoints covering the full pantry CRUD surface. These are 
 **Intent**: Handle PATCH (rename a product) and DELETE (remove a product). Both are keyed on the `id` path parameter and scoped to the authenticated user.
 
 **Contract**:
+
 - `export const prerender = false`
 - Both handlers: same auth null-check and client creation as `index.ts`.
 - `PATCH`: parse body; validate with `z.object({ name: z.string().min(1).max(100) })`; trim; call `.update({ name: trimmedName }).eq('id', context.params.id).eq('user_id', user.id).select().single()`; on `23505` return 409; on null data (no matching row) return 404; on success return `200 { item: PantryProduct }`.
@@ -138,6 +140,7 @@ Build the interactive pantry management component. It receives `initialItems` fr
 Props interface: `{ initialItems: PantryProduct[] }`
 
 State:
+
 - `items: PantryProduct[]` — initialized from `initialItems`; always kept sorted alphabetically (`localeCompare`)
 - `newName: string` — value of the add input
 - `addError: string | null` — inline error message below the add input
@@ -147,6 +150,7 @@ State:
 - `editError: string | null` — inline error below the edit input for the active edit row
 
 Add operation (fully optimistic):
+
 1. Client-side validate: trim `newName`, reject empty, set `addError` if blank.
 2. Create a temp item with `id: 'temp-' + Date.now()`, insert into `items` at the correct alphabetical position.
 3. Clear `newName` and `addError`.
@@ -156,12 +160,14 @@ Add operation (fully optimistic):
 7. On other error: remove temp item, set `addError` to `"Failed to add item — please try again"`.
 
 Delete operation (fully optimistic):
+
 1. Store removed item and its sorted index.
 2. Remove from `items` immediately.
 3. DELETE `/api/pantry/${id}`.
 4. On error: re-insert the removed item at the saved index.
 
 Rename operation (semi-optimistic — edit input stays active):
+
 1. Validate trimmed `editName` non-empty.
 2. Set `editLoading: true`.
 3. PATCH `/api/pantry/${editingId}` with `{ name: trimmedEditName }`.
@@ -170,6 +176,7 @@ Rename operation (semi-optimistic — edit input stays active):
 6. On other error: set `editLoading: false`, set `editError` to `"Failed to rename — please try again"`.
 
 UI layout:
+
 - Outer: `flex flex-col h-full` container
 - Add zone (not scrolling): text input + `+` button on the same row; `addError` message below if set
 - Empty state (when `items.length === 0`): short message rendered in the list area — "Your pantry is empty — add your first ingredient above"
@@ -214,6 +221,7 @@ Replace the placeholder `dashboard.astro` with the full application home screen:
 **Intent**: Transform the placeholder into the application shell. Server-fetch the user's pantry items, render the two-column layout, mount `PantryWidget` with `client:load` on the left, and a static placeholder on the right.
 
 **Contract**:
+
 - Server-side: call `createClient(Astro.request.headers, Astro.cookies)`, query `pantry_products` (same query as GET /api/pantry), default to `[]` on error.
 - Top bar: render `<DashboardTopbar />` (see file 2 below) as a fixed or sticky header — app name/logo on the left, sign-out form on the right. Do **not** reuse `src/components/Topbar.astro`: it carries a "Dashboard" nav link that creates a broken nav loop when rendered on `/dashboard` itself. Keep the `bg-cosmic` theming.
 - Main area: responsive two-column grid (`grid-cols-1 md:grid-cols-2`) with equal columns, full viewport height minus the top bar.
