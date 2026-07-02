@@ -3,7 +3,7 @@ project: MealDraft
 version: 1
 status: draft
 created: 2026-05-27
-updated: 2026-06-06
+updated: 2026-07-02
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -208,3 +208,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-03** strict-pantry-meal-generation — `MealGenerator` + `DashboardShell` (mobile tabs), Zod wire parser, `loadError`, Polish UX, workerd verification (2026-06-03)
 - **S-04** try-another-suggestion — **Inny przepis** with session `exclude_names`, exhaustion panel, rejected-count indicator, 20-cap guard, `generation-copy.ts` Polish UX (2026-06-05)
 - **S-05** meal-favorites — save/unsave star on generator, `/favorites` page with expandable list, topbar nav, impl-review fixes (2026-06-05)
+- **F-01: (foundation) pantry, favorites, and generation-history tables exist with per-user row-level security enforcing account-private data.** � Archived 2026-07-02 � `context/archive/2026-05-28-domain-data-schema/`. Lesson: �.

@@ -1,4 +1,5 @@
 <!-- PLAN-REVIEW-REPORT -->
+
 # Plan Review: Domain Data Schema
 
 - **Plan**: context/changes/domain-data-schema/plan.md
@@ -9,13 +10,13 @@
 
 ## Verdicts
 
-| Dimension | Verdict (after triage) |
-|-----------|------------------------|
-| End-State Alignment | PASS |
-| Lean Execution | PASS |
-| Architectural Fitness | PASS |
-| Blind Spots | PASS |
-| Plan Completeness | PASS |
+| Dimension             | Verdict (after triage) |
+| --------------------- | ---------------------- |
+| End-State Alignment   | PASS                   |
+| Lean Execution        | PASS                   |
+| Architectural Fitness | PASS                   |
+| Blind Spots           | PASS                   |
+| Plan Completeness     | PASS                   |
 
 ## Grounding
 

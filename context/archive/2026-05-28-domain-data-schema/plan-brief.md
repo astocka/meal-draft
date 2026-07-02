@@ -17,21 +17,21 @@ Three RLS-protected tables exist on the hosted Supabase project and match TypeSc
 
 ## Key Decisions Made
 
-| Decision | Choice | Why (1 sentence) | Source |
-|---|---|---|---|
-| Deliverables | Schema + RLS + `src/types.ts` | Gives downstream slices a typed contract without waiting for API work | Plan |
-| Pantry uniqueness | Unique name per user (case-insensitive) | Prevents duplicate "flour" rows in a name-only v1 model | Plan |
-| Favorites storage | JSONB recipe snapshot | Matches F-02 structured output; sufficient for read-only favorites list | Plan |
-| History fields | name + date + meal_type + optional recipe blob | US-04 minimum for list UI; blob enables future detail without re-generation | Plan |
-| History cap | Prune on insert, N=20 | Bounded storage; matches "last N not displayed" intent | Plan |
-| Favorite dedup | Unique per user on dish name | Idempotent save; matches US-03 duplicate prevention | Plan |
-| Migration packaging | Single atomic migration file | First migration — one review unit, clean apply/rollback | Plan |
-| Prune trigger privilege | `SECURITY DEFINER` + `search_path = pg_catalog` | RLS blocks user DELETE; definer privilege prunes without exposing DELETE to clients | Review F1 |
-| Table access | Explicit `GRANT`s to `authenticated` | RLS alone does not grant table access; avoids hosted-project permission errors | Review F2 |
-| RLS policy syntax | `TO authenticated`; USING / WITH CHECK | Prevents `user_id` spoofing on INSERT/UPDATE | Review F3 |
-| Pantry `updated_at` | `BEFORE UPDATE` trigger | Keeps metadata correct without burdening S-02 API | Review F5 |
-| Database environment | Hosted Supabase (cloud) | Apply migrations with CLI; verify in Supabase Dashboard (Studio) | Plan |
-| Verification UI | Dashboard (Studio) in browser | No desktop app; SQL Editor runs as admin (bypasses RLS) — simulate `authenticated` role for RLS tests | Plan |
+| Decision                | Choice                                          | Why (1 sentence)                                                                                      | Source    |
+| ----------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------- | --------- |
+| Deliverables            | Schema + RLS + `src/types.ts`                   | Gives downstream slices a typed contract without waiting for API work                                 | Plan      |
+| Pantry uniqueness       | Unique name per user (case-insensitive)         | Prevents duplicate "flour" rows in a name-only v1 model                                               | Plan      |
+| Favorites storage       | JSONB recipe snapshot                           | Matches F-02 structured output; sufficient for read-only favorites list                               | Plan      |
+| History fields          | name + date + meal_type + optional recipe blob  | US-04 minimum for list UI; blob enables future detail without re-generation                           | Plan      |
+| History cap             | Prune on insert, N=20                           | Bounded storage; matches "last N not displayed" intent                                                | Plan      |
+| Favorite dedup          | Unique per user on dish name                    | Idempotent save; matches US-03 duplicate prevention                                                   | Plan      |
+| Migration packaging     | Single atomic migration file                    | First migration — one review unit, clean apply/rollback                                               | Plan      |
+| Prune trigger privilege | `SECURITY DEFINER` + `search_path = pg_catalog` | RLS blocks user DELETE; definer privilege prunes without exposing DELETE to clients                   | Review F1 |
+| Table access            | Explicit `GRANT`s to `authenticated`            | RLS alone does not grant table access; avoids hosted-project permission errors                        | Review F2 |
+| RLS policy syntax       | `TO authenticated`; USING / WITH CHECK          | Prevents `user_id` spoofing on INSERT/UPDATE                                                          | Review F3 |
+| Pantry `updated_at`     | `BEFORE UPDATE` trigger                         | Keeps metadata correct without burdening S-02 API                                                     | Review F5 |
+| Database environment    | Hosted Supabase (cloud)                         | Apply migrations with CLI; verify in Supabase Dashboard (Studio)                                      | Plan      |
+| Verification UI         | Dashboard (Studio) in browser                   | No desktop app; SQL Editor runs as admin (bypasses RLS) — simulate `authenticated` role for RLS tests | Plan      |
 
 ## Scope
 
@@ -52,10 +52,10 @@ All tables use `user_id` FK with `ON DELETE CASCADE`. Policies scope every opera
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-|---|---|---|
+| Phase                      | What it delivers                              | Key risk                                                                 |
+| -------------------------- | --------------------------------------------- | ------------------------------------------------------------------------ |
 | 1. Domain schema migration | Tables, RLS, GRANTs, both triggers, seed file | `db push` applies to linked hosted project — confirm project before push |
-| 2. TypeScript domain types | `src/types.ts` aligned with schema | Minor drift if columns change before S-02 |
+| 2. TypeScript domain types | `src/types.ts` aligned with schema            | Minor drift if columns change before S-02                                |
 
 **Prerequisites:** Supabase cloud project; `npx supabase login` + `npx supabase link`; cloud `SUPABASE_URL` + anon key in `.env` and `.dev.vars`.
 **Estimated effort:** ~1 session across 2 phases.

@@ -109,6 +109,7 @@ Create `supabase/migrations/20260528120000_domain_data_schema.sql` with all tabl
 **Intent**: Enforce account-private data per PRD Access Control and AGENTS.md (granular per-operation policies).
 
 **Contract**:
+
 - All three tables: `ALTER TABLE ... ENABLE ROW LEVEL SECURITY;`
 - `pantry_products`: SELECT, INSERT, UPDATE, DELETE policies — `(select auth.uid()) = user_id` (see syntax below)
 - `favorite_meals`: SELECT, INSERT, DELETE policies — `(select auth.uid()) = user_id` (no UPDATE in v1)
@@ -167,6 +168,7 @@ Create `src/types.ts` with entity types and the shared recipe JSON shape matchin
 **Intent**: Provide a single source of truth for domain entity shapes referenced by downstream API routes and services (S-02, S-05, S-06).
 
 **Contract**: Export at minimum:
+
 - `MealType` — union `'breakfast' | 'lunch' | 'dinner'`
 - `MealRecipe` — `{ name: string; prep_time_minutes: number; ingredients: string[]; steps: string[] }`
 - `PantryProduct` — `{ id: string; user_id: string; name: string; created_at: string; updated_at: string }`
@@ -273,6 +275,7 @@ Replace `<user-a-uuid>` / `<user-b-uuid>` with IDs from **Authentication → Use
 **Problem discovered**: When multiple `generation_history` rows for the same user share the same `generated_at` timestamp (e.g. bulk inserts in tests), PostgreSQL's `ORDER BY generated_at DESC LIMIT 20` sub-select is non-deterministic — it may keep an arbitrary 20 rows and delete the wrong one, violating the "last N" guarantee.
 
 **Fix applied**:
+
 - Added `seq bigint GENERATED ALWAYS AS IDENTITY` to `generation_history` as an insert-order tie-breaker.
 - Replaced the old `(user_id, generated_at DESC)` index with `(user_id, generated_at DESC, seq DESC)`.
 - Rewrote `prune_generation_history()` to `ORDER BY generated_at DESC, seq DESC LIMIT 20`.
