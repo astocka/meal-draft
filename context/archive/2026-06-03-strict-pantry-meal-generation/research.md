@@ -5,7 +5,17 @@ git_commit: 8f60997904557d816dd98eed378610871ffad810
 branch: main
 repository: meal-draft
 topic: "S-03 strict-pantry meal generation — codebase readiness and UI integration surface"
-tags: [research, codebase, strict-pantry-meal-generation, dashboard, meal-generator, api-generate, mobile-tabs, pantry-widget]
+tags:
+  [
+    research,
+    codebase,
+    strict-pantry-meal-generation,
+    dashboard,
+    meal-generator,
+    api-generate,
+    mobile-tabs,
+    pantry-widget,
+  ]
 status: complete
 last_updated: 2026-06-03
 last_updated_by: AI agent
@@ -55,13 +65,13 @@ The implementation path is straightforward: replace the placeholder with a React
     </main>
 ```
 
-| Aspect | Status |
-|--------|--------|
-| Two-column desktop layout | Done (`md:grid-cols-2`) |
-| Pantry SSR prefetch | Done (lines 13–24) |
-| Generator on mobile | **Hidden** (`hidden md:flex` on line 40) |
-| Mobile tabs | **Not implemented** |
-| Pantry prefetch error UI | Deferred (TODO lines 19–22) |
+| Aspect                    | Status                                   |
+| ------------------------- | ---------------------------------------- |
+| Two-column desktop layout | Done (`md:grid-cols-2`)                  |
+| Pantry SSR prefetch       | Done (lines 13–24)                       |
+| Generator on mobile       | **Hidden** (`hidden md:flex` on line 40) |
+| Mobile tabs               | **Not implemented**                      |
+| Pantry prefetch error UI  | Deferred (TODO lines 19–22)              |
 
 `MealGeneratorPlaceholder.astro` is static copy only — no controls, no `client:*` directive.
 
@@ -73,15 +83,15 @@ The implementation path is straightforward: replace the placeholder with a React
 
 **Handler:** `src/pages/api/generate.ts`
 
-| HTTP | Body | When |
-|------|------|------|
-| **200** | `{ recipe: MealRecipe, history_id: string }` | Success |
-| **200** | `{ recipe: null, reason: "no_match" }` | Empty pantry, model refusal, or strict-pantry failure after retry |
-| **401** | `{ error: "Unauthorized" }` | No session |
-| **400** | `{ error: string }` | Invalid JSON / Zod (first issue message only) |
-| **429** | `{ error: "rate_limit_exceeded" }` | 10 requests / user / hour (KV) |
-| **500** | `{ error: "generation_failed" }` | Service error |
-| **503** | `{ error: "Service unavailable" }` | Missing Supabase env |
+| HTTP    | Body                                         | When                                                              |
+| ------- | -------------------------------------------- | ----------------------------------------------------------------- |
+| **200** | `{ recipe: MealRecipe, history_id: string }` | Success                                                           |
+| **200** | `{ recipe: null, reason: "no_match" }`       | Empty pantry, model refusal, or strict-pantry failure after retry |
+| **401** | `{ error: "Unauthorized" }`                  | No session                                                        |
+| **400** | `{ error: string }`                          | Invalid JSON / Zod (first issue message only)                     |
+| **429** | `{ error: "rate_limit_exceeded" }`           | 10 requests / user / hour (KV)                                    |
+| **500** | `{ error: "generation_failed" }`             | Service error                                                     |
+| **503** | `{ error: "Service unavailable" }`           | Missing Supabase env                                              |
 
 **Request schema** (`src/lib/generation-schema.ts`):
 
@@ -144,10 +154,10 @@ Strict-pantry validation in `src/lib/generation.ts`:
 
 **US-01** (`context/foundation/prd.md` lines 47–62): logged-in user with pantry → set time + meal type → Generate → one suggestion (name, time, ingredients, steps) or clear no-match message. “Try another” is US-06 / **S-04**, not S-03.
 
-| Ref | Requirement | S-03 UI |
-|-----|-------------|---------|
-| FR-007 | Presets + “Any time”; no custom text | Preset buttons → `max_prep_time_minutes` |
-| FR-008 | breakfast / lunch / dinner | Meal type control |
+| Ref    | Requirement                           | S-03 UI                                             |
+| ------ | ------------------------------------- | --------------------------------------------------- |
+| FR-007 | Presets + “Any time”; no custom text  | Preset buttons → `max_prep_time_minutes`            |
+| FR-008 | breakfast / lunch / dinner            | Meal type control                                   |
 | FR-009 | Exactly one suggestion; strict pantry | Render single `MealRecipe`; trust server validation |
 
 **Roadmap S-03** (`context/foundation/roadmap.md` lines 120–132): north star; prerequisites F-01, F-02, S-02 all **done**; mobile tabs explicit.
@@ -158,11 +168,11 @@ Strict-pantry validation in `src/lib/generation.ts`:
 
 ### 6. Time budget constraints (Q1 resolved)
 
-| Control | S-03 value |
-|---------|------------|
-| Preset buttons | **15**, **30**, **60** minutes |
+| Control               | S-03 value                                   |
+| --------------------- | -------------------------------------------- |
+| Preset buttons        | **15**, **30**, **60** minutes               |
 | No-restriction option | **Any time** → `max_prep_time_minutes: null` |
-| Default on load | **Any time** (`null`) |
+| Default on load       | **Any time** (`null`)                        |
 
 PRD FR-007 lists example presets including 45 min; product chose **15/30/60** (aligned with F-02 `research.md`). API accepts any integer 1–480 or `null` — no backend change.
 
@@ -195,13 +205,13 @@ PRD FR-007 lists example presets including 45 min; product chose **15/30/60** (a
 
 ## Historical Context (from prior changes)
 
-| Artifact | Relevance |
-|----------|-----------|
-| `context/changes/ai-meal-generation/plan.md` | API contract, explicit deferral of UI/spinner to S-03 |
-| `context/changes/ai-meal-generation/research.md` | Preset resolution (15/30/60), provider choice, no history on semantic no_match |
-| `context/changes/pantry-crud/plan.md` | Dashboard as app home; optimistic pantry; placeholder until S-03 |
-| `context/changes/pantry-crud/follow-ups/review-fixes.md` | `loadError` — **in scope for S-03** (see decision below) |
-| `context/foundation/roadmap.md` | S-03 ready; F-02 done 2026-06-02; baseline section partially stale (“no generation API”) |
+| Artifact                                                 | Relevance                                                                                |
+| -------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `context/changes/ai-meal-generation/plan.md`             | API contract, explicit deferral of UI/spinner to S-03                                    |
+| `context/changes/ai-meal-generation/research.md`         | Preset resolution (15/30/60), provider choice, no history on semantic no_match           |
+| `context/changes/pantry-crud/plan.md`                    | Dashboard as app home; optimistic pantry; placeholder until S-03                         |
+| `context/changes/pantry-crud/follow-ups/review-fixes.md` | `loadError` — **in scope for S-03** (see decision below)                                 |
+| `context/foundation/roadmap.md`                          | S-03 ready; F-02 done 2026-06-02; baseline section partially stale (“no generation API”) |
 
 ---
 
@@ -238,6 +248,7 @@ PRD FR-007 lists example presets including 45 min; product chose **15/30/60** (a
 **Decision:** Default selection is **Any time** (`max_prep_time_minutes: null`), matching PRD FR-007. Generator UI loads with no time cap selected; user may pick a preset before Generate.
 
 **Implications for `/10x-plan`:**
+
 - Initial state: `maxPrepMinutes = null` (not 30).
 - "Any time" preset button should appear selected on first render.
 - API first call without user interaction sends `{ ..., max_prep_time_minutes: null }`.
@@ -248,6 +259,7 @@ PRD FR-007 lists example presets including 45 min; product chose **15/30/60** (a
 **Decision:** Preset buttons **15 / 30 / 60** minutes (plus **Any time**). Maps to `max_prep_time_minutes: 15 | 30 | 60 | null`.
 
 **Implications for `/10x-plan`:**
+
 - Four mutually exclusive time controls: `15 min`, `30 min`, `60 min`, `Any time`.
 - UI labels can show minutes; API sends integers or `null`.
 - PRD example of 45 min is not used in v1.
@@ -259,15 +271,16 @@ PRD FR-007 lists example presets including 45 min; product chose **15/30/60** (a
 
 **How customization works (no extra CSS framework):**
 
-| Layer | Where | What S-03 does |
-|-------|--------|----------------|
-| **Global tokens** | `src/styles/global.css` (`:root` / `.dark` CSS variables) | Nudge `--primary`, `--ring`, `--border`, `--card`, etc. toward purple + dark glass (dashboard already uses `bg-cosmic` and manual `white/10` borders on pantry) |
-| **shadcn components** | `src/components/ui/*` | Add `tabs`, `card`, toggles as needed; use variants + `className` via `cn()` |
-| **Screen-specific** | `MealGenerator.tsx`, `dashboard.astro` | Same patterns as `PantryWidget` (e.g. `bg-purple-600`, `border-white/10`) where tokens alone aren’t enough |
+| Layer                 | Where                                                     | What S-03 does                                                                                                                                                  |
+| --------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Global tokens**     | `src/styles/global.css` (`:root` / `.dark` CSS variables) | Nudge `--primary`, `--ring`, `--border`, `--card`, etc. toward purple + dark glass (dashboard already uses `bg-cosmic` and manual `white/10` borders on pantry) |
+| **shadcn components** | `src/components/ui/*`                                     | Add `tabs`, `card`, toggles as needed; use variants + `className` via `cn()`                                                                                    |
+| **Screen-specific**   | `MealGenerator.tsx`, `dashboard.astro`                    | Same patterns as `PantryWidget` (e.g. `bg-purple-600`, `border-white/10`) where tokens alone aren’t enough                                                      |
 
 **Scope:** Theme pass focused on **new S-03 surfaces** (generator panel, mobile tabs, result card). Full pantry reskin is optional follow-up, not required for north star.
 
 **Implications for `/10x-plan`:**
+
 - Install shadcn pieces via `npx shadcn@latest add tabs card` (and toggle group if used for presets).
 - Include a small **design/token task** in the plan before or alongside UI build.
 - Do **not** add Bootstrap, DaisyUI, or a second styling system.
@@ -296,15 +309,16 @@ PRD FR-007 lists example presets including 45 min; product chose **15/30/60** (a
 
 **Canonical copy (Polish):**
 
-| Element | Text |
-|---------|------|
-| **Title** | Nie udało się stworzyć przepisu |
-| **Hints heading** | Co możesz zrobić? |
-| **Hint 1** | Dodaj więcej składników |
-| **Hint 2** | Wydłuż czas przygotowania — **show only when a time preset is selected** (15 / 30 / 60), **not** when **Any time** (`null`) is selected |
-| **Hint 3** | Zmień typ posiłku |
+| Element           | Text                                                                                                                                    |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| **Title**         | Nie udało się stworzyć przepisu                                                                                                         |
+| **Hints heading** | Co możesz zrobić?                                                                                                                       |
+| **Hint 1**        | Dodaj więcej składników                                                                                                                 |
+| **Hint 2**        | Wydłuż czas przygotowania — **show only when a time preset is selected** (15 / 30 / 60), **not** when **Any time** (`null`) is selected |
+| **Hint 3**        | Zmień typ posiłku                                                                                                                       |
 
 **UX rules for `/10x-plan`:**
+
 - Info panel: calm card / info-tone icon (e.g. `CircleAlert` with muted colors), same family as other inline notices — not red “error” styling.
 - **Conditional hint 2:** `maxPrepMinutes != null` → show “Wydłuż czas przygotowania”; `maxPrepMinutes === null` (Any time default or user choice) → omit hint 2 entirely.
 - Empty pantry has its **own** empty-state message in the pantry column (see below) — do not duplicate in the no_match panel unless both can appear in different contexts.
@@ -323,7 +337,7 @@ Ship in S-03 as part of Polish UI pass (pantry strings in scope even though pant
 **Owner:** user  
 **Decision:** **Polish only** for all user-facing UI strings in S-03 scope: generator, mobile tabs, presets, loading, errors, pantry empty/load messages, no_match panel. No i18n layer for v1; English dev-only (logs, code comments) unchanged.
 
-**Examples to translate in plan:** Generate → *Generuj*; tabs *Spiżarnia* | *Generator posiłków*; meal types *Śniadanie* / *Obiad* / *Kolacja*; time presets *15 min* / *30 min* / *60 min* / *Dowolny czas*; loading *Tworzę przepis…* (exact strings in plan).
+**Examples to translate in plan:** Generate → _Generuj_; tabs _Spiżarnia_ | _Generator posiłków_; meal types _Śniadanie_ / _Obiad_ / _Kolacja_; time presets _15 min_ / _30 min_ / _60 min_ / _Dowolny czas_; loading _Tworzę przepis…_ (exact strings in plan).
 
 ---
 

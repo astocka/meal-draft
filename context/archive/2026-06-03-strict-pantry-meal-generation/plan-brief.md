@@ -17,20 +17,20 @@ On `/dashboard`, desktop shows pantry + live generator side by side; mobile uses
 
 ## Key Decisions Made
 
-| Decision | Choice | Why (1 sentence) | Source |
-| -------- | ------ | ------------------ | ------ |
-| Scope | Frontend-only slice | API and schema are done; S-03 is dashboard UX | Research |
-| Time presets | 15 / 30 / 60 + Dowolny czas; default null | Matches FR-007 product choice | Research / change.md |
-| UI stack | shadcn + Tailwind; token pass in S-03 | Matches project; cosmic/purple alignment | Research |
-| Language | Polish only v1 | MVP audience; no i18n | Research |
-| no_match UX | Info panel + conditional hints | Calm guidance; hide time hint when Any time | Research |
-| loadError | Ship in S-03; duplicate in generator tab | Avoid empty-pantry confusion on prefetch failure | Research / Plan |
-| Mobile nav | `DashboardShell` React island + shadcn Tabs | One place for tab state and shared props | Plan |
-| Empty pantry | Disable Generuj + hint; `onItemsChange` | Avoid useless LLM wait; enable after first add | Plan |
-| history_id | React state only | Forward-compat for S-04/S-06 without URL noise | Plan |
-| Wire types | Zod response schemas in `generation-schema.ts` | Same source as request; runtime-safe parse | Plan |
-| 429 UX | Dedicated inline Polish error | Distinct from no_match and generic 500 | Plan |
-| Testing | lint + build + manual workerd | No test runner in repo today | Plan |
+| Decision     | Choice                                         | Why (1 sentence)                                 | Source               |
+| ------------ | ---------------------------------------------- | ------------------------------------------------ | -------------------- |
+| Scope        | Frontend-only slice                            | API and schema are done; S-03 is dashboard UX    | Research             |
+| Time presets | 15 / 30 / 60 + Dowolny czas; default null      | Matches FR-007 product choice                    | Research / change.md |
+| UI stack     | shadcn + Tailwind; token pass in S-03          | Matches project; cosmic/purple alignment         | Research             |
+| Language     | Polish only v1                                 | MVP audience; no i18n                            | Research             |
+| no_match UX  | Info panel + conditional hints                 | Calm guidance; hide time hint when Any time      | Research             |
+| loadError    | Ship in S-03; duplicate in generator tab       | Avoid empty-pantry confusion on prefetch failure | Research / Plan      |
+| Mobile nav   | `DashboardShell` React island + shadcn Tabs    | One place for tab state and shared props         | Plan                 |
+| Empty pantry | Disable Generuj + hint; `onItemsChange`        | Avoid useless LLM wait; enable after first add   | Plan                 |
+| history_id   | React state only                               | Forward-compat for S-04/S-06 without URL noise   | Plan                 |
+| Wire types   | Zod response schemas in `generation-schema.ts` | Same source as request; runtime-safe parse       | Plan                 |
+| 429 UX       | Dedicated inline Polish error                  | Distinct from no_match and generic 500           | Plan                 |
+| Testing      | lint + build + manual workerd                  | No test runner in repo today                     | Plan                 |
 
 ## Scope
 
@@ -55,13 +55,13 @@ Pantry count flows from `PantryWidget.onItemsChange` so generate enables after t
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-| ----- | ---------------- | -------- |
-| 1. Wire contract | Zod response schemas + parser | Schema drift from actual API JSON |
-| 2. Shell + shadcn | Tabs, tokens, DashboardShell | Mobile/desktop layout regressions |
-| 3. Pantry polish | loadError, Polish empty, count callback | Prefetch error hard to simulate locally |
-| 4. Meal generator | Full north-star UX | LLM latency UX; workerd-only 429/KV |
-| 5. Verification | build + preview sign-off | OpenRouter key missing in `.dev.vars` |
+| Phase             | What it delivers                        | Key risk                                |
+| ----------------- | --------------------------------------- | --------------------------------------- |
+| 1. Wire contract  | Zod response schemas + parser           | Schema drift from actual API JSON       |
+| 2. Shell + shadcn | Tabs, tokens, DashboardShell            | Mobile/desktop layout regressions       |
+| 3. Pantry polish  | loadError, Polish empty, count callback | Prefetch error hard to simulate locally |
+| 4. Meal generator | Full north-star UX                      | LLM latency UX; workerd-only 429/KV     |
+| 5. Verification   | build + preview sign-off                | OpenRouter key missing in `.dev.vars`   |
 
 **Prerequisites:** F-01, F-02, S-02 (done). **Estimated effort:** ~2–3 focused sessions across 5 phases.
 

@@ -1,4 +1,5 @@
 <!-- PLAN-REVIEW-REPORT -->
+
 # Plan Review: Strict-Pantry Meal Generation (S-03)
 
 - **Plan**: `context/changes/strict-pantry-meal-generation/plan.md`
@@ -9,13 +10,13 @@
 
 ## Verdicts
 
-| Dimension | Verdict |
-|-----------|---------|
-| End-State Alignment | PASS (F1 fixed) |
-| Lean Execution | PASS |
-| Architectural Fitness | PASS (F3 fixed) |
-| Blind Spots | PASS (F4 fixed) |
-| Plan Completeness | PASS (F2, F5, F6 fixed) |
+| Dimension             | Verdict                 |
+| --------------------- | ----------------------- |
+| End-State Alignment   | PASS (F1 fixed)         |
+| Lean Execution        | PASS                    |
+| Architectural Fitness | PASS (F3 fixed)         |
+| Blind Spots           | PASS (F4 fixed)         |
+| Plan Completeness     | PASS (F2, F5, F6 fixed) |
 
 ## Grounding
 

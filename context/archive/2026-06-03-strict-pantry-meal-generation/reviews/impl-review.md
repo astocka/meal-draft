@@ -1,4 +1,5 @@
 <!-- IMPL-REVIEW-REPORT -->
+
 # Implementation Review: Strict-Pantry Meal Generation (S-03)
 
 - **Plan**: context/changes/strict-pantry-meal-generation/plan.md
@@ -9,14 +10,14 @@
 
 ## Verdicts
 
-| Dimension | Verdict |
-|-----------|---------|
-| Plan Adherence | WARNING |
-| Scope Discipline | PASS |
-| Safety & Quality | PASS |
-| Architecture | PASS |
-| Pattern Consistency | PASS |
-| Success Criteria | WARNING |
+| Dimension           | Verdict |
+| ------------------- | ------- |
+| Plan Adherence      | WARNING |
+| Scope Discipline    | PASS    |
+| Safety & Quality    | PASS    |
+| Architecture        | PASS    |
+| Pattern Consistency | PASS    |
+| Success Criteria    | WARNING |
 
 ## Findings
 
@@ -46,7 +47,7 @@
 - **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped
 - **Dimension**: Plan Adherence
 - **Location**: src/components/meal/MealGenerator.tsx:189
-- **Detail**: Plan Polish table specifies loading text *Tworzę przepis…*; implementation shows *Tworzę…* on the button during loading.
+- **Detail**: Plan Polish table specifies loading text _Tworzę przepis…_; implementation shows _Tworzę…_ on the button during loading.
 - **Fix**: Change loading label to `Tworzę przepis…` per plan copy table.
 - **Decision**: FIXED
 
@@ -56,7 +57,7 @@
 - **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped
 - **Dimension**: Plan Adherence
 - **Location**: src/components/meal/MealGenerator.tsx:23
-- **Detail**: Plan specifies visible preset *Dowolny czas*; button shows *Dow.* with full text only in `title`/`aria-label`. Functionally correct; visual copy drifts from plan table.
+- **Detail**: Plan specifies visible preset _Dowolny czas_; button shows _Dow._ with full text only in `title`/`aria-label`. Functionally correct; visual copy drifts from plan table.
 - **Fix**: Use label `Dowolny czas` in `TIME_PRESETS` or widen button styling to fit full text.
 - **Decision**: FIXED
 
@@ -82,9 +83,9 @@
 
 ## Automated verification (re-run during review)
 
-| Command | Result |
-|---------|--------|
-| `pnpm run lint` | PASS (exit 0) |
+| Command          | Result        |
+| ---------------- | ------------- |
+| `pnpm run lint`  | PASS (exit 0) |
 | `pnpm run build` | PASS (exit 0) |
 
 ## Git scope (6e66226^..8d3056f)

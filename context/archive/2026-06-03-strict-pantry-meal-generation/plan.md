@@ -25,7 +25,7 @@ Ship the north-star dashboard experience: logged-in user sets meal type and time
 
 1. User on `/dashboard` (desktop) sees pantry left and live generator right; on mobile, tabs **Spiżarnia** | **Generator posiłków** switch full-height panels.
 2. User selects meal type (Śniadanie / Obiad / Kolacja), time (**15 min** / **30 min** / **60 min** / **Dowolny czas**, default **Dowolny czas** → `null`), taps **Generuj**.
-3. After 2–10s, user sees one recipe (name, prep time, ingredients, steps) or an info panel *Nie udało się stworzyć przepisu* with hints (hint 2 omitted when Dowolny czas selected).
+3. After 2–10s, user sees one recipe (name, prep time, ingredients, steps) or an info panel _Nie udało się stworzyć przepisu_ with hints (hint 2 omitted when Dowolny czas selected).
 4. Prefetch failure shows Polish load banner in both tabs; **Generuj** disabled.
 5. Empty pantry (load OK) disables **Generuj** with a short hint; pantry column shows Polish empty copy.
 6. `pnpm run lint` and `pnpm run build` pass; manual sign-off on workerd preview with `OPENROUTER_API_KEY`.
@@ -58,7 +58,7 @@ Five phases in dependency order:
 
 **Pantry count for disable:** `dashboard.astro` passes `initialItems.length` into shell; `PantryWidget` must notify shell when items change (add/delete) so mobile users who add their first ingredient can enable **Generuj** without refresh.
 
-**Conditional hint 2:** Show *Wydłuż czas przygotowania* only when `maxPrepMinutes !== null` at time of the failed request (use state at submit, not stale UI).
+**Conditional hint 2:** Show _Wydłuż czas przygotowania_ only when `maxPrepMinutes !== null` at time of the failed request (use state at submit, not stale UI).
 
 ---
 
@@ -77,6 +77,7 @@ Add client-side response validation and parsing shared by `MealGenerator` and fu
 **Intent**: Co-locate request and response Zod schemas; export inferred types for the client.
 
 **Contract**:
+
 - Keep existing `generateRequestSchema`.
 - Add schemas for: success body `{ recipe, history_id }`, no_match `{ recipe: null, reason: "no_match" }`, error body `{ error: string }` (and narrow `reason` literal where useful).
 - Export types via `z.infer<typeof …>` (e.g. `GenerateSuccessBody`, `GenerateNoMatchBody`).
@@ -88,6 +89,7 @@ Add client-side response validation and parsing shared by `MealGenerator` and fu
 **Intent**: Single entry point used by the generator after `res.json()` — mirror defensive style of `parsePantryItemResponse` in `PantryWidget.tsx`.
 
 **Contract**:
+
 - `parseGenerateResponse(body: unknown, status: number): { kind: 'success'; recipe: MealRecipe; history_id: string } | { kind: 'no_match' } | { kind: 'error'; code: 'unauthorized' | 'validation' | 'rate_limit' | 'generation_failed' | 'unavailable' | 'network' | 'unknown'; message: string }`
 - Map `status === 429` and `error === 'rate_limit_exceeded'` to `rate_limit`.
 - Map `status === 400` to `validation` with a **fixed Polish** user message — never pass through the API `error` string (Zod messages are English).
@@ -147,10 +149,11 @@ Install UI primitives, align tokens with cosmic/purple dashboard, and replace th
 **Intent**: Own mobile tab state; render pantry column + generator column; desktop uses `md:grid md:grid-cols-2` without tab bar.
 
 **Contract**:
+
 - Props: `initialItems: PantryProduct[]`, `loadError: boolean`.
-- Mobile (`<md`): shadcn `Tabs` — *Spiżarnia* | *Generator posiłków*; one panel full height.
+- Mobile (`<md`): shadcn `Tabs` — _Spiżarnia_ | _Generator posiłków_; one panel full height.
 - Desktop: both panels visible; no tabs.
-- Column headers in Polish (*Spiżarnia*, *Generator posiłków*).
+- Column headers in Polish (_Spiżarnia_, _Generator posiłków_).
 - Track `pantryCount` state (initialized from `initialItems.length`); **do not import `MealGenerator` in Phase 2** — generator column shows empty shell chrome or minimal placeholder until Phase 4.
 
 #### 4. Dashboard page wiring
@@ -193,9 +196,10 @@ Ship prefetch failure UX and Polish empty state; expose pantry count updates to 
 **Intent**: Show load banner; Polish empty message; notify parent on item count changes.
 
 **Contract**:
+
 - Props: `loadError?: boolean`, `onItemsChange?: (count: number) => void` — call after successful add/delete and on mount with current length.
-- Load banner (info tone, `CircleAlert`): *Nie udało się załadować Twojej spiżarni. Odśwież stronę lub spróbuj ponownie później.*
-- Empty: *Twoja spiżarnia jest pusta – dodaj swój pierwszy składnik*
+- Load banner (info tone, `CircleAlert`): _Nie udało się załadować Twojej spiżarni. Odśwież stronę lub spróbuj ponownie później._
+- Empty: _Twoja spiżarnia jest pusta – dodaj swój pierwszy składnik_
 - When `loadError`, de-emphasize add/list (per research sketch).
 
 #### 2. Shell wiring
@@ -238,15 +242,16 @@ Replace placeholder with interactive generator: controls, API call, loading, suc
 **Intent**: Full S-03 UX in the right panel / generator tab.
 
 **Contract**:
+
 - Props: `loadError: boolean`, `pantryCount: number`.
 - State: `mealType` default `'lunch'`, `maxPrepMinutes: null` on load, `status: 'idle' | 'loading' | 'success' | 'no_match' | 'error'`, `recipe`, `historyId`, `errorMessage`.
 - Controls: meal type toggle/buttons; time presets 15 / 30 / 60 / Dowolny czas (mutually exclusive, default Dowolny czas selected visually).
 - **Generuj**: `POST /api/generate` body `{ meal_type, max_prep_time_minutes, exclude_names: [] }`; disable when `loadError`, `pantryCount === 0`, or loading.
-- Empty pantry hint when disabled (e.g. *Dodaj składniki w zakładce Spiżarnia*).
-- Loading: `Loader2` + *Tworzę przepis…*; disable button (no optimistic recipe).
+- Empty pantry hint when disabled (e.g. _Dodaj składniki w zakładce Spiżarnia_).
+- Loading: `Loader2` + _Tworzę przepis…_; disable button (no optimistic recipe).
 - Success: shadcn `Card` with name, prep time, ingredients list, steps.
-- `no_match`: info panel — title *Nie udało się stworzyć przepisu*; *Co możesz zrobić?*; hints 1 & 3 always; hint 2 only if `maxPrepMinutes != null` at submit.
-- Errors: inline panel — 429 → *Osiągnięto limit generowania. Spróbuj ponownie za godzinę.*; 400/validation → fixed Polish copy from parser (not API body); other failures → generic Polish server/network copy; 401 → session message or redirect expectation (user is on protected `/dashboard`).
+- `no_match`: info panel — title _Nie udało się stworzyć przepisu_; _Co możesz zrobić?_; hints 1 & 3 always; hint 2 only if `maxPrepMinutes != null` at submit.
+- Errors: inline panel — 429 → _Osiągnięto limit generowania. Spróbuj ponownie za godzinę._; 400/validation → fixed Polish copy from parser (not API body); other failures → generic Polish server/network copy; 401 → session message or redirect expectation (user is on protected `/dashboard`).
 - On success, store `history_id` in state (no UI).
 
 #### 2. Shell integration
@@ -261,24 +266,24 @@ Replace placeholder with interactive generator: controls, API call, loading, suc
 
 ### Polish copy reference (v1)
 
-| Key | Text |
-|-----|------|
-| generate | Generuj |
-| loading | Tworzę przepis… |
-| meal breakfast | Śniadanie |
-| meal lunch | Obiad |
-| meal dinner | Kolacja |
-| time any | Dowolny czas |
-| tab pantry | Spiżarnia |
-| tab generator | Generator posiłków |
-| load error | Nie udało się załadować Twojej spiżarni. Odśwież stronę lub spróbuj ponownie później. |
-| no match title | Nie udało się stworzyć przepisu |
-| hints heading | Co możesz zrobić? |
-| hint add | Dodaj więcej składników |
-| hint time | Wydłuż czas przygotowania |
-| hint meal type | Zmień typ posiłku |
-| rate limit | Osiągnięto limit generowania. Spróbuj ponownie za godzinę. |
-| validation | Nieprawidłowe dane żądania. Spróbuj ponownie. |
+| Key            | Text                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------- |
+| generate       | Generuj                                                                               |
+| loading        | Tworzę przepis…                                                                       |
+| meal breakfast | Śniadanie                                                                             |
+| meal lunch     | Obiad                                                                                 |
+| meal dinner    | Kolacja                                                                               |
+| time any       | Dowolny czas                                                                          |
+| tab pantry     | Spiżarnia                                                                             |
+| tab generator  | Generator posiłków                                                                    |
+| load error     | Nie udało się załadować Twojej spiżarni. Odśwież stronę lub spróbuj ponownie później. |
+| no match title | Nie udało się stworzyć przepisu                                                       |
+| hints heading  | Co możesz zrobić?                                                                     |
+| hint add       | Dodaj więcej składników                                                               |
+| hint time      | Wydłuż czas przygotowania                                                             |
+| hint meal type | Zmień typ posiłku                                                                     |
+| rate limit     | Osiągnięto limit generowania. Spróbuj ponownie za godzinę.                            |
+| validation     | Nieprawidłowe dane żądania. Spróbuj ponownie.                                         |
 
 ### Success Criteria
 
