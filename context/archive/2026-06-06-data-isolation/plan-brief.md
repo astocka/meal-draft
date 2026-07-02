@@ -17,15 +17,15 @@ A developer configures `.env.test` and runs `pnpm test` locally — User A canno
 
 ## Key Decisions Made
 
-| Decision | Choice | Why | Source |
-|----------|--------|-----|--------|
-| Exit criteria | Tier A RLS-only | Highest signal/cost for Risk #1 | Research |
-| HTTP IDOR tests | Deferred to Phase 2 | Tier B in test-plan Phase 2 | Research |
-| CI | Local-only | No Docker Supabase in GitHub Actions this phase | Research |
-| Env guard | Yes, on first `createClient()` | Catches service-role misconfig before RLS bypass | Research + Plan |
-| Test layout | `tests/integration/` | Separates integration from future unit tests | Plan |
-| Test users | `beforeAll` signUp via Auth API | Real auth path; no service-role in tests | Plan |
-| Risk #6 HTTP semantics | Assert DB state, not 403 | DELETE returns 204 on zero rows | Research |
+| Decision               | Choice                          | Why                                              | Source          |
+| ---------------------- | ------------------------------- | ------------------------------------------------ | --------------- |
+| Exit criteria          | Tier A RLS-only                 | Highest signal/cost for Risk #1                  | Research        |
+| HTTP IDOR tests        | Deferred to Phase 2             | Tier B in test-plan Phase 2                      | Research        |
+| CI                     | Local-only                      | No Docker Supabase in GitHub Actions this phase  | Research        |
+| Env guard              | Yes, on first `createClient()`  | Catches service-role misconfig before RLS bypass | Research + Plan |
+| Test layout            | `tests/integration/`            | Separates integration from future unit tests     | Plan            |
+| Test users             | `beforeAll` signUp via Auth API | Real auth path; no service-role in tests         | Plan            |
+| Risk #6 HTTP semantics | Assert DB state, not 403        | DELETE returns 204 on zero rows                  | Research        |
 
 ## Scope
 
@@ -39,12 +39,12 @@ Vitest runs Node integration tests against local Supabase using `@supabase/supab
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-|-------|------------------|----------|
-| 1. Vitest bootstrap | Runner, config, `pnpm test`, env template | Path alias mismatch with Astro |
+| Phase                  | What it delivers                               | Key risk                                        |
+| ---------------------- | ---------------------------------------------- | ----------------------------------------------- |
+| 1. Vitest bootstrap    | Runner, config, `pnpm test`, env template      | Path alias mismatch with Astro                  |
 | 2. Env guard + helpers | `assertSupabaseAnonKey`, test client factories | Guard throws when env optional in some contexts |
-| 3. RLS suite | `tests/integration/rls-cross-user.test.ts` | Flaky auth if users already exist |
-| 4. Cookbook + docs | test-plan §6.2, AGENTS.md | — |
+| 3. RLS suite           | `tests/integration/rls-cross-user.test.ts`     | Flaky auth if users already exist               |
+| 4. Cookbook + docs     | test-plan §6.2, AGENTS.md                      | —                                               |
 
 **Prerequisites:** `.env.test` with Supabase URL + anon key (local dev project); F-01 migrations applied. Tests are local-only — not run in CI.
 

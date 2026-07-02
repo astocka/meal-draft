@@ -47,11 +47,11 @@ MealDraft's data isolation is **defense-in-depth**: RLS on all three domain tabl
 
 All RLS lives in [`supabase/migrations/20260528120000_domain_data_schema.sql`](https://github.com/astocka/meal-draft/blob/362a392d5a849d4ce2684c53e9ecd022df880792/supabase/migrations/20260528120000_domain_data_schema.sql).
 
-| Table | Owner column | RLS enabled | Client policies | Client grants |
-|-------|--------------|-------------|-----------------|---------------|
-| `pantry_products` | `user_id` → `auth.users` | yes (L110) | SELECT, INSERT, UPDATE, DELETE | full CRUD |
-| `favorite_meals` | `user_id` | yes (L111) | SELECT, INSERT, DELETE (no UPDATE — v1) | SELECT, INSERT, DELETE |
-| `generation_history` | `user_id` | yes (L112) | SELECT, INSERT only | SELECT, INSERT |
+| Table                | Owner column             | RLS enabled | Client policies                         | Client grants          |
+| -------------------- | ------------------------ | ----------- | --------------------------------------- | ---------------------- |
+| `pantry_products`    | `user_id` → `auth.users` | yes (L110)  | SELECT, INSERT, UPDATE, DELETE          | full CRUD              |
+| `favorite_meals`     | `user_id`                | yes (L111)  | SELECT, INSERT, DELETE (no UPDATE — v1) | SELECT, INSERT, DELETE |
+| `generation_history` | `user_id`                | yes (L112)  | SELECT, INSERT only                     | SELECT, INSERT         |
 
 Every policy uses `(select auth.uid()) = user_id` in `USING` and/or `WITH CHECK` (L114–167). INSERT policies use `WITH CHECK` only; UPDATE on pantry uses both `USING` and `WITH CHECK` (anti-`user_id` reassignment).
 
@@ -72,13 +72,13 @@ Auth resolved once in [`src/middleware.ts`](https://github.com/astocka/meal-draf
 
 ### Application layer — API routes and IDOR surface
 
-| Endpoint | Table(s) | Ownership layer |
-|----------|----------|-----------------|
-| `GET/POST /api/pantry` | `pantry_products` | `.eq("user_id", user.id)` / insert `user_id` |
-| `PATCH/DELETE /api/pantry/[id]` | `pantry_products` | `.eq("id", id).eq("user_id", user.id)` |
-| `GET/POST /api/favorites` | `favorite_meals` | same pattern |
-| `DELETE /api/favorites/[id]` | `favorite_meals` | `.eq("id", parsedId).eq("user_id", user.id)` + UUID validation |
-| `POST /api/generate` | `pantry_products` (read), `generation_history` (write) | `generateMeal(userId, …)` filters/inserts by `userId` |
+| Endpoint                        | Table(s)                                               | Ownership layer                                                |
+| ------------------------------- | ------------------------------------------------------ | -------------------------------------------------------------- |
+| `GET/POST /api/pantry`          | `pantry_products`                                      | `.eq("user_id", user.id)` / insert `user_id`                   |
+| `PATCH/DELETE /api/pantry/[id]` | `pantry_products`                                      | `.eq("id", id).eq("user_id", user.id)`                         |
+| `GET/POST /api/favorites`       | `favorite_meals`                                       | same pattern                                                   |
+| `DELETE /api/favorites/[id]`    | `favorite_meals`                                       | `.eq("id", parsedId).eq("user_id", user.id)` + UUID validation |
+| `POST /api/generate`            | `pantry_products` (read), `generation_history` (write) | `generateMeal(userId, …)` filters/inserts by `userId`          |
 
 **No read API for `generation_history`** — IDOR by history UUID is not exposed; `history_id` in generate response has no `GET /api/.../[id]` consumer.
 
@@ -94,13 +94,13 @@ SSR prefetch on [`dashboard.astro`](https://github.com/astocka/meal-draft/blob/3
 
 ### Test-plan response guidance — verification
 
-| Risk | Planned response | Research verdict |
-|------|------------------|------------------|
-| #1 | Cross-user rows invisible/unmodifiable | **Confirmed** — test at RLS layer with two JWTs; cover all three tables × applicable ops |
-| #1 | Challenge: "RLS enabled" ≠ works | **Valid** — F-01 used manual simulation only; no automated proof |
-| #6 | No foreign row returned/mutated; PATCH 404; DELETE verify persistence | **Confirmed** — backported to test-plan §2; no 403 in app; DELETE is 204 on zero rows |
-| #6 | Challenge: middleware auth ≠ ownership | **Valid** — ownership is explicit filter + RLS, not middleware |
-| Cheapest layer | integration (Supabase via `.env.test`) | **Confirmed** — no test runner yet; Vitest bootstrap fits this phase |
+| Risk           | Planned response                                                      | Research verdict                                                                         |
+| -------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| #1             | Cross-user rows invisible/unmodifiable                                | **Confirmed** — test at RLS layer with two JWTs; cover all three tables × applicable ops |
+| #1             | Challenge: "RLS enabled" ≠ works                                      | **Valid** — F-01 used manual simulation only; no automated proof                         |
+| #6             | No foreign row returned/mutated; PATCH 404; DELETE verify persistence | **Confirmed** — backported to test-plan §2; no 403 in app; DELETE is 204 on zero rows    |
+| #6             | Challenge: middleware auth ≠ ownership                                | **Valid** — ownership is explicit filter + RLS, not middleware                           |
+| Cheapest layer | integration (Supabase via `.env.test`)                                | **Confirmed** — no test runner yet; Vitest bootstrap fits this phase                     |
 
 ### Recommended test matrix (for `/10x-plan`)
 

@@ -195,11 +195,11 @@ Automate F-01 RLS checklist as Tier A tests — User A vs User B on all three do
 
 **Contract**: Single `describe` with shared `beforeAll`: provision User A and B; seed one row per table owned by B (minimal valid shapes — pantry name, favorite recipe JSON with `name`, history row with `meal_type`). Tests run as **User A's client**:
 
-| Table | Assert |
-|-------|--------|
-| `pantry_products` | SELECT → no B rows; INSERT with `user_id: B` → error; UPDATE B row by id → no effect/error; DELETE B row → no effect; UPDATE own row setting `user_id: B` → denied |
-| `favorite_meals` | SELECT → no B rows; INSERT with `user_id: B` → error; DELETE B row → no effect |
-| `generation_history` | SELECT → no B rows; INSERT with `user_id: B` → error; UPDATE/DELETE any row → denied (including own — append-only) |
+| Table                | Assert                                                                                                                                                             |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pantry_products`    | SELECT → no B rows; INSERT with `user_id: B` → error; UPDATE B row by id → no effect/error; DELETE B row → no effect; UPDATE own row setting `user_id: B` → denied |
+| `favorite_meals`     | SELECT → no B rows; INSERT with `user_id: B` → error; DELETE B row → no effect                                                                                     |
+| `generation_history` | SELECT → no B rows; INSERT with `user_id: B` → error; UPDATE/DELETE any row → denied (including own — append-only)                                                 |
 
 Use independent assertions — empty `data` arrays, non-null `error`, or row count checks via B's client confirming B's data still exists after A's attempts.
 
