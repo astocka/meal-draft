@@ -18,7 +18,8 @@ export default defineConfig({
     schema: {
       SUPABASE_URL: envField.string({ context: "server", access: "secret", optional: true }),
       SUPABASE_KEY: envField.string({ context: "server", access: "secret", optional: true }),
-      SUPABASE_SERVICE_ROLE_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      // SUPABASE_SERVICE_ROLE_KEY is intentionally absent from this schema — it must never
+      // become a typed, app-wide import. Set it as a Cloudflare Worker secret / .dev.vars only.
       INVITE_CODE: envField.string({ context: "server", access: "secret", optional: true }),
       SITE_URL: envField.string({ context: "server", access: "secret", optional: true }),
       OPENROUTER_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),

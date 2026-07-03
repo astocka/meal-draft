@@ -4,8 +4,7 @@ import { FormField } from "@/components/auth/FormField";
 import { PasswordToggle } from "@/components/auth/PasswordToggle";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
-
-const MIN_PASSWORD_LENGTH = 12;
+import { SIGNUP_PASSWORD_MIN as MIN_PASSWORD_LENGTH } from "@/lib/auth/signup-schema";
 
 interface Props {
   serverError?: string | null;

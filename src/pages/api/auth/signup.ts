@@ -1,21 +1,27 @@
 import type { APIRoute } from "astro";
-import { z } from "zod";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
-import { SUPABASE_URL, INVITE_CODE, SUPABASE_SERVICE_ROLE_KEY } from "astro:env/server";
+import { SUPABASE_URL, INVITE_CODE } from "astro:env/server";
 import {
   AUTH_FORM_INVALID_INPUT,
   AUTH_FORM_INVALID_REQUEST,
   AUTH_SERVICE_UNAVAILABLE,
   authErrorMessage,
 } from "@/lib/auth/auth-error-message";
+import { signUpSchema } from "@/lib/auth/signup-schema";
 
 export const prerender = false;
 
-const signUpSchema = z.object({
-  email: z.email({ error: "Podaj prawidłowy adres e-mail." }),
-  password: z.string().min(12, { error: "Hasło musi mieć co najmniej 12 znaków." }),
-  inviteCode: z.string().min(15, { error: "Kod zaproszenia jest za krótki." }),
-});
+// SUPABASE_SERVICE_ROLE_KEY is intentionally excluded from astro:env/server schema so it
+// cannot be accidentally imported elsewhere in the app (it bypasses RLS). It is read once
+// here, directly from the Cloudflare Workers runtime env, scoped to this file only.
+interface CloudflareRuntime {
+  env: Record<string, string | undefined>;
+}
+
+function getServiceRoleKey(locals: Record<string, unknown>): string | undefined {
+  const runtime = locals.runtime as CloudflareRuntime | undefined;
+  return runtime?.env.SUPABASE_SERVICE_ROLE_KEY;
+}
 
 export const POST: APIRoute = async (context) => {
   let form: FormData;
@@ -42,13 +48,15 @@ export const POST: APIRoute = async (context) => {
     return context.redirect(`/auth/signup?error=${encodeURIComponent("Nieprawidłowy kod zaproszenia.")}`);
   }
 
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  const serviceRoleKey = getServiceRoleKey(context.locals as Record<string, unknown>);
+
+  if (!SUPABASE_URL || !serviceRoleKey) {
     return context.redirect(`/auth/signup?error=${encodeURIComponent(AUTH_SERVICE_UNAVAILABLE)}`);
   }
 
-  // Intentionally bypasses @/lib/supabase wrapper — service role is required to create users
-  // when public sign-ups are disabled. The anon-key guard in createClient() must not be triggered here.
-  const adminClient = createAdminClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+  // Uses service-role admin client to create users when public sign-ups are disabled
+  // in Supabase. Key is read from Cloudflare runtime env — never from astro:env/server.
+  const adminClient = createAdminClient(SUPABASE_URL, serviceRoleKey);
   const { error } = await adminClient.auth.admin.createUser({
     email,
     password,
