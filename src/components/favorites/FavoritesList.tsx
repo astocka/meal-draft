@@ -3,7 +3,6 @@ import { ChevronDown, ChevronUp, CircleAlert, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MEAL_TYPE_OPTIONS } from "@/lib/meal-types";
-import { cn } from "@/lib/utils";
 import type { FavoriteMeal, MealType } from "@/types";
 
 const LOAD_ERROR_MESSAGE = "Nie udało się załadować ulubionych posiłków. Odśwież stronę lub spróbuj ponownie później.";
@@ -97,21 +96,20 @@ export default function FavoritesList({ initialItems, mealType, loadError = fals
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-      <div
-        className={cn(
-          "hidden shrink-0 border-b border-white/10 px-5 py-3 text-sm font-semibold tracking-widest text-white/40 uppercase md:block",
-        )}
-      >
-        <h2>{mealTypeLabel}</h2>
+      <div className="border-border bg-card/60 hidden shrink-0 border-b px-5 py-3.5 md:block">
+        <h2 className="text-foreground/70 flex items-center gap-2.5 text-xs font-semibold tracking-[0.12em] uppercase">
+          <span className="bg-primary h-3 w-0.5 rounded-full" />
+          {mealTypeLabel}
+        </h2>
       </div>
 
       {loadError && (
-        <div className="shrink-0 border-b border-white/10 p-4">
+        <div className="border-border shrink-0 border-b p-4">
           <p
-            className="flex items-start gap-2 rounded-lg border border-purple-400/30 bg-purple-500/10 px-3 py-2 text-sm text-purple-100"
+            className="border-primary/30 bg-primary/10 text-foreground flex items-start gap-2 rounded-lg border px-3 py-2 text-sm"
             role="status"
           >
-            <CircleAlert className="mt-0.5 size-4 shrink-0 text-purple-300" />
+            <CircleAlert className="text-primary mt-0.5 size-4 shrink-0" />
             {LOAD_ERROR_MESSAGE}
           </p>
         </div>
@@ -120,14 +118,14 @@ export default function FavoritesList({ initialItems, mealType, loadError = fals
       {!loadError && (
         <div className="min-h-0 flex-1 overflow-y-auto p-4">
           {deleteError && (
-            <p className="mb-3 flex items-center gap-1 text-xs text-red-300">
+            <p className="text-destructive mb-3 flex items-center gap-1 text-xs">
               <CircleAlert className="size-3 shrink-0" />
               {deleteError}
             </p>
           )}
 
           {filteredItems.length === 0 ? (
-            <p className="py-12 text-center text-sm text-white/40">{emptyMessage}</p>
+            <p className="text-muted-foreground py-12 text-center text-sm">{emptyMessage}</p>
           ) : (
             <ul className="space-y-3">
               {filteredItems.map((item) => {
@@ -136,7 +134,7 @@ export default function FavoritesList({ initialItems, mealType, loadError = fals
 
                 return (
                   <li key={item.id}>
-                    <Card className="gap-0 border-white/10 bg-white/5 py-0 shadow-none">
+                    <Card className="gap-0 py-0 shadow-none">
                       <div className="group flex items-center gap-2 px-3 py-2.5">
                         <button
                           type="button"
@@ -146,12 +144,14 @@ export default function FavoritesList({ initialItems, mealType, loadError = fals
                           className="flex min-w-0 flex-1 items-center gap-2 text-left"
                           aria-expanded={isExpanded}
                         >
-                          <span className="truncate text-sm font-medium text-white">{recipe.name}</span>
-                          <span className="shrink-0 text-xs text-white/40">{formatSavedDate(item.saved_at)}</span>
+                          <span className="text-foreground truncate text-sm font-medium">{recipe.name}</span>
+                          <span className="text-muted-foreground shrink-0 text-xs">
+                            {formatSavedDate(item.saved_at)}
+                          </span>
                           {isExpanded ? (
-                            <ChevronUp className="ml-auto size-4 shrink-0 text-white/40" />
+                            <ChevronUp className="text-muted-foreground ml-auto size-4 shrink-0" />
                           ) : (
-                            <ChevronDown className="ml-auto size-4 shrink-0 text-white/40" />
+                            <ChevronDown className="text-muted-foreground ml-auto size-4 shrink-0" />
                           )}
                         </button>
                         <Button
@@ -160,7 +160,7 @@ export default function FavoritesList({ initialItems, mealType, loadError = fals
                           variant="ghost"
                           disabled={deletingIds.has(item.id)}
                           onClick={() => void handleDelete(item.id)}
-                          className="shrink-0 text-white/40 opacity-100 transition-all hover:bg-white/10 hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100"
+                          className="text-muted-foreground hover:bg-accent hover:text-destructive shrink-0 opacity-100 transition-all sm:opacity-0 sm:group-hover:opacity-100"
                           aria-label={`Usuń ${recipe.name}`}
                         >
                           <Trash2 className="size-4" />
@@ -168,20 +168,22 @@ export default function FavoritesList({ initialItems, mealType, loadError = fals
                       </div>
 
                       {isExpanded && (
-                        <CardContent className="space-y-3 border-t border-white/10 px-3 py-3">
-                          <p className="text-sm font-medium text-white md:hidden">{recipe.name}</p>
-                          <p className="text-xs text-white/50">Czas przygotowania: {recipe.prep_time_minutes} min</p>
+                        <CardContent className="border-border space-y-3 border-t px-3 py-3">
+                          <p className="text-foreground text-sm font-medium md:hidden">{recipe.name}</p>
+                          <p className="text-muted-foreground text-xs">
+                            Czas przygotowania: {recipe.prep_time_minutes} min
+                          </p>
                           <div>
-                            <h3 className="mb-1 text-xs font-medium text-white/70">Składniki</h3>
-                            <ul className="list-inside list-disc space-y-0.5 text-xs text-white/80">
+                            <h3 className="text-muted-foreground mb-1 text-xs font-medium">Składniki</h3>
+                            <ul className="text-foreground/80 list-inside list-disc space-y-0.5 text-xs">
                               {recipe.ingredients.map((ingredient) => (
                                 <li key={ingredient}>{ingredient}</li>
                               ))}
                             </ul>
                           </div>
                           <div>
-                            <h3 className="mb-1 text-xs font-medium text-white/70">Kroki</h3>
-                            <ol className="list-inside list-decimal space-y-1 text-xs text-white/80">
+                            <h3 className="text-muted-foreground mb-1 text-xs font-medium">Kroki</h3>
+                            <ol className="text-foreground/80 list-inside list-decimal space-y-1 text-xs">
                               {recipe.steps.map((step, index) => (
                                 <li key={index}>{step}</li>
                               ))}

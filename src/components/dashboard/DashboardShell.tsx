@@ -10,20 +10,22 @@ interface DashboardShellProps {
   loadError: boolean;
 }
 
-const columnHeaderClass = cn(
-  "hidden shrink-0 border-b border-white/10 px-5 py-3 text-sm font-semibold tracking-widest text-white/40 uppercase md:block",
-);
+const columnHeaderClass = cn("hidden shrink-0 border-b border-border bg-card/60 px-5 py-3.5 md:block");
 
-const tabsListClass = cn("h-auto w-full shrink-0 rounded-none border-b border-white/10 bg-white/5 p-1");
+const tabsListClass = cn("h-auto w-full shrink-0 rounded-none border-b border-border bg-muted/25 px-3 py-2.5");
 
 const tabsTriggerClass = cn(
-  "flex-1 rounded-md text-white/60 data-[state=active]:bg-purple-600/25 data-[state=active]:text-white",
+  "flex-1 rounded-lg py-2 text-xs font-medium text-muted-foreground",
+  "data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm",
 );
 
 function ColumnHeader({ title }: { title: string }) {
   return (
     <div className={columnHeaderClass}>
-      <h2>{title}</h2>
+      <h2 className="text-foreground/70 flex items-center gap-2.5 text-xs font-semibold tracking-[0.12em] uppercase">
+        <span className="bg-primary h-3 w-0.5 rounded-full" />
+        {title}
+      </h2>
     </div>
   );
 }
@@ -38,7 +40,7 @@ function PantryPanel({
   onItemsChange: (count: number) => void;
 }) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col border-b border-white/10 md:border-r md:border-b-0">
+    <div className="border-border bg-background flex min-h-0 flex-1 flex-col border-b md:border-r md:border-b-0">
       <ColumnHeader title="Spiżarnia" />
       <div className="min-h-0 flex-1 overflow-hidden">
         <PantryWidget initialItems={initialItems} loadError={loadError} onItemsChange={onItemsChange} />
@@ -67,9 +69,9 @@ export default function DashboardShell({ initialItems, loadError }: DashboardShe
   }
 
   return (
-    <div className="dark text-foreground flex min-h-0 flex-1 flex-col">
+    <div className="flex min-h-0 flex-1 flex-col">
       <Tabs value={mobileTab} onValueChange={setMobileTab} className="flex min-h-0 flex-1 flex-col">
-        <TabsList variant="line" className={cn(tabsListClass, "md:hidden")}>
+        <TabsList className={cn(tabsListClass, "md:hidden")}>
           <TabsTrigger value="pantry" className={tabsTriggerClass}>
             Spiżarnia
           </TabsTrigger>

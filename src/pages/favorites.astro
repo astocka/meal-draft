@@ -28,7 +28,7 @@ if (supabase && user) {
 ---
 
 <Layout title="Ulubione — MealDraft">
-  <div class="bg-cosmic flex h-dvh flex-col overflow-hidden text-white">
+  <div class="bg-background text-foreground flex h-dvh flex-col overflow-hidden">
     <DashboardTopbar />
     <main class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
       <FavoritesShell client:load initialItems={initialItems} loadError={loadError} />
