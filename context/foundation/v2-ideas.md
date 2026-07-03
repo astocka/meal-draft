@@ -4,6 +4,7 @@
 > This is not a commitment; it’s a shortlist of “worth revisiting after MVP ships”.
 >
 > Convention:
+>
 > - Keep entries small and concrete.
 > - Prefer “v2” over “someday”.
 > - Link to relevant PRD / roadmap sections when applicable.
@@ -17,6 +18,6 @@
 - **v2**: Spanish (ES)
 
 Notes:
+
 - The generation pipeline currently relies on string matching for pantry + staples validation, so the **LLM output language must match pantry language**.
 - A clean v2 implementation is “locale-driven generation”: select system prompt language + `COOKING_STAPLES` set by locale (and ideally normalise pantry entries by locale or store canonical IDs).
-

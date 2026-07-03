@@ -30,6 +30,7 @@
 - **Location**: src/pages/api/pantry/[id].ts:47–56
 - **Detail**: The plan specified 404 when a PATCH targets a non-existent (or another user's) row. The implementation checks `if (!patchResult.data)` for this, but that check is unreachable dead code. Supabase's `.single()` surfaces a zero-row result as an error with code `'PGRST116'`, not as `data: null`. The error branch fires first, the code doesn't match `'23505'`, and the handler falls to the generic 500. Result: renaming a missing item silently returns 500. (Flagged independently by both review agents.)
 - **Fix**: Add a PGRST116 check inside the existing error branch before the generic 500 fallback, and remove the dead `!patchResult.data` block:
+
   ```ts
   if (patchResult.error.code === "PGRST116") {
     return Response.json({ error: "Not found" }, { status: 404 });
@@ -40,6 +41,7 @@
   - Tradeoff: Minimal — two lines added, two lines removed.
   - Confidence: HIGH — PGRST116 is the standard PostgREST no-rows code.
   - Blind spot: None significant.
+
 - **Decision**: FIXED
 
 ### F2 — Unplanned strict character rules reject valid ingredients
