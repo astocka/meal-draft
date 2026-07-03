@@ -116,7 +116,7 @@ export default function FavoritesList({ initialItems, mealType, loadError = fals
       )}
 
       {!loadError && (
-        <div className="min-h-0 flex-1 overflow-y-auto p-4">
+        <div className="min-h-0 flex-1 overflow-y-auto p-4 pb-24 md:pb-4">
           {deleteError && (
             <p className="text-destructive mb-3 flex items-center gap-1 text-xs">
               <CircleAlert className="size-3 shrink-0" />

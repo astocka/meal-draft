@@ -12,9 +12,9 @@ const navLinks = [
   class="border-border bg-card/80 flex shrink-0 items-center gap-2 border-b px-3 py-2.5 backdrop-blur-sm sm:gap-3 sm:px-4"
 >
   <div class="flex shrink-0 items-center gap-2">
-    <!-- Steam bowl icon: desktop only -->
+    <!-- Steam bowl icon: always visible -->
     <div
-      class="bg-primary/10 border-primary/25 text-primary hidden h-7 w-7 items-center justify-center rounded-lg border sm:flex"
+      class="bg-primary/10 border-primary/25 text-primary flex h-7 w-7 items-center justify-center rounded-lg border"
     >
       <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
         <path
@@ -45,12 +45,13 @@ const navLinks = [
       </svg>
     </div>
     <!-- Wordmark: always visible, two-tone -->
-    <span class="text-foreground shrink-0 text-sm font-bold tracking-wide">
+    <span class="text-foreground shrink-0 text-lg font-bold tracking-wide">
       Meal<span class="text-primary">Draft</span>
     </span>
   </div>
-  <div class="bg-border/60 hidden h-4 w-px shrink-0 sm:block"></div>
-  <nav class="flex min-w-0 flex-1 items-center gap-0.5 text-xs" aria-label="Główna nawigacja">
+  <!-- Divider + nav: desktop only (mobile nav moves to bottom bar) -->
+  <div class="bg-border/60 hidden h-4 w-px shrink-0 md:block"></div>
+  <nav class="hidden min-w-0 flex-1 items-center gap-0.5 text-xs md:flex" aria-label="Główna nawigacja">
     {
       navLinks.map((link) => {
         const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
@@ -71,14 +72,33 @@ const navLinks = [
       })
     }
   </nav>
+  <!-- Spacer on mobile so logout stays right-aligned -->
+  <div class="flex-1 md:hidden"></div>
   <div class="flex shrink-0 items-center gap-2">
     {user && <span class="text-muted-foreground/60 hidden text-xs sm:inline">{user.email}</span>}
     <form method="POST" action="/api/auth/signout">
       <button
         type="submit"
-        class="border-border/70 bg-muted/60 text-muted-foreground hover:border-border hover:bg-accent hover:text-accent-foreground rounded border px-2 py-1 text-xs font-medium transition-colors sm:px-2.5 sm:py-1.5"
+        title="Wyloguj"
+        aria-label="Wyloguj"
+        class="border-border/70 bg-muted/60 text-muted-foreground hover:border-border hover:bg-accent hover:text-accent-foreground flex h-8 w-8 items-center justify-center rounded-lg border transition-colors"
       >
-        Wyloguj
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
       </button>
     </form>
   </div>

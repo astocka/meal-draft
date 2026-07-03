@@ -15,7 +15,7 @@ const columnHeaderClass = cn("shrink-0 border-b border-border bg-card/60 px-5 py
 const tabsListClass = cn("h-auto w-full shrink-0 rounded-none border-b border-border bg-muted/25 px-3 py-2.5");
 
 const tabsTriggerClass = cn(
-  "flex-1 rounded-lg py-2 text-xs font-medium text-muted-foreground",
+  "flex-1 rounded-lg py-3 text-sm font-medium text-muted-foreground",
   "data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm",
 );
 
