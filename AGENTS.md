@@ -9,16 +9,25 @@ MealDraft is an Astro 6 SSR application with React 19 islands, Tailwind 4, Supab
 - API route files must export `const prerender = false`.
 - Always enable RLS on new Supabase tables with granular per-operation, per-role policies.
 - Name migrations `YYYYMMDDHHmmss_short_description.sql` in `supabase/migrations/`.
+- `SUPABASE_SERVICE_ROLE_KEY` must **never** appear in `astro:env/server` schema. It is read exclusively from the Cloudflare Workers runtime env (`context.locals.runtime.env`) inside `src/pages/api/auth/signup.ts`. This is intentional — keeping it out of the typed schema prevents accidental app-wide imports that would bypass the anon-key guard.
+- Invite-code gating is enforced at the application layer only (route + Zod schema in `src/lib/auth/signup-schema.ts`). No database-level constraint exists — this is a deliberate product decision (invite codes are rotated externally, not stored in the DB).
 
 ## Project Structure
 
 - `src/pages/` — Astro routes and API endpoints (`api/auth/` for signin, signup, signout; `api/generate.ts` for meal generation)
-- `src/components/` — Astro components at root; React islands in subdirs (`dashboard/`, `meal/`, `pantry/`); `ui/` for shadcn ("new-york" style): `button`, `tabs`, `card`
+- `src/components/` — Astro components at root; React islands in subdirs (`dashboard/`, `meal/`, `pantry/`, `favorites/`); `ui/` for shadcn ("new-york" style): `button`, `tabs`, `card`
+  - `DashboardTopbar.astro` — top nav bar (logo + desktop links + logout icon button); nav links hidden on mobile (`md:flex`)
+  - `BottomNav.astro` — fixed mobile bottom navigation (`md:hidden`); links to `/dashboard` and `/favorites` with filled icons for the active page
+  - `Footer.astro` — desktop-only footer (`md:flex hidden`) showing app name and year; not rendered on mobile
+  - `AppLogo.astro` — large brand mark used on auth pages only
 - `src/components/hooks/` — extracted React hooks
+- `src/lib/auth/signup-schema.ts` — shared Zod schema and constants (`SIGNUP_PASSWORD_MIN`, `SIGNUP_INVITE_CODE_MIN`) for signup validation; imported by the API route, `SignUpForm`, and unit tests
 - `src/lib/` — Supabase client, utilities, services and business logic
 - `src/layouts/` — page layouts
 - `src/types.ts` — shared entity types and DTOs
 - `supabase/` — database migrations and config
+- `tests/unit/` — fast, dependency-free unit tests (no DB/network); run as part of `pnpm test`
+- `tests/integration/` — Vitest tests that require a live Supabase project (needs `.env.test`)
 
 ## Architecture
 
@@ -32,7 +41,7 @@ Full server-side rendering (`output: "server"` in astro.config.mjs). All pages a
 - `src/middleware.ts` — runs on every request, resolves the current user, attaches to `context.locals.user`. Redirects unauthenticated users away from routes listed in `PROTECTED_ROUTES`.
 - API endpoints: `src/pages/api/auth/{signin,signup,signout}.ts`
 - Auth pages: `src/pages/auth/{signin,signup,confirm-email,callback}.astro` — `/auth/callback` handles email confirmation (PKCE code exchange in the browser)
-- Protected page: `src/pages/dashboard.astro` — server-prefetches pantry; mounts `DashboardShell` (`client:load`) with `PantryWidget` + `MealGenerator`. Layout: @context/foundation/dashboard-layout.md
+- Protected pages: `src/pages/dashboard.astro` and `src/pages/favorites.astro` — both include `DashboardTopbar`, `Footer` (desktop), and `BottomNav` (mobile). Dashboard mounts `DashboardShell` (`client:load`) with `PantryWidget` + `MealGenerator` displayed as card-based panels inside mobile tabs (Spiżarnia / Generator posiłków). Favourites mounts `FavoritesShell` with `FavoritesList`. Layout: @context/foundation/dashboard-layout.md
 
 ### Meal generation (client)
 
@@ -63,6 +72,12 @@ Pre-commit hook (husky + lint-staged) runs `eslint --fix` on `*.{ts,tsx,astro}` 
 - Astro components for static content; React components only when interactivity is required
 - API routes: uppercase `GET`/`POST` exports; validate input with zod
 - Install new shadcn components via `npx shadcn@latest add [name]`
+
+### Tailwind / design tokens
+
+- Design tokens are OKLCH values defined in `src/styles/global.css` under `:root`. Use semantic token names (`text-primary`, `bg-card`, `border-border`, etc.) — never raw OKLCH values in component classes.
+- **Segment buttons** (pill-shaped toggle groups, e.g. meal type, prep time) use a `data-active` attribute for active state styling: `data-[active=true]:bg-primary data-[active=true]:text-primary-foreground`. This is the established pattern — `data-active` is not a drift or error.
+- Bottom padding on scrollable panels: use `pb-24 md:pb-4` so content stays clear of the fixed mobile bottom nav (`h-16`) on narrow screens and has normal spacing on desktop.
 
 ## Commit & PR Guidelines
 
@@ -119,6 +134,8 @@ On each run the job posts or updates a PR comment with five stack-specific score
 
 - Node version pinned in @.nvmrc
 - Secrets: `SUPABASE_URL`, `SUPABASE_KEY` — copy `.env.example` to `.env` for Node, or `.dev.vars` for Cloudflare local dev. **`SUPABASE_KEY` must be the anon key** — `createClient()` throws if the JWT decodes to `role: service_role` (see `src/lib/assert-supabase-anon-key.ts`).
+- `SUPABASE_SERVICE_ROLE_KEY` — set in `.dev.vars` (local) and as a Cloudflare Worker secret (production). **Not** in `.env` and **not** in `astro:env/server` schema. Only `src/pages/api/auth/signup.ts` reads it, via `context.locals.runtime.env`.
+- `INVITE_CODE` — set in `.dev.vars` / Cloudflare Worker secret. Controls who can register. No DB table required.
 - Local Supabase: `npx supabase start` (requires Docker)
 - Cloudflare local dev: secrets go in `.dev.vars` (gitignored); include `OPENROUTER_API_KEY` for generation
 - Email confirmation on `pnpm run preview` vs local Supabase: see README § Email confirmation on `pnpm run preview`
