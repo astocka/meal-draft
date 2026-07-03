@@ -1,6 +1,8 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import DashboardTopbar from "@/components/dashboard/DashboardTopbar.astro";
+import BottomNav from "@/components/dashboard/BottomNav.astro";
+import Footer from "@/components/Footer.astro";
 import FavoritesShell from "@/components/favorites/FavoritesShell.tsx";
 import { createClient } from "@/lib/supabase";
 import type { FavoriteMeal } from "@/types";
@@ -33,5 +35,7 @@ if (supabase && user) {
     <main class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
       <FavoritesShell client:load initialItems={initialItems} loadError={loadError} />
     </main>
+    <Footer />
+    <BottomNav />
   </div>
 </Layout>
