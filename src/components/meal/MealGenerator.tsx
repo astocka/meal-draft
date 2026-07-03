@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { CircleAlert, Loader2, Star } from "lucide-react";
+import { CircleAlert, Info, Loader2, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -346,19 +346,17 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-y-auto">
-      {loadError && (
-        <div className="border-border shrink-0 border-b px-3 py-2 md:hidden">
+      <div className="border-border bg-card/60 mx-3 mt-3 flex shrink-0 flex-col gap-5 rounded-xl border px-4 py-4 shadow-sm">
+        {loadError && (
           <p
-            className="border-primary/30 bg-primary/10 text-foreground flex items-start gap-2 rounded-lg border px-2.5 py-1.5 text-xs"
+            className="border-primary/30 bg-primary/10 text-foreground flex items-start gap-2 rounded-lg border px-2.5 py-1.5 text-xs md:hidden"
             role="status"
           >
             <CircleAlert className="text-primary mt-0.5 size-3.5 shrink-0" />
             {LOAD_ERROR_MESSAGE}
           </p>
-        </div>
-      )}
+        )}
 
-      <div className="border-border bg-card/40 flex shrink-0 flex-col gap-3 border-b px-4 py-3.5">
         <div className="space-y-2">
           <p className="text-muted-foreground/60 text-[9px] font-semibold tracking-[0.15em] uppercase">Typ posiłku</p>
           <div className={segmentGroupClass} role="group" aria-label="Typ posiłku">
@@ -403,15 +401,26 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
           </div>
         </div>
 
-        <div className="flex flex-col items-start gap-1.5">
+        <div className="flex flex-col items-start gap-2">
           {exclusionCapReached && showTryAnother && (
             <p className="text-muted-foreground text-xs">{EXCLUSION_CAP_MESSAGE}</p>
           )}
-          <div className="flex flex-wrap items-center justify-start gap-2">
-            <Button type="button" size="sm" disabled={!canGenerate} onClick={() => void handleGenerate()}>
+          {!loadError && pantryCount === 0 && (
+            <p className="border-primary/25 bg-primary/8 text-foreground flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs">
+              <Info className="text-primary size-3.5 shrink-0" />
+              {EMPTY_PANTRY_HINT}
+            </p>
+          )}
+          <div className="flex flex-wrap items-center justify-start gap-2.5">
+            <Button
+              type="button"
+              variant={showTryAnother ? "outline" : "default"}
+              disabled={!canGenerate}
+              onClick={() => void handleGenerate()}
+            >
               {isGenerating ? (
                 <>
-                  <Loader2 className="size-3.5 animate-spin" />
+                  <Loader2 className="size-4 animate-spin" />
                   Tworzę przepis…
                 </>
               ) : (
@@ -419,16 +428,10 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
               )}
             </Button>
             {showTryAnother && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={!canTryAnother}
-                onClick={() => void handleTryAnother()}
-              >
+              <Button type="button" variant="default" disabled={!canTryAnother} onClick={() => void handleTryAnother()}>
                 {isTryAnotherLoading ? (
                   <>
-                    <Loader2 className="size-3.5 animate-spin" />
+                    <Loader2 className="size-4 animate-spin" />
                     {TRY_ANOTHER_LOADING}
                   </>
                 ) : (
@@ -436,12 +439,11 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
                 )}
               </Button>
             )}
-            {!loadError && pantryCount === 0 && <p className="text-muted-foreground text-xs">{EMPTY_PANTRY_HINT}</p>}
           </div>
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 space-y-3 p-4">
+      <div className="min-h-0 flex-1 space-y-3 px-3 pt-3 pb-24 md:pb-4">
         {feedback === "exhausted" && (
           <div className="border-primary/20 bg-primary/8 rounded-lg border px-3.5 py-3" role="status">
             <p className="text-foreground text-xs font-semibold">{EXHAUSTION_TITLE}</p>
@@ -505,18 +507,20 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
 
         {lastRecipe && (
           <Card className="ring-border/40 gap-0 overflow-hidden py-0 ring-1">
-            <div className="bg-card/80 border-border flex items-center gap-2 border-b px-4 py-2.5">
+            <div className="bg-card/80 border-border flex items-center gap-2.5 border-b px-4 py-2.5">
               <Button
                 type="button"
                 size="icon"
-                variant="ghost"
+                variant="outline"
                 disabled={saveStatus === "saving"}
                 onClick={() => {
                   handleToggleFavorite();
                 }}
                 className={cn(
-                  "hover:bg-accent size-7 shrink-0",
-                  isFavorited ? "text-amber-400 hover:text-amber-300" : "text-muted-foreground hover:text-foreground",
+                  "size-8 shrink-0 rounded-lg",
+                  isFavorited
+                    ? "border-amber-400/40 bg-amber-400/10 text-amber-400 hover:border-amber-400/60 hover:bg-amber-400/15 hover:text-amber-300"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
                 aria-label={isFavorited ? UNSAVE_ARIA_LABEL : SAVE_ARIA_LABEL}
               >

@@ -224,9 +224,9 @@ export default function PantryWidget({ initialItems, loadError = false, onItemsC
   return (
     <div className="flex h-full flex-col">
       {loadError && (
-        <div className="border-border shrink-0 border-b p-4">
+        <div className="mx-3 mt-3 shrink-0">
           <p
-            className="border-primary/30 bg-primary/10 text-foreground flex items-start gap-2 rounded-lg border px-3 py-2 text-sm"
+            className="border-primary/30 bg-primary/10 text-foreground flex items-start gap-2 rounded-xl border px-3 py-2.5 text-sm"
             role="status"
           >
             <CircleAlert className="text-primary mt-0.5 size-4 shrink-0" />
@@ -237,8 +237,8 @@ export default function PantryWidget({ initialItems, loadError = false, onItemsC
 
       {!loadError && (
         <>
-          {/* Add zone */}
-          <div className="border-border bg-card/40 shrink-0 border-b p-4">
+          {/* Add zone — Card 1 */}
+          <div className="border-border bg-card/60 mx-3 mt-3 shrink-0 rounded-xl border p-4 shadow-sm">
             <div className="flex items-center gap-2">
               <input
                 type="text"
@@ -274,108 +274,110 @@ export default function PantryWidget({ initialItems, loadError = false, onItemsC
             )}
           </div>
 
-          {/* List area */}
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            {deleteError && (
-              <p className="text-destructive flex items-center gap-1 px-4 pt-3 text-xs">
-                <CircleAlert className="size-3 shrink-0" />
-                {deleteError}
-              </p>
-            )}
-            {items.length === 0 ? (
-              <p className="text-muted-foreground/50 p-8 text-center text-sm">{EMPTY_PANTRY_MESSAGE}</p>
-            ) : (
-              <ul className="divide-border/50 divide-y">
-                {items.map((item) =>
-                  editingId === item.id ? (
-                    <li key={item.id} className="px-4 py-2.5">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          value={editName}
-                          onChange={(e) => {
-                            setEditName(e.target.value);
-                            if (editError) setEditError(null);
-                          }}
-                          onBlur={() => {
-                            setEditError(null);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") void handleRename();
-                            if (e.key === "Escape") cancelEdit();
-                          }}
-                          disabled={editLoading}
-                          autoFocus
-                          className={cn(
-                            inputBase,
-                            "flex-1",
-                            editError && "border-destructive focus:ring-destructive",
-                            editLoading && "cursor-not-allowed opacity-60",
-                          )}
-                        />
-                        <Button
-                          type="button"
-                          size="icon"
-                          onClick={() => void handleRename()}
-                          disabled={editLoading}
-                          className="shrink-0"
-                          aria-label="Confirm rename"
-                        >
-                          {editLoading ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
-                        </Button>
-                        <Button
-                          type="button"
-                          size="icon"
-                          onClick={cancelEdit}
-                          disabled={editLoading}
-                          variant="ghost"
-                          className="text-muted-foreground hover:bg-accent hover:text-foreground shrink-0"
-                          aria-label="Cancel rename"
-                        >
-                          <X className="size-4" />
-                        </Button>
-                      </div>
-                      {editError && (
-                        <p className="text-destructive mt-1.5 flex items-center gap-1 text-xs">
-                          <CircleAlert className="size-3 shrink-0" />
-                          {editError}
-                        </p>
-                      )}
-                    </li>
-                  ) : (
-                    <li
-                      key={item.id}
-                      className="group hover:bg-accent/30 flex items-center justify-between px-4 py-2.5 transition-colors"
-                    >
-                      <button
-                        type="button"
-                        onClick={() => {
-                          startEdit(item);
-                        }}
-                        className={cn(
-                          "text-foreground/85 hover:text-primary flex-1 truncate text-left text-sm transition-colors",
-                          item.id.startsWith("temp-") && "cursor-default opacity-40",
+          {/* List area — Card 2 */}
+          <div className="border-border bg-card/40 mx-3 mt-2 mb-20 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border md:mb-3">
+            <div className="min-h-0 flex-1 overflow-y-auto pb-24 md:pb-3">
+              {deleteError && (
+                <p className="text-destructive flex items-center gap-1 px-4 pt-3 text-xs">
+                  <CircleAlert className="size-3 shrink-0" />
+                  {deleteError}
+                </p>
+              )}
+              {items.length === 0 ? (
+                <p className="text-muted-foreground/50 p-8 text-center text-sm">{EMPTY_PANTRY_MESSAGE}</p>
+              ) : (
+                <ul className="divide-border/50 divide-y">
+                  {items.map((item) =>
+                    editingId === item.id ? (
+                      <li key={item.id} className="px-4 py-2.5">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={editName}
+                            onChange={(e) => {
+                              setEditName(e.target.value);
+                              if (editError) setEditError(null);
+                            }}
+                            onBlur={() => {
+                              setEditError(null);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") void handleRename();
+                              if (e.key === "Escape") cancelEdit();
+                            }}
+                            disabled={editLoading}
+                            autoFocus
+                            className={cn(
+                              inputBase,
+                              "flex-1",
+                              editError && "border-destructive focus:ring-destructive",
+                              editLoading && "cursor-not-allowed opacity-60",
+                            )}
+                          />
+                          <Button
+                            type="button"
+                            size="icon"
+                            onClick={() => void handleRename()}
+                            disabled={editLoading}
+                            className="shrink-0"
+                            aria-label="Confirm rename"
+                          >
+                            {editLoading ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
+                          </Button>
+                          <Button
+                            type="button"
+                            size="icon"
+                            onClick={cancelEdit}
+                            disabled={editLoading}
+                            variant="ghost"
+                            className="text-muted-foreground hover:bg-accent hover:text-foreground shrink-0"
+                            aria-label="Cancel rename"
+                          >
+                            <X className="size-4" />
+                          </Button>
+                        </div>
+                        {editError && (
+                          <p className="text-destructive mt-1.5 flex items-center gap-1 text-xs">
+                            <CircleAlert className="size-3 shrink-0" />
+                            {editError}
+                          </p>
                         )}
-                        disabled={item.id.startsWith("temp-")}
+                      </li>
+                    ) : (
+                      <li
+                        key={item.id}
+                        className="group hover:bg-accent/30 flex items-center justify-between px-4 py-2.5 transition-colors"
                       >
-                        {item.name}
-                      </button>
-                      <Button
-                        type="button"
-                        size="icon-sm"
-                        variant="ghost"
-                        onClick={() => void handleDelete(item.id)}
-                        disabled={item.id.startsWith("temp-")}
-                        className="text-muted-foreground/40 hover:bg-destructive/10 hover:text-destructive shrink-0 opacity-100 transition-all sm:opacity-0 sm:group-hover:opacity-100"
-                        aria-label={`Delete ${item.name}`}
-                      >
-                        <Trash2 className="size-3.5" />
-                      </Button>
-                    </li>
-                  ),
-                )}
-              </ul>
-            )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            startEdit(item);
+                          }}
+                          className={cn(
+                            "text-foreground/85 hover:text-primary flex-1 truncate text-left text-sm transition-colors",
+                            item.id.startsWith("temp-") && "cursor-default opacity-40",
+                          )}
+                          disabled={item.id.startsWith("temp-")}
+                        >
+                          {item.name}
+                        </button>
+                        <Button
+                          type="button"
+                          size="icon-sm"
+                          variant="ghost"
+                          onClick={() => void handleDelete(item.id)}
+                          disabled={item.id.startsWith("temp-")}
+                          className="text-muted-foreground/40 hover:bg-destructive/10 hover:text-destructive shrink-0 opacity-100 transition-all sm:opacity-0 sm:group-hover:opacity-100"
+                          aria-label={`Delete ${item.name}`}
+                        >
+                          <Trash2 className="size-3.5" />
+                        </Button>
+                      </li>
+                    ),
+                  )}
+                </ul>
+              )}
+            </div>
           </div>
         </>
       )}
