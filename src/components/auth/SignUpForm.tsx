@@ -69,7 +69,7 @@ export default function SignUpForm({ serverError }: Props) {
   const remaining = MIN_PASSWORD_LENGTH - password.length;
   const passwordHint =
     !errors.password && password.length > 0 && password.length < MIN_PASSWORD_LENGTH ? (
-      <p className="mt-1 text-xs text-blue-100/50">
+      <p className="text-muted-foreground mt-1 text-xs">
         {remaining === 1 ? "Pozostał 1 znak" : `Pozostało ${remaining} znaków`}
       </p>
     ) : undefined;

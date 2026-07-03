@@ -6,21 +6,13 @@ const error = Astro.url.searchParams.get("error");
 ---
 
 <Layout title="Rejestracja">
-  <div class="bg-cosmic flex min-h-screen flex-col items-center justify-center gap-6 p-4">
-    <p
-      class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-3xl font-bold tracking-wide text-transparent"
-    >
-      MealDraft
-    </p>
-    <div class="w-full max-w-sm rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
-      <h1
-        class="mb-6 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent"
-      >
-        Rejestracja
-      </h1>
+  <div class="bg-background flex min-h-screen flex-col items-center justify-center gap-6 p-4">
+    <p class="text-primary text-center text-3xl font-bold tracking-wide">MealDraft</p>
+    <div class="border-border bg-card w-full max-w-sm rounded-2xl border p-8 shadow-sm">
+      <h1 class="text-card-foreground mb-6 text-center text-2xl font-bold">Rejestracja</h1>
       <SignUpForm serverError={error} client:load />
-      <p class="mt-4 text-center text-sm text-blue-100/60">
-        Masz już konto? <a href="/auth/signin" class="text-purple-300 hover:underline">Zaloguj się</a>
+      <p class="text-muted-foreground mt-4 text-center text-sm">
+        Masz już konto? <a href="/auth/signin" class="text-primary hover:underline">Zaloguj się</a>
       </p>
     </div>
   </div>

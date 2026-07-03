@@ -7,22 +7,22 @@ const success = Astro.url.searchParams.get("success");
 ---
 
 <Layout title="Logowanie">
-  <div class="bg-cosmic flex min-h-screen flex-col items-center justify-center gap-6 p-4">
-    <p
-      class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-3xl font-bold tracking-wide text-transparent"
-    >
-      MealDraft
-    </p>
-    <div class="w-full max-w-sm rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
-      <h1
-        class="mb-6 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent"
-      >
-        Logowanie
-      </h1>
-      {success && <p class="mb-4 rounded-lg bg-green-500/20 px-4 py-2 text-center text-sm text-green-200">{success}</p>}
+  <div
+    class="bg-background flex min-h-screen flex-col items-center justify-start gap-5 p-5 pt-16 sm:justify-center sm:pt-5"
+  >
+    <p class="text-primary text-center text-2xl font-bold tracking-widest uppercase">MealDraft</p>
+    <div class="border-border/50 bg-card w-full max-w-sm rounded-2xl border p-7 shadow-lg shadow-black/30">
+      <h1 class="text-card-foreground mb-5 text-center text-lg font-semibold">Logowanie</h1>
+      {
+        success && (
+          <p class="bg-primary/10 border-primary/20 text-foreground mb-4 rounded-xl border px-4 py-2.5 text-center text-xs">
+            {success}
+          </p>
+        )
+      }
       <SignInForm serverError={error} client:load />
-      <p class="mt-4 text-center text-sm text-blue-100/60">
-        Nie masz konta? <a href="/auth/signup" class="text-purple-300 hover:underline">Zarejestruj się</a>
+      <p class="text-muted-foreground mt-5 text-center text-xs">
+        Nie masz konta? <a href="/auth/signup" class="text-primary hover:underline">Zarejestruj się</a>
       </p>
     </div>
   </div>
