@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import SignInForm from "@/components/auth/SignInForm";
+import AppLogo from "@/components/AppLogo.astro";
 
 const error = Astro.url.searchParams.get("error");
 const success = Astro.url.searchParams.get("success");
@@ -8,20 +9,20 @@ const success = Astro.url.searchParams.get("success");
 
 <Layout title="Logowanie">
   <div
-    class="bg-background flex min-h-screen flex-col items-center justify-start gap-5 p-5 pt-16 sm:justify-center sm:pt-5"
+    class="bg-background flex min-h-screen flex-col items-center justify-start gap-6 p-4 pt-12 sm:justify-center sm:pt-4"
   >
-    <p class="text-primary text-center text-2xl font-bold tracking-widest uppercase">MealDraft</p>
-    <div class="border-border/50 bg-card w-full max-w-sm rounded-2xl border p-7 shadow-lg shadow-black/30">
-      <h1 class="text-card-foreground mb-5 text-center text-lg font-semibold">Logowanie</h1>
+    <AppLogo />
+    <div class="border-border bg-card w-full max-w-sm rounded-2xl border p-8 shadow-sm">
+      <h1 class="text-card-foreground mb-6 text-center text-2xl font-bold">Logowanie</h1>
       {
         success && (
-          <p class="bg-primary/10 border-primary/20 text-foreground mb-4 rounded-xl border px-4 py-2.5 text-center text-xs">
+          <p class="bg-primary/10 border-primary/20 text-foreground mb-4 rounded-xl border px-4 py-2.5 text-center text-sm">
             {success}
           </p>
         )
       }
       <SignInForm serverError={error} client:load />
-      <p class="text-muted-foreground mt-5 text-center text-xs">
+      <p class="text-muted-foreground mt-4 text-center text-sm">
         Nie masz konta? <a href="/auth/signup" class="text-primary hover:underline">Zarejestruj się</a>
       </p>
     </div>
