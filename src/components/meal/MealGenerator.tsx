@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { CircleAlert, Loader2, Star } from "lucide-react";
+import { CircleAlert, Info, Loader2, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
   EXCLUSION_CAP_MESSAGE,
   EXHAUSTION_BODY,
@@ -24,10 +24,10 @@ const EMPTY_PANTRY_HINT = "Dodaj składniki w zakładce Spiżarnia";
 import { MEAL_TYPE_OPTIONS } from "@/lib/meal-types";
 
 const TIME_PRESETS: { value: number | null; label: string }[] = [
-  { value: 15, label: "15" },
-  { value: 30, label: "30" },
-  { value: 60, label: "60" },
-  { value: null, label: "Dowolny czas" },
+  { value: 15, label: "15 min" },
+  { value: 30, label: "30 min" },
+  { value: 60, label: "60 min" },
+  { value: null, label: "Dowolny" },
 ];
 
 const NO_MATCH_TITLE = "Nie udało się stworzyć przepisu";
@@ -61,13 +61,13 @@ interface RequestGenerationOptions {
   loadingSource: LoadingSource;
 }
 
-const segmentGroupClass = cn("inline-flex w-full rounded-md border border-white/10 bg-white/5 p-0.5");
+const segmentGroupClass = cn("flex flex-wrap gap-1.5");
 
 const segmentButtonClass = cn(
-  "flex-1 rounded px-2 py-1 text-xs font-medium transition-colors",
-  "text-white/60 hover:text-white",
-  "data-[active=true]:bg-purple-600/30 data-[active=true]:text-white",
-  "disabled:pointer-events-none disabled:opacity-50",
+  "rounded-full border border-border/50 px-3 py-1 text-xs font-medium whitespace-nowrap transition-all",
+  "text-muted-foreground hover:text-foreground hover:border-border",
+  "data-[active=true]:border-primary data-[active=true]:bg-primary data-[active=true]:text-primary-foreground",
+  "disabled:pointer-events-none disabled:opacity-40",
 );
 
 function normalizeRecipeName(name: string): string {
@@ -346,21 +346,19 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-y-auto">
-      {loadError && (
-        <div className="shrink-0 border-b border-white/10 px-3 py-2 md:hidden">
+      <div className="border-border bg-card/60 mx-3 mt-3 flex shrink-0 flex-col gap-5 rounded-xl border px-4 py-4 shadow-sm">
+        {loadError && (
           <p
-            className="flex items-start gap-2 rounded-lg border border-purple-400/30 bg-purple-500/10 px-2.5 py-1.5 text-xs text-purple-100"
+            className="border-primary/30 bg-primary/10 text-foreground flex items-start gap-2 rounded-lg border px-2.5 py-1.5 text-xs md:hidden"
             role="status"
           >
-            <CircleAlert className="mt-0.5 size-3.5 shrink-0 text-purple-300" />
+            <CircleAlert className="text-primary mt-0.5 size-3.5 shrink-0" />
             {LOAD_ERROR_MESSAGE}
           </p>
-        </div>
-      )}
+        )}
 
-      <div className="flex shrink-0 flex-col gap-2.5 border-b border-white/10 px-3 py-2.5">
-        <div className="space-y-1">
-          <p className="text-[10px] font-medium tracking-wider text-white/40 uppercase">Typ posiłku</p>
+        <div className="space-y-2">
+          <p className="text-muted-foreground/60 text-[9px] font-semibold tracking-[0.15em] uppercase">Typ posiłku</p>
           <div className={segmentGroupClass} role="group" aria-label="Typ posiłku">
             {MEAL_TYPE_OPTIONS.map(({ value, label }) => (
               <button
@@ -379,9 +377,9 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
           </div>
         </div>
 
-        <div className="space-y-1">
-          <p className="text-[10px] font-medium tracking-wider text-white/40 uppercase">
-            Czas <span className="tracking-normal text-white/30 normal-case">(min)</span>
+        <div className="space-y-2">
+          <p className="text-muted-foreground/60 text-[9px] font-semibold tracking-[0.15em] uppercase">
+            Czas przygotowania
           </p>
           <div className={segmentGroupClass} role="group" aria-label="Czas przygotowania">
             {TIME_PRESETS.map(({ value, label }) => (
@@ -390,8 +388,8 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
                 type="button"
                 data-active={maxPrepMinutes === value}
                 disabled={loadingSource !== null}
-                title={value === null ? "Dowolny czas" : `${label} min`}
-                aria-label={value === null ? "Dowolny czas" : `${label} minut`}
+                title={value === null ? "Dowolny czas" : `${String(value)} min`}
+                aria-label={value === null ? "Dowolny czas" : `${String(value)} minut`}
                 onClick={() => {
                   setMaxPrepMinutes(value);
                 }}
@@ -403,19 +401,26 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
           </div>
         </div>
 
-        <div className="flex flex-col items-start gap-1.5">
-          {exclusionCapReached && showTryAnother && <p className="text-xs text-white/50">{EXCLUSION_CAP_MESSAGE}</p>}
-          <div className="flex flex-wrap items-center justify-start gap-2">
+        <div className="flex flex-col items-start gap-2">
+          {exclusionCapReached && showTryAnother && (
+            <p className="text-muted-foreground text-xs">{EXCLUSION_CAP_MESSAGE}</p>
+          )}
+          {!loadError && pantryCount === 0 && (
+            <p className="border-primary/25 bg-primary/8 text-foreground flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs">
+              <Info className="text-primary size-3.5 shrink-0" />
+              {EMPTY_PANTRY_HINT}
+            </p>
+          )}
+          <div className="flex flex-wrap items-center justify-start gap-2.5">
             <Button
               type="button"
-              size="sm"
+              variant={showTryAnother ? "outline" : "default"}
               disabled={!canGenerate}
               onClick={() => void handleGenerate()}
-              className="bg-purple-600 text-white hover:bg-purple-500"
             >
               {isGenerating ? (
                 <>
-                  <Loader2 className="size-3.5 animate-spin" />
+                  <Loader2 className="size-4 animate-spin" />
                   Tworzę przepis…
                 </>
               ) : (
@@ -423,17 +428,10 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
               )}
             </Button>
             {showTryAnother && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={!canTryAnother}
-                onClick={() => void handleTryAnother()}
-                className="border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white"
-              >
+              <Button type="button" variant="default" disabled={!canTryAnother} onClick={() => void handleTryAnother()}>
                 {isTryAnotherLoading ? (
                   <>
-                    <Loader2 className="size-3.5 animate-spin" />
+                    <Loader2 className="size-4 animate-spin" />
                     {TRY_ANOTHER_LOADING}
                   </>
                 ) : (
@@ -441,121 +439,154 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
                 )}
               </Button>
             )}
-            {!loadError && pantryCount === 0 && <p className="text-xs text-white/40">{EMPTY_PANTRY_HINT}</p>}
           </div>
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 space-y-3 p-3">
+      <div className="min-h-0 flex-1 space-y-3 px-3 pt-3 pb-24 md:pb-4">
         {feedback === "exhausted" && (
-          <div
-            className="rounded-lg border border-purple-400/30 bg-purple-500/10 px-3 py-2.5 text-purple-100"
-            role="status"
-          >
-            <p className="text-sm font-semibold text-white">{EXHAUSTION_TITLE}</p>
-            <p className="mt-1 text-xs text-white/80">{EXHAUSTION_BODY}</p>
-            <p className="mt-2 text-xs font-medium text-white/80">{EXHAUSTION_HINTS_HEADING}</p>
-            <ul className="mt-1 list-inside list-disc space-y-0.5 text-xs text-white/70">
-              {showTimeHintOnNoMatch && <li>{EXHAUSTION_HINT_TIME}</li>}
-              <li>{EXHAUSTION_HINT_MEAL_TYPE}</li>
+          <div className="border-primary/20 bg-primary/8 rounded-lg border px-3.5 py-3" role="status">
+            <p className="text-foreground text-xs font-semibold">{EXHAUSTION_TITLE}</p>
+            <p className="text-muted-foreground mt-1 text-xs">{EXHAUSTION_BODY}</p>
+            <p className="text-muted-foreground mt-2 text-[10px] font-semibold tracking-wide uppercase">
+              {EXHAUSTION_HINTS_HEADING}
+            </p>
+            <ul className="text-muted-foreground mt-1 space-y-0.5 text-xs">
+              {showTimeHintOnNoMatch && (
+                <li className="flex items-start gap-2">
+                  <span className="bg-primary/50 mt-1.5 size-1 shrink-0 rounded-full" />
+                  {EXHAUSTION_HINT_TIME}
+                </li>
+              )}
+              <li className="flex items-start gap-2">
+                <span className="bg-primary/50 mt-1.5 size-1 shrink-0 rounded-full" />
+                {EXHAUSTION_HINT_MEAL_TYPE}
+              </li>
             </ul>
           </div>
         )}
 
         {feedback === "no_match" && (
-          <div
-            className="rounded-lg border border-purple-400/30 bg-purple-500/10 px-3 py-2.5 text-purple-100"
-            role="status"
-          >
-            <p className="text-sm font-semibold text-white">{NO_MATCH_TITLE}</p>
-            <p className="mt-2 text-xs font-medium text-white/80">{HINTS_HEADING}</p>
-            <ul className="mt-1 list-inside list-disc space-y-0.5 text-xs text-white/70">
-              <li>{HINT_ADD}</li>
-              {showTimeHintOnNoMatch && <li>{HINT_TIME}</li>}
-              <li>{HINT_MEAL_TYPE}</li>
+          <div className="border-primary/20 bg-primary/8 rounded-lg border px-3.5 py-3" role="status">
+            <p className="text-foreground text-xs font-semibold">{NO_MATCH_TITLE}</p>
+            <p className="text-muted-foreground mt-2 text-[10px] font-semibold tracking-wide uppercase">
+              {HINTS_HEADING}
+            </p>
+            <ul className="text-muted-foreground mt-1 space-y-0.5 text-xs">
+              <li className="flex items-start gap-2">
+                <span className="bg-primary/50 mt-1.5 size-1 shrink-0 rounded-full" />
+                {HINT_ADD}
+              </li>
+              {showTimeHintOnNoMatch && (
+                <li className="flex items-start gap-2">
+                  <span className="bg-primary/50 mt-1.5 size-1 shrink-0 rounded-full" />
+                  {HINT_TIME}
+                </li>
+              )}
+              <li className="flex items-start gap-2">
+                <span className="bg-primary/50 mt-1.5 size-1 shrink-0 rounded-full" />
+                {HINT_MEAL_TYPE}
+              </li>
             </ul>
           </div>
         )}
 
         {feedback === "error" && errorMessage && (
           <p
-            className="flex items-start gap-2 rounded-lg border border-red-400/30 bg-red-500/10 px-2.5 py-1.5 text-xs text-red-100"
+            className="border-destructive/25 bg-destructive/8 text-destructive flex items-start gap-2 rounded-lg border px-3.5 py-2.5 text-xs"
             role="alert"
           >
-            <CircleAlert className="mt-0.5 size-3.5 shrink-0 text-red-300" />
+            <CircleAlert className="mt-0.5 size-3.5 shrink-0" />
             {errorMessage}
           </p>
         )}
 
-        {shownNames.length > 0 && <p className="text-xs text-white/50">{rejectedCountLabel(shownNames.length)}</p>}
+        {shownNames.length > 0 && (
+          <p className="text-muted-foreground/60 text-xs">{rejectedCountLabel(shownNames.length)}</p>
+        )}
 
         {lastRecipe && (
-          <Card className="gap-3 border-white/10 bg-white/5 py-3 shadow-none">
-            <div className="flex items-center gap-2 border-b border-white/10 px-3 pb-3">
+          <Card className="ring-border/40 gap-0 overflow-hidden py-0 ring-1">
+            <div className="bg-card/80 border-border flex items-center gap-2.5 border-b px-4 py-2.5">
               <Button
                 type="button"
                 size="icon"
-                variant="ghost"
+                variant="outline"
                 disabled={saveStatus === "saving"}
                 onClick={() => {
                   handleToggleFavorite();
                 }}
                 className={cn(
-                  "size-8 shrink-0 hover:bg-white/10",
-                  isFavorited ? "text-amber-400 hover:text-amber-300" : "text-white/30 hover:text-white/60",
+                  "size-8 shrink-0 rounded-lg",
+                  isFavorited
+                    ? "border-amber-400/40 bg-amber-400/10 text-amber-400 hover:border-amber-400/60 hover:bg-amber-400/15 hover:text-amber-300"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
                 aria-label={isFavorited ? UNSAVE_ARIA_LABEL : SAVE_ARIA_LABEL}
               >
                 {saveStatus === "saving" ? (
-                  <Loader2 className="size-5 animate-spin" />
+                  <Loader2 className="size-4 animate-spin" />
                 ) : (
-                  <Star className={cn("size-5", isFavorited && "fill-amber-400")} />
+                  <Star className={cn("size-4", isFavorited && "fill-amber-400")} />
                 )}
               </Button>
               {saveStatus === "saved" && (
-                <p className="text-xs text-emerald-100" role="status">
+                <p className="text-foreground text-xs" role="status">
                   {SAVE_SUCCESS_MESSAGE}
                 </p>
               )}
               {saveStatus === "unsaved" && (
-                <p className="text-xs text-white/60" role="status">
+                <p className="text-muted-foreground text-xs" role="status">
                   {UNSAVE_SUCCESS_MESSAGE}
                 </p>
               )}
               {saveStatus === "duplicate" && (
-                <p className="text-xs text-purple-100" role="status">
+                <p className="text-muted-foreground text-xs" role="status">
                   {SAVE_DUPLICATE_MESSAGE}
                 </p>
               )}
               {saveStatus === "error" && (
-                <p className="flex items-center gap-1 text-xs text-red-100" role="alert">
-                  <CircleAlert className="size-3 shrink-0 text-red-300" />
+                <p className="text-destructive flex items-center gap-1 text-xs" role="alert">
+                  <CircleAlert className="size-3 shrink-0" />
                   {isFavorited ? UNSAVE_ERROR_MESSAGE : SAVE_ERROR_MESSAGE}
                 </p>
               )}
             </div>
-            <CardHeader className="gap-1 px-3 pb-0">
-              <CardTitle className="text-base text-white">{lastRecipe.name}</CardTitle>
-              <p className="text-xs text-white/50">Czas przygotowania: {lastRecipe.prep_time_minutes} min</p>
-            </CardHeader>
-            <CardContent className="space-y-3 px-3">
+            <div className="space-y-4 p-4">
               <div>
-                <h3 className="mb-1 text-xs font-medium text-white/70">Składniki</h3>
-                <ul className="list-inside list-disc space-y-0.5 text-xs text-white/80">
+                <h3 className="text-foreground text-sm leading-snug font-semibold">{lastRecipe.name}</h3>
+                <p className="text-muted-foreground mt-0.5 text-[10px] tracking-wide">
+                  Czas przygotowania:{" "}
+                  <span className="text-primary font-medium">{lastRecipe.prep_time_minutes} min</span>
+                </p>
+              </div>
+              <div>
+                <h4 className="text-muted-foreground/70 mb-2 text-[9px] font-semibold tracking-[0.15em] uppercase">
+                  Składniki
+                </h4>
+                <ul className="text-foreground/75 space-y-1 text-xs">
                   {lastRecipe.ingredients.map((ingredient) => (
-                    <li key={ingredient}>{ingredient}</li>
+                    <li key={ingredient} className="flex items-start gap-2">
+                      <span className="bg-primary/50 mt-1.5 size-1 shrink-0 rounded-full" />
+                      {ingredient}
+                    </li>
                   ))}
                 </ul>
               </div>
               <div>
-                <h3 className="mb-1 text-xs font-medium text-white/70">Kroki</h3>
-                <ol className="list-inside list-decimal space-y-1 text-xs text-white/80">
+                <h4 className="text-muted-foreground/70 mb-2 text-[9px] font-semibold tracking-[0.15em] uppercase">
+                  Kroki
+                </h4>
+                <ol className="text-foreground/75 space-y-2 text-xs">
                   {lastRecipe.steps.map((step, index) => (
-                    <li key={index}>{step}</li>
+                    <li key={index} className="flex gap-2.5">
+                      <span className="text-primary/70 mt-px shrink-0 font-semibold tabular-nums">{index + 1}.</span>
+                      <span>{step}</span>
+                    </li>
                   ))}
                 </ol>
               </div>
-            </CardContent>
+            </div>
           </Card>
         )}
 

@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-06-10 (E2E CI `.dev.vars` wiring; stale-response test is a passing regression guard)
+> Last updated: 2026-07-02 (MVP change folders archived; phase 1 & 4 folders under `context/archive/`)
 
 ## 1. Strategy
 
@@ -71,6 +71,8 @@ orchestrator updates Status as artifacts appear on disk.
 | 2   | Bootstrap + API contracts | Zod wire/schema tests, protected-route auth gate                                      | #4, partial #6        | unit + integration     | not started | —                       |
 | 3   | Generation server path    | Strict-pantry validation, rate limit, mocked OpenRouter edge                          | #2, #7, partial #5    | integration            | not started | —                       |
 | 4   | Client session + CI gates | Try another race/loading behavior; workerd smoke; tests in CI                         | #3, #5, cross-cutting | Playwright E2E + CI    | implemented | client-session-ci-gates |
+
+Implemented rollout phases 1 and 4 (`data-isolation`, `client-session-ci-gates`) are archived under `context/archive/` (2026-07-02). **Status `implemented`** means rollout completion, not active folder location.
 
 ## 4. Stack
 
@@ -231,8 +233,8 @@ contributors should respect these unless the underlying assumption changes.
 
 ## 8. Freshness Ledger
 
-- Strategy (§1–§5) last reviewed: 2026-06-08
-- Stack versions last verified: 2026-06-08
+- Strategy (§1–§5) last reviewed: 2026-07-02
+- Stack versions last verified: 2026-07-02
 - AI-native tool references last verified: 2026-06-06
 
 Refresh (`/10x-test-plan --refresh`) when:

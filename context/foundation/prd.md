@@ -1,20 +1,21 @@
 ---
 
 ## project: "MealDraft"
+
 version: 1
 status: draft
 created: 2026-05-21
-updated: 2026-06-03
+updated: 2026-07-02
 context_type: greenfield
 product_type: web-app
 target_scale:
-  users: small
-  qps: low
-  data_volume: small
+users: small
+qps: low
+data_volume: small
 timeline_budget:
-  mvp_weeks: 3
-  hard_deadline: 2026-07-05
-  after_hours_only: true
+mvp_weeks: 3
+hard_deadline: 2026-07-05
+after_hours_only: true
 
 ## Vision & Problem Statement
 
@@ -43,6 +44,8 @@ Existing recipe apps (Tasty, SuperCook, MyFridgeFood) get two things wrong at on
 - In Strict Pantry mode, generated meals NEVER include ingredients outside the user's declared pantry. Zero tolerance — this is the mode's contract for v1. Future strategies (e.g. Minimum Missing) will define their own constraints separately.
 - Generated meal always respects the stated time constraint.
 
+> **MVP v1 delivery (2026-07-02):** Primary and Secondary success criteria shipped (roadmap S-01–S-05). US-04 generation-history UI deferred — S-06 cancelled; favorites (S-05) serve as persistent recipe history. Active change folders archived to `context/archive/`; see @context/foundation/roadmap.md.
+
 ## User Stories
 
 ### US-01: User generates a meal from pantry contents
@@ -60,7 +63,7 @@ Existing recipe apps (Tasty, SuperCook, MyFridgeFood) get two things wrong at on
 - Suggestion NEVER includes ingredients outside the user's pantry
 - Suggestion respects the time constraint
 - If no valid meal exists for the given constraints, the user sees a clear message in an info-style panel (not an empty screen or destructive error UI)
-- *Try another* is covered by US-06 / FR-010 (S-04); S-03 ships generate + no-match only
+- _Try another_ is covered by US-06 / FR-010 (S-04); S-03 ships generate + no-match only
 
 ### US-02: User manages their pantry
 

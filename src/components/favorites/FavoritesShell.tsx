@@ -10,19 +10,18 @@ interface FavoritesShellProps {
   loadError?: boolean;
 }
 
-const columnHeaderClass = cn(
-  "shrink-0 border-b border-white/10 px-5 py-3 text-sm font-semibold tracking-widest text-white/40 uppercase",
-);
+const columnHeaderClass = cn("shrink-0 border-b border-border bg-card/60 px-5 py-3.5");
 
-const tabsListClass = cn("h-auto w-full shrink-0 rounded-none border-b border-white/10 bg-white/5 p-1");
+const tabsListClass = cn("h-auto w-full shrink-0 rounded-none border-b border-border bg-muted/25 px-3 py-2.5");
 
 const tabsTriggerClass = cn(
-  "flex-1 rounded-md text-white/60 data-[state=active]:bg-purple-600/25 data-[state=active]:text-white",
+  "flex-1 rounded-lg py-3 text-sm font-medium text-muted-foreground",
+  "data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm",
 );
 
 const mealTypeButtonClass = cn(
-  "w-full rounded-lg px-4 py-3 text-left text-sm font-medium transition-colors",
-  "text-white/60 hover:bg-white/5 hover:text-white",
+  "w-full rounded-xl px-4 py-2.5 text-left text-sm font-medium transition-colors",
+  "text-muted-foreground hover:bg-accent/60 hover:text-accent-foreground",
 );
 
 function MealTypeSidebar({
@@ -35,7 +34,10 @@ function MealTypeSidebar({
   return (
     <>
       <div className={columnHeaderClass}>
-        <h2>Typ posiłku</h2>
+        <h2 className="text-foreground/70 flex items-center gap-2.5 text-xs font-semibold tracking-[0.12em] uppercase">
+          <span className="bg-primary h-3 w-0.5 rounded-full" />
+          Typ posiłku
+        </h2>
       </div>
       <div className="min-h-0 flex-1 space-y-1 overflow-y-auto p-4">
         {MEAL_TYPE_OPTIONS.map(({ value, label }) => (
@@ -46,7 +48,7 @@ function MealTypeSidebar({
             onClick={() => {
               onMealTypeChange(value);
             }}
-            className={cn(mealTypeButtonClass, mealType === value && "bg-purple-600/25 text-white")}
+            className={cn(mealTypeButtonClass, mealType === value && "bg-accent text-accent-foreground")}
           >
             {label}
           </button>
@@ -64,13 +66,13 @@ export default function FavoritesShell({ initialItems, loadError = false }: Favo
   }
 
   return (
-    <div className="dark text-foreground flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden">
+    <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden">
       <Tabs
         value={mealType}
         onValueChange={handleMealTypeChange}
         className="flex min-h-0 flex-1 flex-col gap-0 overflow-hidden"
       >
-        <TabsList variant="line" className={cn(tabsListClass, "md:hidden")}>
+        <TabsList className={cn(tabsListClass, "md:hidden")}>
           {MEAL_TYPE_OPTIONS.map(({ value, label }) => (
             <TabsTrigger key={value} value={value} className={tabsTriggerClass}>
               {label}
@@ -79,7 +81,7 @@ export default function FavoritesShell({ initialItems, loadError = false }: Favo
         </TabsList>
 
         <div className="grid min-h-0 min-w-0 flex-1 overflow-hidden md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-          <div className="hidden min-h-0 min-w-0 flex-col overflow-hidden border-white/10 md:flex md:border-r">
+          <div className="border-border hidden min-h-0 min-w-0 flex-col overflow-hidden md:flex md:border-r">
             <MealTypeSidebar mealType={mealType} onMealTypeChange={setMealType} />
           </div>
           <div className="flex min-h-0 min-w-0 flex-col overflow-hidden">
