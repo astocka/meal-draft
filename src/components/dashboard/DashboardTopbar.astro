@@ -11,7 +11,44 @@ const navLinks = [
 <header
   class="border-border bg-card/80 flex shrink-0 items-center gap-2 border-b px-3 py-2.5 backdrop-blur-sm sm:gap-3 sm:px-4"
 >
-  <span class="text-primary shrink-0 text-xs font-bold tracking-widest uppercase sm:text-sm">MealDraft</span>
+  <div class="flex shrink-0 items-center gap-2">
+    <!-- Steam bowl icon: desktop only -->
+    <div
+      class="bg-primary/10 border-primary/25 text-primary hidden h-7 w-7 items-center justify-center rounded-lg border sm:flex"
+    >
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path
+          d="M3 12C3 16 6 18.5 10 18.5C14 18.5 17 16 17 12"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linecap="round"
+          fill="none"></path>
+        <path d="M2.5 12H17.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+        <path
+          d="M6.5 11Q5.5 8.5 6.5 6Q7.5 3.5 6.5 2"
+          stroke="currentColor"
+          stroke-width="1.3"
+          stroke-linecap="round"
+          fill="none"></path>
+        <path
+          d="M10 11Q9 8.5 10 6Q11 3.5 10 2"
+          stroke="currentColor"
+          stroke-width="1.3"
+          stroke-linecap="round"
+          fill="none"></path>
+        <path
+          d="M13.5 11Q12.5 8.5 13.5 6Q14.5 3.5 13.5 2"
+          stroke="currentColor"
+          stroke-width="1.3"
+          stroke-linecap="round"
+          fill="none"></path>
+      </svg>
+    </div>
+    <!-- Wordmark: always visible, two-tone -->
+    <span class="text-foreground shrink-0 text-sm font-bold tracking-wide">
+      Meal<span class="text-primary">Draft</span>
+    </span>
+  </div>
   <div class="bg-border/60 hidden h-4 w-px shrink-0 sm:block"></div>
   <nav class="flex min-w-0 flex-1 items-center gap-0.5 text-xs" aria-label="Główna nawigacja">
     {

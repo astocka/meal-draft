@@ -527,7 +527,7 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
                 )}
               </Button>
               {saveStatus === "saved" && (
-                <p className="text-primary text-xs" role="status">
+                <p className="text-foreground text-xs" role="status">
                   {SAVE_SUCCESS_MESSAGE}
                 </p>
               )}

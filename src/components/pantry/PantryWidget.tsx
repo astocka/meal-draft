@@ -289,7 +289,7 @@ export default function PantryWidget({ initialItems, loadError = false, onItemsC
                 {items.map((item) =>
                   editingId === item.id ? (
                     <li key={item.id} className="px-4 py-2.5">
-                      <div className="flex gap-2">
+                      <div className="flex items-center gap-2">
                         <input
                           type="text"
                           value={editName}
