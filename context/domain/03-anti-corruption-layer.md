@@ -16,14 +16,14 @@ type: refactor-plan
 
 ### Dokumenty bazowe
 
-| Dokument                                           | Istotne dla wymienialności                                                                                                                            |
-| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `context/foundation/prd.md`                        | Business Logic: jeden `MealRecipe` z pantry + constraints (`prd.md:175-181`) — **bez** wiązania do dostawcy LLM                                       |
-| `context/foundation/tech-stack.md`                 | `has_ai: true`; F-02: OpenRouter via `generation.ts` (`tech-stack.md:19,35`)                                                                          |
-| `context/changes/ai-meal-generation/research.md`   | **Dwie ścieżki integracji:** OpenRouter (fetch) vs Cloudflare Workers AI binding; OpenRouter „avoids Cloudflare-only lock-in” (`research.md:199-206`) |
-| `context/changes/ai-meal-generation/plan-brief.md` | Decyzja SDK: Vercel AI SDK + `@openrouter/ai-sdk-provider`; out of scope: Workers AI binding (`plan-brief.md:32-33,58`)                               |
-| `context/changes/ai-meal-generation/plan.md`       | „No Cloudflare Workers AI binding — OpenRouter is the only provider” (plan) vs research — **rozjazd intencji**                                        |
-| `README.md`                                        | Supabase + Cloudflare Workers; brak wzmianki o OpenRouter w README root                                                                               |
+| Dokument                                                      | Istotne dla wymienialności                                                                                                                            |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `context/foundation/prd.md`                                   | Business Logic: jeden `MealRecipe` z pantry + constraints (`prd.md:175-181`) — **bez** wiązania do dostawcy LLM                                       |
+| `context/foundation/tech-stack.md`                            | `has_ai: true`; F-02: OpenRouter via `generation.ts` (`tech-stack.md:19,35`)                                                                          |
+| `context/archive/2026-06-01-ai-meal-generation/research.md`   | **Dwie ścieżki integracji:** OpenRouter (fetch) vs Cloudflare Workers AI binding; OpenRouter „avoids Cloudflare-only lock-in” (`research.md:199-206`) |
+| `context/archive/2026-06-01-ai-meal-generation/plan-brief.md` | Decyzja SDK: Vercel AI SDK + `@openrouter/ai-sdk-provider`; out of scope: Workers AI binding (`plan-brief.md:32-33,58`)                               |
+| `context/archive/2026-06-01-ai-meal-generation/plan.md`       | „No Cloudflare Workers AI binding — OpenRouter is the only provider” (plan) vs research — **rozjazd intencji**                                        |
+| `README.md`                                                   | Supabase + Cloudflare Workers; brak wzmianki o OpenRouter w README root                                                                               |
 
 ### Stack i zależności zewnętrzne (`package.json`)
 
@@ -320,10 +320,10 @@ export interface MealRecipe {
 **Dokument mówi:**
 
 > „OpenRouter (external fetch) aligns with `infrastructure.md` and **avoids Cloudflare-only lock-in**.”  
-> — `context/changes/ai-meal-generation/research.md:206`
+> — `context/archive/2026-06-01-ai-meal-generation/research.md:206`
 
 > „**Cloudflare Workers AI binding** … No external API key … Limited model selection; **Cloudflare-only**”  
-> — `context/changes/ai-meal-generation/research.md:203-204`
+> — `context/archive/2026-06-01-ai-meal-generation/research.md:203-204`
 
 **Kod robi:** twardo wiąże orchestrację z OpenRouter AI SDK w jednym module — wymiana na Workers AI wymaga przepisania `generation.ts`, nie podmiany adaptera.
 

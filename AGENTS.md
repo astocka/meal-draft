@@ -14,13 +14,12 @@ MealDraft is an Astro 6 SSR application with React 19 islands, Tailwind 4, Supab
 
 ## Project Structure
 
-- `src/pages/` — Astro routes and API endpoints (`api/auth/` for signin, signup, signout; `api/generate.ts` for meal generation)
+- `src/pages/` — Astro routes and API endpoints (`api/auth/` for signin, signup, signout; `api/generate.ts` for meal generation; `api/pantry/` for pantry CRUD; `api/favorites/` for favorites CRUD)
 - `src/components/` — Astro components at root; React islands in subdirs (`dashboard/`, `meal/`, `pantry/`, `favorites/`); `ui/` for shadcn ("new-york" style): `button`, `tabs`, `card`
   - `DashboardTopbar.astro` — top nav bar (logo + desktop links + logout icon button); nav links hidden on mobile (`md:flex`)
   - `BottomNav.astro` — fixed mobile bottom navigation (`md:hidden`); links to `/dashboard` and `/favorites` with filled icons for the active page
   - `Footer.astro` — desktop-only footer (`md:flex hidden`) showing app name and year; not rendered on mobile
   - `AppLogo.astro` — large brand mark used on auth pages only
-- `src/components/hooks/` — extracted React hooks
 - `src/lib/auth/signup-schema.ts` — shared Zod schema and constants (`SIGNUP_PASSWORD_MIN`, `SIGNUP_INVITE_CODE_MIN`) for signup validation; imported by the API route, `SignUpForm`, and unit tests
 - `src/lib/` — Supabase client, utilities, services and business logic
 - `src/layouts/` — page layouts
@@ -41,7 +40,7 @@ Full server-side rendering (`output: "server"` in astro.config.mjs). All pages a
 - `src/middleware.ts` — runs on every request, resolves the current user, attaches to `context.locals.user`. Redirects unauthenticated users away from routes listed in `PROTECTED_ROUTES`.
 - API endpoints: `src/pages/api/auth/{signin,signup,signout}.ts`
 - Auth pages: `src/pages/auth/{signin,signup}.astro` — signup requires invite code (`INVITE_CODE`); accounts are created via admin API with `email_confirm: true` (no email confirmation flow)
-- Protected pages: `src/pages/dashboard.astro` and `src/pages/favorites.astro` — both include `DashboardTopbar`, `Footer` (desktop), and `BottomNav` (mobile). Dashboard mounts `DashboardShell` (`client:load`) with `PantryWidget` + `MealGenerator` displayed as card-based panels inside mobile tabs (Spiżarnia / Generator posiłków). Favourites mounts `FavoritesShell` with `FavoritesList`. Layout: @context/foundation/dashboard-layout.md
+- Protected pages: `src/pages/dashboard.astro` and `src/pages/favorites.astro` — both include `DashboardTopbar`, `Footer` (desktop), and `BottomNav` (mobile). Dashboard mounts `DashboardShell` (`client:load`) with `PantryWidget` + `MealGenerator` displayed as card-based panels inside mobile tabs (Spiżarnia / Generator posiłków). Favorites mounts `FavoritesShell` with `FavoritesList`. Layout: @context/foundation/dashboard-layout.md
 
 ### Meal generation (client)
 
@@ -134,9 +133,9 @@ On each run the job posts or updates a PR comment with five stack-specific score
 
 - Node version pinned in @.nvmrc
 - Secrets: `SUPABASE_URL`, `SUPABASE_KEY` — copy `.env.example` to `.env` for Node, or `.dev.vars` for Cloudflare local dev. **`SUPABASE_KEY` must be the anon key** — `createClient()` throws if the JWT decodes to `role: service_role` (see `src/lib/assert-supabase-anon-key.ts`).
-- `SUPABASE_SERVICE_ROLE_KEY` — set in `.dev.vars` (local) and as a Cloudflare Worker secret (production). **Not** in `.env` and **not** in `astro:env/server` schema. Only `src/pages/api/auth/signup.ts` reads it, via `context.locals.runtime.env`.
+- `SUPABASE_SERVICE_ROLE_KEY` — set in `.dev.vars` (local) and as a Cloudflare Worker secret (production). **Not** in `.env` and **not** in `astro:env/server` schema. Only `src/pages/api/auth/signup.ts` reads it, via `import { env } from "cloudflare:workers"`.
 - `INVITE_CODE` — set in `.dev.vars` / Cloudflare Worker secret. Controls who can register. No DB table required.
 - Local Supabase: `npx supabase start` (requires Docker)
 - Cloudflare local dev: secrets go in `.dev.vars` (gitignored); include `OPENROUTER_API_KEY` for generation
-- Email confirmation on `pnpm run preview` vs local Supabase: see README § Email confirmation on `pnpm run preview`
+- Auth flow: invite-gated signup via Supabase admin API (`email_confirm: true`), no email confirmation step. See `context/domain/04-auth-flow-current.md`.
 - Deploy: `pnpm run deploy`

@@ -1,14 +1,15 @@
 ---
 
 ## project: MealDraft
+
 researched_at: 2026-05-24
 recommended_platform: Cloudflare Workers + Pages
 runner_up: Vercel
 context_type: mvp
 tech_stack:
-  language: TypeScript
-  framework: Astro 6.3
-  runtime: Cloudflare Workers (workerd)
+language: TypeScript
+framework: Astro 6.3
+runtime: Cloudflare Workers (workerd)
 
 ## Recommendation
 
@@ -18,7 +19,6 @@ Cloudflare is the native deployment target already configured in this project (`
 
 ## Platform Comparison
 
-
 | Platform       | CLI-first                 | Managed/Serverless         | Agent-readable docs   | Stable deploy API            | MCP / Integration  | Total |
 | -------------- | ------------------------- | -------------------------- | --------------------- | ---------------------------- | ------------------ | ----- |
 | **Cloudflare** | Pass                      | Pass                       | Pass                  | Pass                         | Pass               | 5/5   |
@@ -27,7 +27,6 @@ Cloudflare is the native deployment target already configured in this project (`
 | **Render**     | Pass                      | Partial (containers)       | Pass                  | Pass                         | Pass               | 4.5/5 |
 | **Railway**    | Pass                      | Partial (containers)       | Pass                  | Pass                         | Partial (beta MCP) | 4/5   |
 | **Fly.io**     | Pass                      | Partial (VMs + Dockerfile) | Partial (no llms.txt) | Partial (no native rollback) | Partial (beta)     | 2.5/5 |
-
 
 **Notes on scoring:**
 
@@ -59,7 +58,7 @@ Best option if you want a traditional server environment. Full Node.js container
 1. **workerd is not Node.js** — npm packages that use native bindings, `fs`, `net`, `child_process`, or other Node.js-specific APIs will fail at runtime. If a transitive dependency of `@supabase/ssr` or the OpenRouter SDK uses an unsupported API, it breaks in production but works in dev (which runs on Node.js).
 2. **CPU time limit (30s free, 50ms/invocation on unbound)** — while I/O wait is free, CPU-bound JSON parsing of large AI responses could approach limits. More critically, the 128 MB memory cap on the free tier could be exceeded by large streamed responses.
 3. **Dev/prod parity gap** — `astro dev` runs on Node.js locally, not workerd. Bugs specific to the Workers runtime won't surface until `wrangler dev` or production deployment. This creates a false confidence loop.
-4. **Secrets are runtime-only** — `wrangler secret put` values are available at runtime via `env.`*, but NOT during build time. If Astro config or static pages need env vars at build, you must use Pages environment variables (set via dashboard or `wrangler pages project` CLI), which is a different mechanism.
+4. **Secrets are runtime-only** — `wrangler secret put` values are available at runtime via `env.`\*, but NOT during build time. If Astro config or static pages need env vars at build, you must use Pages environment variables (set via dashboard or `wrangler pages project` CLI), which is a different mechanism.
 5. **Vendor lock-in via adapter** — `@astrojs/cloudflare` ties your rendering to workerd APIs. Migrating away later requires replacing the adapter and testing the entire rendering pipeline.
 
 ### Pre-Mortem — How This Could Fail
@@ -70,20 +69,19 @@ The solo developer deployed MealDraft on Cloudflare Pages. Initial pages rendere
 
 - **compatibility_date controls API availability** — Cloudflare Workers use a dated API surface. If your `wrangler.toml` sets `compatibility_date = "2024-01-01"`, newer Node.js APIs (like `navigator`, `crypto.subtle` extensions, or `AsyncLocalStorage`) won't be available even though they exist on the platform. You must consciously bump this date and test.
 - **Preview deployments are publicly accessible by default** — any Cloudflare Pages preview URL is reachable by anyone with the link. For an app with user data and auth, this means test/staging environments leak unless you configure Cloudflare Access (a separate product, free for up to 50 users).
-- `**astro dev` provides zero workerd fidelity** — the Astro 6 dev server runs on Vite + Node.js. The `@astrojs/cloudflare` adapter only activates at build time. To test workerd compatibility locally, you must run `pnpm build && pnpm preview` (which uses wrangler's local workerd runtime via Miniflare). This is slower than `astro dev` and breaks HMR.
+- `**astro dev` provides zero workerd fidelity\*\* — the Astro 6 dev server runs on Vite + Node.js. The `@astrojs/cloudflare` adapter only activates at build time. To test workerd compatibility locally, you must run `pnpm build && pnpm preview` (which uses wrangler's local workerd runtime via Miniflare). This is slower than `astro dev` and breaks HMR.
 - **Supabase + Cloudflare latency** — Cloudflare Workers run at the edge closest to the user, but Supabase runs in a single AWS region. Every DB call crosses the network from the edge PoP to Supabase's region. For a single-region user base this is fine (~20-50ms), but be aware the "edge" advantage is only for static/cached content, not DB-backed pages.
-- `**@astrojs/cloudflare` adapter release cadence** — major Astro updates (e.g., 6.x → 7.x) sometimes ship before the Cloudflare adapter is updated. There can be a 1-4 week window where you can't upgrade Astro without breaking deployment.
+- `**@astrojs/cloudflare` adapter release cadence\*\* — major Astro updates (e.g., 6.x → 7.x) sometimes ship before the Cloudflare adapter is updated. There can be a 1-4 week window where you can't upgrade Astro without breaking deployment.
 
 ## Operational Story
 
-- **Preview deploys**: Every push to a non-production branch creates a preview URL at `<commit-hash>.<project>.pages.dev`. Preview URLs are public by default — add Cloudflare Access (free, 50 users) to restrict access if needed. Fork PRs also get previews unless disabled in Pages settings.
+- **Preview deploys**: This project uses **Cloudflare Workers** (not Pages), so there are no automatic per-branch preview URLs. Previews are run locally via `pnpm run preview` (Miniflare/workerd). If preview URLs are needed in future, consider Cloudflare Pages or branch-based Workers deployments via wrangler environments.
 - **Secrets**: Runtime secrets via `wrangler secret put <KEY>` (stored in Cloudflare's encrypted vault, never visible after set). Build-time env vars via Pages project settings (dashboard or `wrangler pages project edit`). Rotation: `wrangler secret put <KEY>` overwrites immediately, next deploy picks it up. GitHub Secrets used for CI deploy tokens.
 - **Rollback**: `wrangler rollback` (or `wrangler pages deployment rollback <deployment-id>`) — instant, atomic, <5s. Rolls back code only — database migrations (Supabase) are not reverted automatically. Always deploy migrations as backwards-compatible.
 - **Approval**: Production deploys via `wrangler deploy` or Pages git integration (auto-deploy on push to `main`). No built-in approval gate — add branch protection + required reviews in GitHub to gate production. Agent can deploy to preview branches unattended; production requires a merged PR.
 - **Logs**: `wrangler tail` streams real-time logs (filter by status, method, path). `wrangler pages deployment tail <id>` for specific deployments. MCP server provides structured log access. Historical logs via Cloudflare Logpush (paid, not needed at MVP).
 
 ## Risk Register
-
 
 | Risk                                                | Source           | Likelihood | Impact | Mitigation                                                                                                                                |
 | --------------------------------------------------- | ---------------- | ---------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
@@ -96,32 +94,40 @@ The solo developer deployed MealDraft on Cloudflare Pages. Initial pages rendere
 | Adapter lags behind Astro major releases            | Unknown unknowns | L          | M      | Don't upgrade Astro on release day. Wait for `@astrojs/cloudflare` to publish a matching version (typically 1-2 weeks).                   |
 | D1 Read Replication (beta) instability              | Research finding | L          | L      | Not using D1 — using external Supabase. No action needed.                                                                                 |
 
-
 ## Getting Started
 
 These steps assume the project is already scaffolded with `@astrojs/cloudflare@^13.5.0` and `wrangler@^4.90.0` (confirmed in `package.json`).
 
 1. **Set runtime secrets for production (after first deploy creates the Worker):**
-  ```bash
-   npx wrangler secret put SUPABASE_URL
-   npx wrangler secret put SUPABASE_KEY
-  ```
+
+```bash
+ npx wrangler secret put SUPABASE_URL
+ npx wrangler secret put SUPABASE_KEY
+ npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+ npx wrangler secret put INVITE_CODE
+ npx wrangler secret put OPENROUTER_API_KEY
+```
+
 2. **Verify local workerd compatibility (replaces `astro dev` for runtime testing):**
-  ```bash
-   pnpm run build && pnpm run preview
-  ```
-   This runs Astro's preview command which, with the Cloudflare adapter, starts a local Miniflare (workerd) server — true production parity.
-3. **Deploy to production:**
-  ```bash
-   pnpm run deploy
-  ```
-   The Worker is auto-created on first deploy. Or connect the GitHub repo in the Cloudflare dashboard for auto-deploy on push to `main`.
-4. **Ensure compatibility settings in `wrangler.jsonc`:**
-  ```jsonc
-   "compatibility_date": "2026-05-26",
-   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"]
-  ```
-   The `nodejs_compat` flag enables the broadest Node.js API surface available on workerd.
+
+```bash
+ pnpm run build && pnpm run preview
+```
+
+This runs Astro's preview command which, with the Cloudflare adapter, starts a local Miniflare (workerd) server — true production parity. 3. **Deploy to production:**
+
+```bash
+ pnpm run deploy
+```
+
+The Worker is auto-created on first deploy. Or connect the GitHub repo in the Cloudflare dashboard for auto-deploy on push to `main`. 4. **Ensure compatibility settings in `wrangler.jsonc`:**
+
+```jsonc
+ "compatibility_date": "2026-05-26",
+ "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"]
+```
+
+The `nodejs_compat` flag enables the broadest Node.js API surface available on workerd.
 
 ## Out of Scope
 
@@ -130,4 +136,3 @@ The following were not evaluated in this research:
 - Docker image configuration
 - CI/CD pipeline setup (GitHub Actions workflow is pre-configured in the starter)
 - Production-scale architecture (multi-region, HA, DR)
-

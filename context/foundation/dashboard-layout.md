@@ -41,7 +41,28 @@
 | S-05 (`meal-favorites`)                | Save/unsave star on recipe card, `/favorites` page with expandable list, **Ulubione** in topbar — **done**      |
 | S-06                                   | Cancelled for MVP v1 — favorites serve as history; shell layout unchanged                                       |
 
+## Navigation chrome
+
+### DashboardTopbar
+
+- Present on all protected pages (`/dashboard`, `/favorites`).
+- Logo on left; desktop nav links (`/dashboard`, `/favorites`) visible from `md+` only (`md:flex`, hidden on mobile); logout icon button on right.
+- `DashboardTopbar.astro`
+
+### BottomNav (mobile only)
+
+- Fixed bottom navigation (`md:hidden`), height `h-16`; appears on all protected pages.
+- Two links: `/dashboard` (Spiżarnia) and `/favorites` (Ulubione), each with a filled icon for the active page.
+- Scrollable panels must use `pb-24 md:pb-4` to keep content above the nav bar on narrow screens.
+- `BottomNav.astro`
+
+### Footer (desktop only)
+
+- `md:flex hidden` — not rendered on mobile.
+- Shows app name and year.
+- `Footer.astro`
+
 ## References
 
 - Roadmap: `context/foundation/roadmap.md` — S-02, S-03, S-04, S-05 (done)
-- Implementation: `src/pages/dashboard.astro`, `src/pages/favorites.astro`, `src/components/dashboard/DashboardShell.tsx`, `src/components/dashboard/DashboardTopbar.astro`, `src/components/meal/MealGenerator.tsx`, `src/components/favorites/FavoritesShell.tsx`, `src/components/pantry/PantryWidget.tsx`
+- Implementation: `src/pages/dashboard.astro`, `src/pages/favorites.astro`, `src/components/dashboard/DashboardShell.tsx`, `src/components/dashboard/DashboardTopbar.astro`, `src/components/BottomNav.astro`, `src/components/Footer.astro`, `src/components/meal/MealGenerator.tsx`, `src/components/favorites/FavoritesShell.tsx`, `src/components/pantry/PantryWidget.tsx`

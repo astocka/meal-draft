@@ -1,7 +1,7 @@
 ---
 change_id: ci-cd-code-review
 title: Introduce CI/CD workflow for PR code reviews
-status: implementing
+status: implemented
 created: 2026-06-22
 updated: 2026-07-02
 archived_at: null
@@ -11,7 +11,7 @@ archived_at: null
 
 introducing first ci/cd workflow for pr code reviews
 
-**Progress:** Phases 1–4 partial close-out on `main` (PR #28). Impl-review hardening merged. **Pending:** 4.3 branch protection when repo is public (before course verification).
+**Progress:** Phases 1–4 merged to `main` (PR #28). Impl-review hardening merged. **Pending:** 4.3 branch protection — enable after course verification / repo goes public.
 
 ### Outcome
 

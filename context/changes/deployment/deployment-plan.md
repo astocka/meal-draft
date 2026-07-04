@@ -11,7 +11,7 @@ Production URL: `https://meal-draft.bluemoon-labs.workers.dev`
 ## Final State
 
 - Worker `meal-draft` deployed to Cloudflare Workers with auto-deploy on push to `main`
-- Runtime secrets (`SUPABASE_URL`, `SUPABASE_KEY`) set via `wrangler secret put`
+- Runtime secrets set via `wrangler secret put`: `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `INVITE_CODE`, `OPENROUTER_API_KEY` (last three added post-initial deploy)
 - Build-time env vars set in Cloudflare dashboard (`SUPABASE_URL`, `SUPABASE_KEY`, `NODE_VERSION`)
 - CI runs pnpm lint + build on every push/PR to `main` (GitHub Actions)
 - `wrangler.jsonc`: `compatibility_date: 2026-05-26`, flags: `nodejs_compat`, `global_fetch_strictly_public`
@@ -107,6 +107,7 @@ Cloudflare Workers run at the edge closest to the user, but every Supabase call 
 The existing `.github/workflows/ci.yml` uses `npm`, but the project uses **pnpm** (`pnpm-lock.yaml`). This must be fixed before the first deploy, otherwise CI and Cloudflare builds will diverge.
 
 - [x] **0F.1** Update `.github/workflows/ci.yml`:
+
   ```yaml
   name: CI
 
@@ -134,6 +135,7 @@ The existing `.github/workflows/ci.yml` uses `npm`, but the project uses **pnpm*
             SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
             SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
   ```
+
   Key changes: add `pnpm/action-setup@v4` step, switch `cache: npm` to `cache: pnpm`, replace `npm ci` with `pnpm install --frozen-lockfile`, replace `npm run` with `pnpm run`.
 
 ---
@@ -166,10 +168,11 @@ The existing `.github/workflows/ci.yml` uses `npm`, but the project uses **pnpm*
   "preview:wrangler": "astro build && wrangler dev",
   "deploy": "astro build && wrangler deploy"
   ```
+
   - `preview:wrangler` -- builds then runs local workerd via wrangler (true production parity)
   - `deploy` -- builds then deploys to Cloudflare (manual deploy path)
   - The existing `"preview": "astro preview"` already runs Miniflare via the Cloudflare adapter, so keep it
-- [x] **2.2** *(Skipped -- not needed)* `platformProxy` does not exist in `@astrojs/cloudflare` v13.5+. The adapter integrates `@cloudflare/vite-plugin` which provides workerd parity during `astro dev` automatically.
+- [x] **2.2** _(Skipped -- not needed)_ `platformProxy` does not exist in `@astrojs/cloudflare` v13.5+. The adapter integrates `@cloudflare/vite-plugin` which provides workerd parity during `astro dev` automatically.
 - [x] **2.3** Verify Supabase SSR works on workerd locally:
   ```bash
   pnpm run build && pnpm run preview
@@ -247,7 +250,7 @@ The existing `.github/workflows/ci.yml` remains a **lint + build gate only** -- 
   - `SUPABASE_URL` = your Supabase project URL (encrypt)
   - `SUPABASE_KEY` = your Supabase anon key (encrypt)
   - `NODE_VERSION` = `22.14.0` (matches `.nvmrc`; Cloudflare defaults to an old Node version without this)
-- [x] **4.5** *(Skipped -- not applicable)* Preview deployments are a Cloudflare Pages concept. Workers Git integration only deploys the configured production branch (`main`).
+- [x] **4.5** _(Skipped -- not applicable)_ Preview deployments are a Cloudflare Pages concept. Workers Git integration only deploys the configured production branch (`main`).
 - [x] **4.6** Save and trigger a build to verify the auto-deploy pipeline works
 
 **Edge case -- Cloudflare build vs. GitHub Actions CI race:**
@@ -270,6 +273,7 @@ When connecting Git, Cloudflare asks for the production branch. If you accidenta
 
 - [x] **5.1** Bump `compatibility_date` in `wrangler.jsonc` to `"2026-05-26"`. Document a quarterly bump cadence in `AGENTS.md`.
 - [x] **5.2** Add a Cloudflare operations section to `AGENTS.md`:
+
   ```
   ## Cloudflare
 
@@ -279,6 +283,7 @@ When connecting Git, Cloudflare asks for the production branch. If you accidenta
   - Production auto-deploys on push to `main` via Cloudflare Git integration.
   - Manual deploy: `pnpm run deploy`.
   ```
+
 - [x] **5.3** Added `"global_fetch_strictly_public"` to `compatibility_flags` -- the app makes no internal service-binding fetches (all fetches go to external Supabase/OpenRouter APIs).
 
 **Edge case -- `compatibility_date` regression after dependency update:**
@@ -363,8 +368,6 @@ flowchart LR
   MANUAL --> CF_PROD
 ```
 
-
-
 ---
 
 ## Phase Dependency Graph
@@ -383,7 +386,5 @@ flowchart TD
   P4 -.->|"needs dashboard access"| CF[Cloudflare Dashboard]
   P6 -.->|"needs 2+ deploys"| P3
 ```
-
-
 
 All phases completed on 2026-05-26. Only 6.3 (custom domain) remains as a future task.

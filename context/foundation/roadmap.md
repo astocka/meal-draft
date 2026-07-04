@@ -1,7 +1,7 @@
 ---
 project: MealDraft
 version: 1
-status: draft
+status: complete
 created: 2026-05-27
 updated: 2026-07-02
 prd_version: 1
@@ -183,7 +183,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 1. ~~**What is the specific value of N for generation history limit?**~~ — Resolved: S-06 cancelled for MVP v1; N=20 hardcoded in DB trigger as implementation detail, no UI needed.
 2. **What are the exact time budget presets?** — Resolved in S-03: **15 / 30 / 60** min + **Dowolny czas** (default `null`).
-3. **What happens when a user removes a favorited meal's ingredients from pantry?** — Owner: user. Block: no (S-05 shipped; favorites are recipe snapshots independent of pantry).
+3. ~~**What happens when a user removes a favorited meal's ingredients from pantry?**~~ — **Resolved (S-05, 2026-06-05):** Favorite is a pure historical bookmark — a recipe snapshot saved at star time, independent of the current pantry. No pantry-mismatch surfacing in v1. Favorites also serve as the de-facto generation history (S-06 UI cancelled); the snapshot model is intentional and sufficient for this dual role.
 
 ## Parked
 

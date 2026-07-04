@@ -68,8 +68,8 @@ orchestrator updates Status as artifacts appear on disk.
 | #   | Phase name                | Goal (one line)                                                                       | Risks covered         | Test types             | Status      | Change folder           |
 | --- | ------------------------- | ------------------------------------------------------------------------------------- | --------------------- | ---------------------- | ----------- | ----------------------- |
 | 1   | Data isolation            | Test runner bootstrap + per-user RLS on pantry, favorites, history; cross-user denial | #1, #6                | integration (Supabase) | implemented | data-isolation          |
-| 2   | Bootstrap + API contracts | Zod wire/schema tests, protected-route auth gate                                      | #4, partial #6        | unit + integration     | not started | —                       |
-| 3   | Generation server path    | Strict-pantry validation, rate limit, mocked OpenRouter edge                          | #2, #7, partial #5    | integration            | not started | —                       |
+| 2   | Bootstrap + API contracts | Zod wire/schema tests, protected-route auth gate                                      | #4, partial #6        | unit + integration     | partial     | —                       |
+| 3   | Generation server path    | Strict-pantry validation, rate limit, mocked OpenRouter edge                          | #2, #7, partial #5    | integration            | partial     | —                       |
 | 4   | Client session + CI gates | Try another race/loading behavior; workerd smoke; tests in CI                         | #3, #5, cross-cutting | Playwright E2E + CI    | implemented | client-session-ci-gates |
 
 Implemented rollout phases 1 and 4 (`data-isolation`, `client-session-ci-gates`) are archived under `context/archive/` (2026-07-02). **Status `implemented`** means rollout completion, not active folder location.
@@ -119,7 +119,9 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.1 Adding a unit test
 
-TBD — see §3 Phase 2 for Zod schema / parse contract pattern (Risk #4).
+Phase 2 is partially implemented. Reference: `tests/unit/signup-validation.test.ts` — signup Zod schema validation (Risk #4, partial).
+
+Pattern: place files under `tests/unit/` with suffix `*.test.ts`. Use pure TypeScript — no DB, no network. Import schemas and pure functions directly. Full Phase 2 cookbook (API contract + protected-route patterns) TBD when Phase 2 is fully rolled out.
 
 ### 6.2 Adding an integration test
 
@@ -203,15 +205,19 @@ Use Playwright on **workerd preview** for Try another in-flight / stale-response
 
 ### 6.4 Adding a test for a new API endpoint
 
-TBD — see §3 Phase 2 for protected-route + envelope validation pattern (Risks #4, #6).
+Phase 2 partially covers envelope validation (see §6.1). Full protected-route + HTTP contract pattern TBD when Phase 2 is fully rolled out (Risks #4, #6).
 
 ### 6.5 Adding a test for generation logic
 
-TBD — see §3 Phase 3 for strict-pantry validation with mocked LLM responses (Risk #2).
+Phase 3 is partially implemented. Reference: `tests/integration/generation-failure-sentinel.test.ts` — infrastructure failure sentinel row (partial Risk #7/#5).
+
+Full Phase 3 cookbook (strict-pantry validation with mocked OpenRouter responses, rate limit KV test) TBD when Phase 3 is fully rolled out.
 
 ### 6.6 Per-rollout-phase notes
 
 **Phase 1 (data isolation):** Tier A RLS cross-user suite (`pnpm test` + `.env.test`). Server `createClient()` rejects service-role `SUPABASE_KEY` via `assertSupabaseAnonKey()`. Tier B HTTP route tests deferred to Phase 2.
+
+**Phase 2 (bootstrap + API contracts — partial):** `tests/unit/signup-validation.test.ts` covers Zod signup schema validation (Risk #4, partial). Protected-route and full envelope validation patterns are not yet implemented. See §6.1 for the partial cookbook.
 
 **Phase 4 (client session + CI gates):** Three-tier GitHub Actions (`.github/workflows/ci.yml`):
 
@@ -233,7 +239,7 @@ contributors should respect these unless the underlying assumption changes.
 
 ## 8. Freshness Ledger
 
-- Strategy (§1–§5) last reviewed: 2026-07-02
+- Strategy (§1–§5) last reviewed: 2026-07-04
 - Stack versions last verified: 2026-07-02
 - AI-native tool references last verified: 2026-06-06
 
