@@ -68,13 +68,6 @@ const astroConfig = tseslint.config({
   },
 });
 
-const redirectOnlyAstroConfig = tseslint.config({
-  files: ["src/pages/auth/callback.astro"],
-  rules: {
-    "@typescript-eslint/no-misused-promises": "off",
-  },
-});
-
 const scriptsConfig = tseslint.config({
   files: ["scripts/**/*.mjs"],
   extends: [tseslint.configs.disableTypeChecked],
@@ -135,6 +128,5 @@ export default tseslint.config(
   eslintPluginAstro.configs["flat/recommended"],
   ...eslintPluginAstro.configs["flat/jsx-a11y-recommended"],
   astroConfig,
-  redirectOnlyAstroConfig,
   eslintPluginPrettier,
 );

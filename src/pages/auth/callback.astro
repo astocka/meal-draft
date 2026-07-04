@@ -1,7 +1,0 @@
----
-import { resolveEmailCallbackRedirect } from "@/lib/auth/resolve-email-callback-redirect";
-
-const code = Astro.url.searchParams.get("code");
-const redirectTo = await resolveEmailCallbackRedirect(Astro.request.headers, Astro.cookies, code);
-return Astro.redirect(redirectTo);
----

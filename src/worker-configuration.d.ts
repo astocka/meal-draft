@@ -5,7 +5,6 @@ interface __BaseEnv_Env {
 	ASSETS: Fetcher;
 	SUPABASE_URL: string;
 	SUPABASE_KEY: string;
-	SITE_URL: string;
 	OPENROUTER_API_KEY: string;
 }
 declare namespace Cloudflare {
@@ -16,5 +15,5 @@ type StringifyValues<EnvType extends Record<string, unknown>> = {
 	[Binding in keyof EnvType]: EnvType[Binding] extends string ? EnvType[Binding] : string;
 };
 declare namespace NodeJS {
-	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "SUPABASE_URL" | "SUPABASE_KEY" | "SITE_URL" | "OPENROUTER_API_KEY">> {}
+	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "SUPABASE_URL" | "SUPABASE_KEY" | "OPENROUTER_API_KEY">> {}
 }

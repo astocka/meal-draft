@@ -345,7 +345,7 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-y-auto">
+    <div className="flex h-full min-h-0 flex-col">
       <div className="border-border bg-card/60 mx-3 mt-3 flex shrink-0 flex-col gap-5 rounded-xl border px-4 py-4 shadow-sm">
         {loadError && (
           <p
@@ -443,7 +443,7 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 space-y-3 px-3 pt-3 pb-24 md:pb-4">
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 pt-3 pb-24 md:pb-4">
         {feedback === "exhausted" && (
           <div className="border-primary/20 bg-primary/8 rounded-lg border px-3.5 py-3" role="status">
             <p className="text-foreground text-xs font-semibold">{EXHAUSTION_TITLE}</p>

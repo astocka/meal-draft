@@ -5,7 +5,7 @@
 version: 1
 status: draft
 created: 2026-05-21
-updated: 2026-07-02
+updated: 2026-07-04
 context_type: greenfield
 product_type: web-app
 target_scale:
@@ -110,7 +110,7 @@ Existing recipe apps (Tasty, SuperCook, MyFridgeFood) get two things wrong at on
 
 #### Acceptance Criteria
 
-- Registration requires a valid email and a password
+- Registration requires a valid email, a password, and a valid invite code
 - Duplicate email registration is rejected with a clear message
 - After login, the user lands on the pantry or generation screen (not a blank page)
 - Unauthenticated access to any protected route redirects to login
@@ -164,7 +164,7 @@ Existing recipe apps (Tasty, SuperCook, MyFridgeFood) get two things wrong at on
   > Socrates: Counter-argument considered: "Favorites duplicate history if the user rarely revisits old meals." Resolution: kept; favorites are intentional bookmarks, history is a passive log — different purpose.
 - FR-012: User can view their favorites list. Priority: must-have
   > Socrates: Counter-argument considered: "A favorites list without 'cook again' / ingredient re-check is a dead list." Resolution: kept; read-only list is enough for v1.
-- FR-013: User can view their generation history (limited to last N entries). Priority: must-have
+- FR-013: ~~User can view their generation history (limited to last N entries).~~ Priority: must-have → **UI cancelled in S-06**. History is written to DB (N=20, trigger-enforced) but no read UI/API was shipped; favorites (FR-011, FR-012) serve as the persistent recipe history in MVP v1.
   > Socrates: Counter-argument considered: "History grows unbounded — becomes an unusable scroll dump after a month." Resolution: revised; limit to last N entries for v1.
 
 ## Non-Functional Requirements
@@ -199,6 +199,6 @@ Email + password login. Flat user model — every user is equal, no admin/member
 
 ## Open Questions
 
-1. **What is the specific value of N for generation history limit?** FR-013 caps history to "last N entries" but the exact number is not decided. Owner: user. Block: no (can be set during implementation, but affects UX expectations).
+1. ~~**What is the specific value of N for generation history limit?**~~ **Resolved (implementation, 2026-06-01):** N=20, hardcoded in DB trigger `20260528120000_domain_data_schema.sql:77`. FR-013 UI cancelled in S-06 — value is implementation detail only.
 2. ~~**What are the exact time budget presets?**~~ **Resolved (S-03, 2026-06-03):** **15 / 30 / 60** min + **Any time** (default); no custom input.
-3. **What happens when a user removes a favorited meal's ingredients from pantry?** The favorite persists but its ingredients no longer match the pantry. Is this surfaced to the user, or is the favorite purely a historical bookmark? Owner: user. Block: no.
+3. ~~**What happens when a user removes a favorited meal's ingredients from pantry?**~~ **Resolved (S-05, 2026-06-05):** Favorite is a pure historical bookmark — a snapshot of the recipe at save time, independent of the current pantry state. No pantry-mismatch surfacing in v1. Favorites also serve as the de-facto generation history (S-06 UI cancelled); the snapshot model is intentional and sufficient for this dual role.

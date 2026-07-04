@@ -29,7 +29,7 @@ Solo developer building a meal-suggestion web app MVP in 3 weeks after hours, wi
 Snapshot of what the repo adds on top of the starter hand-off above (edit when a later slice changes it). Roadmap **F-01**, **F-02**, **S-01**–**S-05** are **done** — see @context/foundation/roadmap.md.
 
 - **Data (F-01):** Supabase pantry, favorites, and generation-history tables with per-user RLS
-- **Auth (S-01):** register, sign-in, sign-out, email confirmation; protected `/dashboard` and `/favorites`
+- **Auth (S-01):** register (invite code), sign-in, sign-out; protected `/dashboard` and `/favorites`
 - **Pantry (S-02):** CRUD API + `PantryWidget`; two-column dashboard shell
 - **UI:** shadcn `button`, `tabs`, `card`; cosmic/purple tokens in `src/styles/global.css`; MVP copy in **Polish** (inline strings, no i18n)
 - **Dashboard (S-03):** `DashboardShell` + `MealGenerator` + `PantryWidget` on `/dashboard` — layout @context/foundation/dashboard-layout.md

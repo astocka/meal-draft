@@ -32,10 +32,10 @@ pnpm install
 
 ```bash
 cp .env.example .env
-cp .env.example .dev.vars
+cp .dev.vars.example .dev.vars
 ```
 
-Fill in `SUPABASE_URL` and `SUPABASE_KEY` in both files. See [Supabase Configuration](#supabase-configuration) for where to find these values.
+Fill in the variables in both files. See [Supabase Configuration](#supabase-configuration) for `SUPABASE_URL` and `SUPABASE_KEY` values. `.dev.vars` additionally requires `SUPABASE_SERVICE_ROLE_KEY`, `INVITE_CODE`, and `OPENROUTER_API_KEY`.
 
 - `.env` is used by `astro dev` (Node.js runtime)
 - `.dev.vars` is used by `astro preview` / `wrangler dev` (workerd runtime)
@@ -48,7 +48,7 @@ pnpm run dev
 
 ## Available Scripts
 
-- `pnpm run dev` - Start development server (Cloudflare workerd runtime via Vite plugin)
+- `pnpm run dev` - Start development server (Node.js + Cloudflare Vite plugin; use `preview` for full workerd parity)
 - `pnpm run build` - Build for production
 - `pnpm run preview` - Preview production build (local workerd/Miniflare)
 - `pnpm run preview:wrangler` - Build + run local workerd via wrangler dev
@@ -66,7 +66,6 @@ pnpm run dev
 │   ├── pages/          # Astro pages and API endpoints
 │   │   └── api/        # API endpoints
 │   ├── components/     # UI components (Astro & React)
-│   │   ├── hooks/      # React hooks
 │   │   └── ui/         # shadcn/ui components
 │   ├── lib/            # Supabase client, utilities, services
 │   └── types.ts        # Shared entity types and DTOs
@@ -105,32 +104,16 @@ Local Studio UI: `http://localhost:54323`
 
 ### Auth routes
 
-| Route                 | Description                                                             |
-| --------------------- | ----------------------------------------------------------------------- |
-| `/auth/signin`        | Email/password sign-in form                                             |
-| `/auth/signup`        | Email/password sign-up form                                             |
-| `/auth/confirm-email` | Post-signup "check your inbox" page                                     |
-| `/auth/callback`      | Email confirmation link target (PKCE code exchange)                     |
-| `/dashboard`          | Example protected page (redirects to `/auth/signin` if unauthenticated) |
+| Route          | Description                                                                            |
+| -------------- | -------------------------------------------------------------------------------------- |
+| `/auth/signin` | Email/password sign-in form                                                            |
+| `/auth/signup` | Email/password sign-up form (requires invite code)                                     |
+| `/dashboard`   | Protected page — pantry management + meal generation (redirects to signin if unauthed) |
+| `/favorites`   | Protected page — saved favorite meals (redirects to signin if unauthed)                |
 
-Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array to require authentication.
+Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array to require authentication. `/` redirects to `/dashboard` when authenticated, or `/auth/signin` otherwise.
 
-### Email confirmation on `pnpm run preview`
-
-`astro preview` runs on **workerd**, which cannot `fetch` a **local** Supabase API (`http://127.0.0.1:54321`) because of the `global_fetch_strictly_public` flag in `wrangler.jsonc`.
-
-For email confirmation testing with preview:
-
-1. Put your **cloud** project URL and anon key in `.dev.vars` (not the local CLI URL).
-2. In the Supabase dashboard → **Authentication** → **URL Configuration**, add `http://localhost:4321/auth/callback` to **Redirect URLs**.
-3. After changing `.dev.vars`, run `pnpm run build && pnpm run preview` again.
-4. Open the confirmation link in the **same browser** you used to sign up (PKCE cookie).
-
-`/auth/callback` exchanges the code in the **browser** (not on workerd), so confirmation works in preview even when server-side Supabase fetch fails.
-
-If confirmation still fails but the account exists in Supabase, sign in with your password — the email is already confirmed.
-
-To use **local** Supabase (`npx supabase start`) for auth, use `pnpm run dev` (Node.js) instead of preview for the callback step.
+Sign-up validates an invite code (`INVITE_CODE` in `.dev.vars` / Cloudflare Worker secret) and creates the account via the Supabase admin API with the email pre-confirmed — users can sign in immediately after registration. See `context/domain/04-auth-flow-current.md` for full flow details.
 
 ## Deployment
 
@@ -153,7 +136,18 @@ Set once (or to rotate):
 ```bash
 npx wrangler secret put SUPABASE_URL
 npx wrangler secret put SUPABASE_KEY
+npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+npx wrangler secret put INVITE_CODE
+npx wrangler secret put OPENROUTER_API_KEY
 ```
+
+| Secret                      | Description                                                          |
+| --------------------------- | -------------------------------------------------------------------- |
+| `SUPABASE_URL`              | Supabase project URL                                                 |
+| `SUPABASE_KEY`              | Supabase `anon` key (never service role)                             |
+| `SUPABASE_SERVICE_ROLE_KEY` | Admin key used only by signup route (bypasses RLS — keep secret)     |
+| `INVITE_CODE`               | Registration gate — users must supply this code to create an account |
+| `OPENROUTER_API_KEY`        | OpenRouter API key for AI meal generation                            |
 
 ### Rollback
 

@@ -4,5 +4,4 @@ SUPABASE_KEY=###
 # NOT declared in astro:env/server schema — never import it app-wide.
 SUPABASE_SERVICE_ROLE_KEY=###
 INVITE_CODE=###
-SITE_URL=http://localhost:4321
 OPENROUTER_API_KEY=
