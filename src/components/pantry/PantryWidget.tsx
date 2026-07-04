@@ -275,7 +275,7 @@ export default function PantryWidget({ initialItems, loadError = false, onItemsC
           </div>
 
           {/* List area — Card 2 */}
-          <div className="border-border bg-card/40 mx-3 mt-2 mb-20 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border md:mb-3">
+          <div className="border-border bg-card/40 mx-3 mt-2 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border md:mb-3">
             <div className="min-h-0 flex-1 overflow-y-auto pb-24 md:pb-3">
               {deleteError && (
                 <p className="text-destructive flex items-center gap-1 px-4 pt-3 text-xs">
