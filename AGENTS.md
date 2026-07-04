@@ -9,7 +9,7 @@ MealDraft is an Astro 6 SSR application with React 19 islands, Tailwind 4, Supab
 - API route files must export `const prerender = false`.
 - Always enable RLS on new Supabase tables with granular per-operation, per-role policies.
 - Name migrations `YYYYMMDDHHmmss_short_description.sql` in `supabase/migrations/`.
-- `SUPABASE_SERVICE_ROLE_KEY` must **never** appear in `astro:env/server` schema. It is read exclusively from the Cloudflare Workers runtime env (`context.locals.runtime.env`) inside `src/pages/api/auth/signup.ts`. This is intentional — keeping it out of the typed schema prevents accidental app-wide imports that would bypass the anon-key guard.
+- `SUPABASE_SERVICE_ROLE_KEY` must **never** appear in `astro:env/server` schema. It is read exclusively via `import { env } from "cloudflare:workers"` inside `src/pages/api/auth/signup.ts`. This is intentional — keeping it out of the typed schema prevents accidental app-wide imports that would bypass the anon-key guard. (`Astro.locals.runtime.env` was removed in Astro v6; use the `cloudflare:workers` import instead.)
 - Invite-code gating is enforced at the application layer only (route + Zod schema in `src/lib/auth/signup-schema.ts`). No database-level constraint exists — this is a deliberate product decision (invite codes are rotated externally, not stored in the DB).
 
 ## Project Structure
