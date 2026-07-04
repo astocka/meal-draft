@@ -1,6 +1,7 @@
 ---
 title: MealDraft — Anti-Corruption Layer (Meal Candidate / LLM)
 created: 2026-06-14
+updated: 2026-07-04
 type: refactor-plan
 ---
 

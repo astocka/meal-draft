@@ -1,6 +1,7 @@
 ---
 title: MealDraft — destylacja domeny (v1)
 created: 2026-06-14
+updated: 2026-07-04
 type: domain-distillation
 ---
 

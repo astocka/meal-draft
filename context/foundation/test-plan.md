@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-07-02 (MVP change folders archived; phase 1 & 4 folders under `context/archive/`)
+> Last updated: 2026-07-04 (MVP change folders archived; phase 1 & 4 folders under `context/archive/`)
 
 ## 1. Strategy
 

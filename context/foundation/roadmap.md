@@ -3,7 +3,7 @@ project: MealDraft
 version: 1
 status: complete
 created: 2026-05-27
-updated: 2026-07-02
+updated: 2026-07-04
 prd_version: 1
 main_goal: speed
 top_blocker: time

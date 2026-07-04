@@ -5,7 +5,7 @@
 version: 1
 status: draft
 created: 2026-05-21
-updated: 2026-07-02
+updated: 2026-07-04
 context_type: greenfield
 product_type: web-app
 target_scale:
