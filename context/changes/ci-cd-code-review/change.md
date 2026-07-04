@@ -1,9 +1,9 @@
 ---
 change_id: ci-cd-code-review
 title: Introduce CI/CD workflow for PR code reviews
-status: implemented
+status: impl_reviewed
 created: 2026-06-22
-updated: 2026-07-04
+updated: 2026-07-05
 archived_at: null
 ---
 
@@ -11,7 +11,7 @@ archived_at: null
 
 introducing first ci/cd workflow for pr code reviews
 
-**Progress:** Phases 1–4 merged to `main` (PR #28). Impl-review hardening merged. **Pending:** 4.3 branch protection — enable after course verification / repo goes public.
+**Progress:** Phases 1–4 merged to `main`. Impl-review hardening merged. 4.3 branch protection: GitHub Ruleset created but disabled/non-enforcing — required check `AI Code Review / review (pull_request)` stays yellow ("Waiting for status to be reported") due to GitHub Rulesets bug with GitHub Actions checks. Classic branch protection also not possible — search does not surface the check until the workflow runs on a future PR to `main`. To complete 4.3: open next PR, wait for AI Code Review to run, then add classic branch protection rule.
 
 ### Outcome
 
