@@ -4,9 +4,7 @@ export const AUTH_SERVICE_UNAVAILABLE = "Usługa logowania jest tymczasowo niedo
 
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
   invalid_credentials: "Nieprawidłowy adres e-mail lub hasło.",
-  email_not_confirmed: "Potwierdź adres e-mail przed zalogowaniem.",
-  pkce_code_verifier_not_found:
-    "Otwórz link potwierdzający w tej samej przeglądarce, w której się rejestrowałeś, albo zaloguj się hasłem po potwierdzeniu e-mail.",
+  email_not_confirmed: "Konto nie jest jeszcze aktywne. Skontaktuj się z administratorem.",
   user_already_exists: "Konto z tym adresem e-mail już istnieje.",
   email_exists: "Konto z tym adresem e-mail już istnieje.",
   over_email_send_rate_limit: "Wysłano zbyt wiele wiadomości. Spróbuj ponownie później.",

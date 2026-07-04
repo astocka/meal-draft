@@ -55,6 +55,8 @@ export const POST: APIRoute = async (context) => {
     const { error } = await adminClient.auth.admin.createUser({
       email,
       password,
+      // Mark email verified in Supabase so sign-in works immediately after signup.
+      // Registration is gated by invite code — no separate email confirmation flow.
       email_confirm: true,
     });
     createError = error;

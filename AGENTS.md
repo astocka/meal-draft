@@ -40,7 +40,7 @@ Full server-side rendering (`output: "server"` in astro.config.mjs). All pages a
 - `src/lib/supabase.ts` — creates a Supabase SSR client using `@supabase/ssr` with cookie-based sessions. Uses `astro:env/server` for `SUPABASE_URL` and `SUPABASE_KEY` (server-only secrets declared in astro.config.mjs `env.schema`).
 - `src/middleware.ts` — runs on every request, resolves the current user, attaches to `context.locals.user`. Redirects unauthenticated users away from routes listed in `PROTECTED_ROUTES`.
 - API endpoints: `src/pages/api/auth/{signin,signup,signout}.ts`
-- Auth pages: `src/pages/auth/{signin,signup,confirm-email,callback}.astro` — `/auth/callback` handles email confirmation (PKCE code exchange in the browser)
+- Auth pages: `src/pages/auth/{signin,signup}.astro` — signup requires invite code (`INVITE_CODE`); accounts are created via admin API with `email_confirm: true` (no email confirmation flow)
 - Protected pages: `src/pages/dashboard.astro` and `src/pages/favorites.astro` — both include `DashboardTopbar`, `Footer` (desktop), and `BottomNav` (mobile). Dashboard mounts `DashboardShell` (`client:load`) with `PantryWidget` + `MealGenerator` displayed as card-based panels inside mobile tabs (Spiżarnia / Generator posiłków). Favourites mounts `FavoritesShell` with `FavoritesList`. Layout: @context/foundation/dashboard-layout.md
 
 ### Meal generation (client)

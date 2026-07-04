@@ -60,7 +60,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Frontend:** present — Astro 6 SSR + React 19 islands, Tailwind 4, file routing (`src/pages/`); shadcn `button`, `tabs`, `card`; `DashboardShell` + `MealGenerator` on `/dashboard` (mobile tabs); `/favorites` with `FavoritesShell`; save/unsave star on generator; topbar nav (S-02, S-03, S-04, S-05; layout per @context/foundation/dashboard-layout.md)
 - **Backend / API:** present — Astro SSR on Cloudflare; auth API routes (`src/pages/api/auth/`); pantry CRUD; favorites CRUD (`/api/favorites`); `POST /api/generate` with client wire (`generation-schema`, `parse-generate-response`, `generation-copy`) (F-02, S-02, S-03, S-04, S-05)
 - **Data:** present — Supabase client wired (`src/lib/supabase.ts`); pantry, favorites, and generation-history tables with per-user RLS (F-01)
-- **Auth:** present (MVP complete, S-01) — register, sign-in, sign-out, email confirmation, protected routes for `/dashboard` and `/favorites`
+- **Auth:** present (MVP complete, S-01) — register (invite code), sign-in, sign-out, protected routes for `/dashboard` and `/favorites`
 - **Deploy / infra:** present — Cloudflare Workers (`wrangler.jsonc`); production auto-deploy on push to `main` via Cloudflare Git integration; GitHub Actions three-tier CI (`ci`, `integration`, `e2e`) plus **AI Code Review** workflow (`.github/workflows/review.yml`, `OPENROUTER_API_KEY`); course change `ci-cd-code-review` still active under `context/changes/` pending branch-protection soak (plan 4.3)
 - **Observability:** absent — no app-level logging or error tracking; Cloudflare platform observability only
 
@@ -103,7 +103,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Parallel with:** F-01
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Auth had to land before user-specific pantry data — unauthenticated redirect is the privacy gate for all user-data slices. **Shipped:** protected `/dashboard` and `/favorites`, email confirmation callback (2026-05-30).
+- **Risk:** Auth had to land before user-specific pantry data — unauthenticated redirect is the privacy gate for all user-data slices. **Shipped:** protected `/dashboard` and `/favorites`, invite-code signup with immediate login (2026-05-30).
 - **Status:** done
 
 ### S-02: Pantry CRUD
@@ -202,7 +202,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 ## Done
 
 - **F-01** domain-data-schema — pantry, favorites, and generation-history tables with per-user RLS (shipped 2026-05-29; archived → `context/archive/2026-05-28-domain-data-schema/`)
-- **S-01** auth-flow-for-mvp — register, sign-in, sign-out, protected routes, email confirmation callback (shipped 2026-05-30; archived → `context/archive/2026-05-30-auth-flow-for-mvp/`)
+- **S-01** auth-flow-for-mvp — register (invite code), sign-in, sign-out, protected routes (shipped 2026-05-30; archived → `context/archive/2026-05-30-auth-flow-for-mvp/`)
 - **S-02** pantry-crud — add, view, edit, and remove pantry products with immediate UI updates and session persistence (shipped 2026-05-31; archived → `context/archive/2026-05-31-pantry-crud/`)
 - **F-02** ai-meal-generation — `POST /api/generate` + `src/lib/generation.ts` strict-pantry generation via OpenRouter (shipped 2026-06-02; archived → `context/archive/2026-06-01-ai-meal-generation/`)
 - **S-03** strict-pantry-meal-generation — `MealGenerator` + `DashboardShell` (mobile tabs), Zod wire parser, `loadError`, Polish UX, workerd verification (shipped 2026-06-03; archived → `context/archive/2026-06-03-strict-pantry-meal-generation/`)

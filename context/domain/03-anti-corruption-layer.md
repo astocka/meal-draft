@@ -224,23 +224,22 @@ sg -p 'generateMeal($$$)' src tests
 
 ### C. Supabase (`@supabase/ssr`, `@supabase/supabase-js`)
 
-| Plik                                              | Linia                                | Co „wie”                                                                                       |
-| ------------------------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| `src/lib/supabase.ts`                             | 1, 11                                | `createServerClient` z `@supabase/ssr`                                                         |
-| `src/lib/supabase-browser.ts`                     | 1, 4                                 | `createBrowserClient` (**nieużywany** poza definicją)                                          |
-| `src/lib/generation.ts`                           | 6, 99-111, 129-136, 141-150, 263-271 | Typ `SupabaseClient` w sygnaturze + `.from("pantry_products")` / `.from("generation_history")` |
-| `src/middleware.ts`                               | 2, 11                                | `createClient`                                                                                 |
-| `src/pages/api/generate.ts`                       | 3, 33                                | `createClient` → przekazanie do `generateMeal`                                                 |
-| `src/pages/api/pantry/index.ts`                   | 4, 19, 43                            | `.from("pantry_products")`                                                                     |
-| `src/pages/api/pantry/[id].ts`                    | 4, 19, 66                            | j.w.                                                                                           |
-| `src/pages/api/favorites/index.ts`                | 4, 20, 44                            | `.from("favorite_meals")`                                                                      |
-| `src/pages/api/favorites/[id].ts`                 | 3, 15                                | j.w.                                                                                           |
-| `src/pages/api/auth/signin.ts`                    | 3, 32                                | auth API                                                                                       |
-| `src/pages/api/auth/signup.ts`                    | 3, 38                                | j.w.                                                                                           |
-| `src/pages/api/auth/signout.ts`                   | 2, 7                                 | j.w.                                                                                           |
-| `src/pages/dashboard.astro`                       | 5, 14-18                             | prefetch spiżarni                                                                              |
-| `src/pages/favorites.astro`                       | 5, 8+                                | prefetch ulubionych                                                                            |
-| `src/lib/auth/resolve-email-callback-redirect.ts` | 3, 24                                | auth callback                                                                                  |
+| Plik                               | Linia                                | Co „wie”                                                                                       |
+| ---------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| `src/lib/supabase.ts`              | 1, 11                                | `createServerClient` z `@supabase/ssr`                                                         |
+| `src/lib/supabase-browser.ts`      | 1, 4                                 | `createBrowserClient` (**nieużywany** poza definicją)                                          |
+| `src/lib/generation.ts`            | 6, 99-111, 129-136, 141-150, 263-271 | Typ `SupabaseClient` w sygnaturze + `.from("pantry_products")` / `.from("generation_history")` |
+| `src/middleware.ts`                | 2, 11                                | `createClient`                                                                                 |
+| `src/pages/api/generate.ts`        | 3, 33                                | `createClient` → przekazanie do `generateMeal`                                                 |
+| `src/pages/api/pantry/index.ts`    | 4, 19, 43                            | `.from("pantry_products")`                                                                     |
+| `src/pages/api/pantry/[id].ts`     | 4, 19, 66                            | j.w.                                                                                           |
+| `src/pages/api/favorites/index.ts` | 4, 20, 44                            | `.from("favorite_meals")`                                                                      |
+| `src/pages/api/favorites/[id].ts`  | 3, 15                                | j.w.                                                                                           |
+| `src/pages/api/auth/signin.ts`     | 3, 32                                | auth API                                                                                       |
+| `src/pages/api/auth/signup.ts`     | 3, 38                                | j.w.                                                                                           |
+| `src/pages/api/auth/signout.ts`    | 2, 7                                 | j.w.                                                                                           |
+| `src/pages/dashboard.astro`        | 5, 14-18                             | prefetch spiżarni                                                                              |
+| `src/pages/favorites.astro`        | 5, 8+                                | prefetch ulubionych                                                                            |
 
 ---
 
