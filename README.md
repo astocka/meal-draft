@@ -1,7 +1,5 @@
 # MealDraft
 
-![](./public/template.png)
-
 A meal-suggestion web app with AI-powered meal generation, built with Astro 6 SSR and deployed to Cloudflare Workers.
 
 ## Tech Stack
