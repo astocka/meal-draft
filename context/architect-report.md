@@ -28,17 +28,19 @@
 
 **Feature overview:** Input wchodzi jako drzewo wyrażeń LINQ z warstwy wywołującej. Hub deleguje do translatora specyficznego dla providera (SQL, OData, BSON), który mapuje węzły drzewa na natywny ciąg filtra lub operatory zapytania — brak mutacji stanu, operacja czysto transformacyjna. Wynik trafia bezpośrednio do zapytania wektorowego providera. SQL dociera dodatkowo przez compile-link poza grafem MSBuild, niewidoczny w standardowym drzewie zależności.
 
-**Technical debt (top 3, blast-radius potwierdzony ast-grepem):**
+**Technical debt (top 3):**
 
-- **Promień kontraktu**: 1 poprawka → 8–11 providerów
+- **Promień kontraktu** _(ast-grep)_: 1 poprawka → 8–11 providerów
 - **Luka testowa**: Brak unit testów bazy
 - **Compile-linki**: SQL niewidoczny w grafie
 
 ## 4. Plan refaktoryzacji (L4 — semantic-kernel)
 
-**Co refaktoryzowane (wybrana opcja):** compile-linki ujawnione jako jawne węzły w grafie MSBuild + siatka 5–8 smoke testów na głównej ścieżce (PgVector, SQL). **Czego świadomie NIE robimy:** BSON, fabryka, legacy, pełne pokrycie per-translator.
+**Co refaktoryzowane (wybrana opcja):** compile-linki ujawnione jako jawne węzły w grafie MSBuild + siatka 5–8 smoke testów na głównej ścieżce (PgVector, SQL).
+**Czego świadomie NIE robimy:** BSON, fabryka, legacy, pełne pokrycie per-translator.
 
-**Fazy planu (jedna linia + weryfikacja):** **1. Smoke testy**: `dotnet test`, regresja PgVector (auto) **2. Deptree compile-link**: Węzeł SQL widoczny; zero diff builda (auto)
+**Fazy:** **1. Smoke testy:** `dotnet test`, regresja PgVector (auto)
+**2. Deptree compile-link:** węzeł SQL widoczny; zero diff builda (auto)
 
 ## 5. Domena wg DDD (L5 — meal-draft)
 
