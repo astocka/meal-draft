@@ -409,20 +409,20 @@ Rollback: `ALTER TABLE generation_history DROP COLUMN diet_type;`
 
 #### Automated
 
-- [x] 1.1 `pnpm run build` passes after type changes
-- [x] 1.2 Migration file exists at correct path and filename
+- [x] 1.1 `pnpm run build` passes after type changes — 7300595
+- [x] 1.2 Migration file exists at correct path and filename — 7300595
 
 #### Manual
 
-- [x] 1.3 Migration applies cleanly to local Supabase
-- [x] 1.4 `generation_history.diet_type` column present with correct DEFAULT and CHECK
+- [x] 1.3 Migration applies cleanly to local Supabase — 7300595
+- [x] 1.4 `generation_history.diet_type` column present with correct DEFAULT and CHECK — 7300595
 
 ### Phase 2: Generation engine
 
 #### Automated
 
-- [ ] 2.1 `pnpm run build` passes
-- [ ] 2.2 Existing `generation-failure-sentinel.test.ts` still passes (with diet_type: "none" added — see Phase 2 change 2)
+- [x] 2.1 `pnpm run build` passes
+- [x] 2.2 Existing `generation-failure-sentinel.test.ts` still passes (with diet_type: "none" added — see Phase 2 change 2)
 - [ ] 2.3 Unit tests (Phase 4) pass — check after Phase 4 completes, not a Phase 2 gate
 
 #### Manual

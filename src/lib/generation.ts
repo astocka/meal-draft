@@ -4,7 +4,7 @@ import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { z } from "zod";
 import { OPENROUTER_API_KEY } from "astro:env/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { MealType, GenerateRequest, GenerationResult } from "@/types";
+import type { MealType, GenerateRequest, GenerationResult, DietType } from "@/types";
 
 export const COOKING_STAPLES: ReadonlySet<string> = new Set([
   "woda",
@@ -30,6 +30,31 @@ export const COOKING_STAPLES: ReadonlySet<string> = new Set([
   "mąka kukurydziana",
 ]);
 
+const ANIMAL_DERIVED_STAPLES: ReadonlySet<string> = new Set(["masło"]);
+const GLUTEN_STAPLES: ReadonlySet<string> = new Set(["mąka", "mąka pszenna", "mąka uniwersalna"]);
+
+export function filterStaplesForDiet(dietType: DietType): ReadonlySet<string> {
+  if (dietType === "vegan" || dietType === "lactose_free") {
+    return new Set([...COOKING_STAPLES].filter((s) => !ANIMAL_DERIVED_STAPLES.has(s)));
+  }
+  if (dietType === "gluten_free") {
+    return new Set([...COOKING_STAPLES].filter((s) => !GLUTEN_STAPLES.has(s)));
+  }
+  return COOKING_STAPLES;
+}
+
+const DIET_TYPE_CONSTRAINT: Record<DietType, string> = {
+  none: "",
+  vegetarian: "The recipe must be vegetarian — no meat, poultry, fish, or seafood.",
+  vegan:
+    "The recipe must be vegan — no meat, poultry, fish, seafood, dairy, eggs, honey, or any other animal-derived ingredient.",
+  gluten_free: "The recipe must be gluten-free — use no wheat, barley, rye, spelt, or products derived from them.",
+  lactose_free:
+    "The recipe must be lactose-free — use no dairy products (milk, cream, butter, cheese, yogurt, or similar).",
+  anti_inflammatory:
+    "The recipe should follow an anti-inflammatory diet — prefer olive oil, garlic, onion, turmeric, ginger, leafy greens, berries, fatty fish, nuts, and seeds; avoid refined sugars and heavily processed foods.",
+};
+
 const MealRecipeSchema = z.object({
   name: z.string().min(1),
   prep_time_minutes: z.number().int().positive(),
@@ -53,8 +78,14 @@ const MEAL_TYPE_PL: Record<MealType, string> = {
   dinner: "kolacja",
 };
 
-export function buildSystemPrompt(pantryItems: string[], mealType: MealType, maxPrepTime: number | null): string {
-  const staplesList = [...COOKING_STAPLES].map((item) => `- ${item}`).join("\n");
+export function buildSystemPrompt(
+  pantryItems: string[],
+  mealType: MealType,
+  maxPrepTime: number | null,
+  dietType: DietType,
+): string {
+  const filteredStaples = filterStaplesForDiet(dietType);
+  const staplesList = [...filteredStaples].map((item) => `- ${item}`).join("\n");
   const pantryList = pantryItems.map((item) => `- ${item}`).join("\n");
 
   const lines: string[] = [
@@ -82,6 +113,10 @@ export function buildSystemPrompt(pantryItems: string[], mealType: MealType, max
     `The meal must strictly match this category: ${MEAL_TYPE_PL[mealType]}`,
   ];
 
+  if (dietType !== "none") {
+    lines.push(`Diet constraint: ${DIET_TYPE_CONSTRAINT[dietType]}`);
+  }
+
   if (maxPrepTime !== null) {
     lines.push(`prep_time_minutes must be ≤ ${maxPrepTime}.`);
   }
@@ -99,6 +134,7 @@ async function insertFailureSentinelRow(
   supabase: SupabaseClient,
   userId: string,
   mealType: MealType,
+  dietType: DietType,
 ): Promise<boolean> {
   for (let insertAttempt = 1; insertAttempt <= 2; insertAttempt++) {
     const { error: insertError } = await supabase
@@ -107,6 +143,7 @@ async function insertFailureSentinelRow(
         user_id: userId,
         name: FAILURE_SENTINEL_NAME,
         meal_type: mealType,
+        diet_type: dietType,
         recipe: null,
       })
       .select("id")
@@ -129,11 +166,12 @@ async function recordGenerationFailure(
   supabase: SupabaseClient,
   userId: string,
   mealType: MealType,
+  dietType: DietType,
   cause: unknown,
 ): Promise<GenerationResult> {
   // eslint-disable-next-line no-console
   console.error("generation_error after retry", cause);
-  await insertFailureSentinelRow(supabase, userId, mealType);
+  await insertFailureSentinelRow(supabase, userId, mealType, dietType);
   return { status: "error" };
 }
 
@@ -172,7 +210,7 @@ export async function generateMeal(
     const pantryNamesLower = new Set(pantryItems.map((item) => item.toLowerCase().trim()));
 
     // Step 4: Build system prompt
-    const systemPrompt = buildSystemPrompt(pantryItems, input.meal_type, input.max_prep_time_minutes);
+    const systemPrompt = buildSystemPrompt(pantryItems, input.meal_type, input.max_prep_time_minutes, input.diet_type);
 
     // Step 5: Build user message
     const excludeNames = input.exclude_names ?? [];
@@ -209,7 +247,7 @@ export async function generateMeal(
           attempt++;
           continue;
         }
-        return await recordGenerationFailure(supabase, userId, input.meal_type, err);
+        return await recordGenerationFailure(supabase, userId, input.meal_type, input.diet_type, err);
       }
 
       // Step 6c: No-match from model
@@ -232,7 +270,7 @@ export async function generateMeal(
           attempt++;
           continue;
         }
-        return await recordGenerationFailure(supabase, userId, input.meal_type, err);
+        return await recordGenerationFailure(supabase, userId, input.meal_type, input.diet_type, err);
       }
 
       const violatingIngredient = recipe.ingredients.find(
@@ -266,6 +304,7 @@ export async function generateMeal(
           user_id: userId,
           name: recipe.name,
           meal_type: input.meal_type,
+          diet_type: input.diet_type,
           recipe,
         })
         .select("id")

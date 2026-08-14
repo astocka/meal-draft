@@ -69,6 +69,7 @@ describe("generation failure sentinel persistence", () => {
     const result = await generateMeal(client, userId, {
       meal_type: mealType,
       max_prep_time_minutes: 30,
+      diet_type: "none",
     });
 
     expect(result.status).toBe("error");
