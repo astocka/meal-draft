@@ -1,7 +1,7 @@
 ---
 change_id: diet-type-filter
 title: Diet type filter for meal generation
-status: planned
+status: implementing
 created: 2026-08-14
 updated: 2026-08-14
 archived_at: null

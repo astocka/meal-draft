@@ -3,6 +3,9 @@ import { z } from "zod";
 export const generateRequestSchema = z.object({
   meal_type: z.enum(["breakfast", "lunch", "dinner"]),
   max_prep_time_minutes: z.number().int().min(1).max(480).nullable(),
+  diet_type: z
+    .enum(["none", "vegetarian", "vegan", "gluten_free", "lactose_free", "anti_inflammatory"])
+    .default("none"),
   exclude_names: z.array(z.string().max(80)).max(20).optional().default([]),
 });
 

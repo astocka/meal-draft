@@ -1,5 +1,7 @@
 export type MealType = "breakfast" | "lunch" | "dinner";
 
+export type DietType = "none" | "vegetarian" | "vegan" | "gluten_free" | "lactose_free" | "anti_inflammatory";
+
 export interface MealRecipe {
   name: string;
   prep_time_minutes: number;
@@ -36,6 +38,7 @@ export interface GenerationHistoryEntry {
 export interface GenerateRequest {
   meal_type: MealType;
   max_prep_time_minutes: number | null;
+  diet_type: DietType;
   exclude_names?: string[];
 }
 

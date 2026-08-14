@@ -409,13 +409,13 @@ Rollback: `ALTER TABLE generation_history DROP COLUMN diet_type;`
 
 #### Automated
 
-- [ ] 1.1 `pnpm run build` passes after type changes
-- [ ] 1.2 Migration file exists at correct path and filename
+- [x] 1.1 `pnpm run build` passes after type changes
+- [x] 1.2 Migration file exists at correct path and filename
 
 #### Manual
 
-- [ ] 1.3 Migration applies cleanly to local Supabase
-- [ ] 1.4 `generation_history.diet_type` column present with correct DEFAULT and CHECK
+- [x] 1.3 Migration applies cleanly to local Supabase
+- [x] 1.4 `generation_history.diet_type` column present with correct DEFAULT and CHECK
 
 ### Phase 2: Generation engine
 
