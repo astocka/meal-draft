@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import {
   EXCLUSION_CAP_MESSAGE,
   EXHAUSTION_BODY,
+  EXHAUSTION_HINT_DIET_TYPE,
   EXHAUSTION_HINT_MEAL_TYPE,
   EXHAUSTION_HINT_TIME,
   EXHAUSTION_HINTS_HEADING,
@@ -15,13 +16,14 @@ import {
 } from "@/lib/generation-copy";
 import { parseGenerateResponse } from "@/lib/parse-generate-response";
 import { cn } from "@/lib/utils";
-import type { FavoriteMeal, MealRecipe, MealType } from "@/types";
+import type { FavoriteMeal, MealRecipe, MealType, DietType } from "@/types";
 
 const LOAD_ERROR_MESSAGE = "Nie udało się załadować Twojej spiżarni. Odśwież stronę lub spróbuj ponownie później.";
 
 const EMPTY_PANTRY_HINT = "Dodaj składniki w zakładce Spiżarnia";
 
 import { MEAL_TYPE_OPTIONS } from "@/lib/meal-types";
+import { DIET_TYPE_OPTIONS } from "@/lib/diet-types";
 
 const TIME_PRESETS: { value: number | null; label: string }[] = [
   { value: 15, label: "15 min" },
@@ -35,6 +37,7 @@ const HINTS_HEADING = "Co możesz zrobić?";
 const HINT_ADD = "Dodaj więcej składników";
 const HINT_TIME = "Wydłuż czas przygotowania";
 const HINT_MEAL_TYPE = "Zmień typ posiłku";
+const HINT_DIET_TYPE = "Zmień typ diety";
 
 const SAVE_ARIA_LABEL = "Dodaj do ulubionych";
 const UNSAVE_ARIA_LABEL = "Usuń z ulubionych";
@@ -87,6 +90,11 @@ async function resolveFavoriteId(recipe: MealRecipe): Promise<string | null> {
 export default function MealGenerator({ loadError, pantryCount }: MealGeneratorProps) {
   const [mealType, setMealType] = useState<MealType>("lunch");
   const [maxPrepMinutes, setMaxPrepMinutes] = useState<number | null>(null);
+  const [dietType, setDietType] = useState<DietType>(() => {
+    const saved = localStorage.getItem("mealdraft:diet_type");
+    const valid = DIET_TYPE_OPTIONS.map((o) => o.value);
+    return saved !== null && valid.includes(saved as DietType) ? (saved as DietType) : "none";
+  });
   const [status, setStatus] = useState<GeneratorStatus>("idle");
   const [lastRecipe, setLastRecipe] = useState<MealRecipe | null>(null);
   const [historyId, setHistoryId] = useState<string | null>(null);
@@ -118,6 +126,10 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
       clearTimeout(timer);
     };
   }, [saveStatus]);
+
+  useEffect(() => {
+    localStorage.setItem("mealdraft:diet_type", dietType);
+  }, [dietType]);
 
   useEffect(() => {
     if (!lastRecipe) return;
@@ -170,6 +182,7 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
         body: JSON.stringify({
           meal_type: mealType,
           max_prep_time_minutes: prepAtSubmit,
+          diet_type: dietType,
           exclude_names: excludeNames,
         }),
       });
@@ -378,6 +391,27 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
         </div>
 
         <div className="space-y-2">
+          <p className="text-muted-foreground/60 text-[9px] font-semibold tracking-[0.15em] uppercase">Dieta</p>
+          <div className={segmentGroupClass} role="group" aria-label="Typ diety">
+            {DIET_TYPE_OPTIONS.map(({ value, label }) => (
+              <button
+                key={value}
+                type="button"
+                data-active={dietType === value}
+                disabled={loadingSource !== null}
+                onClick={() => {
+                  setDietType(value);
+                  setShownNames([]);
+                }}
+                className={segmentButtonClass}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2">
           <p className="text-muted-foreground/60 text-[9px] font-semibold tracking-[0.15em] uppercase">
             Czas przygotowania
           </p>
@@ -462,6 +496,12 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
                 <span className="bg-primary/50 mt-1.5 size-1 shrink-0 rounded-full" />
                 {EXHAUSTION_HINT_MEAL_TYPE}
               </li>
+              {dietType !== "none" && (
+                <li className="flex items-start gap-2">
+                  <span className="bg-primary/50 mt-1.5 size-1 shrink-0 rounded-full" />
+                  {EXHAUSTION_HINT_DIET_TYPE}
+                </li>
+              )}
             </ul>
           </div>
         )}
@@ -487,6 +527,12 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
                 <span className="bg-primary/50 mt-1.5 size-1 shrink-0 rounded-full" />
                 {HINT_MEAL_TYPE}
               </li>
+              {dietType !== "none" && (
+                <li className="flex items-start gap-2">
+                  <span className="bg-primary/50 mt-1.5 size-1 shrink-0 rounded-full" />
+                  {HINT_DIET_TYPE}
+                </li>
+              )}
             </ul>
           </div>
         )}

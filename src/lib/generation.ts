@@ -228,7 +228,7 @@ export async function generateMeal(
 
       try {
         const { output: generatedOutput } = await generateText({
-          model: openrouter("openai/gpt-4.1-nano", {
+          model: openrouter("openai/gpt-4.1-mini", {
             plugins: [{ id: "response-healing" }],
             provider: { require_parameters: true },
           }),
