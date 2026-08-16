@@ -30,4 +30,6 @@ export const EXHAUSTION_HINT_MEAL_TYPE = "Zmień typ posiłku";
 
 export const EXHAUSTION_HINT_TIME = "Wydłuż czas przygotowania";
 
+export const EXHAUSTION_HINT_DIET_TYPE = "Zmień typ diety";
+
 export const EXCLUSION_CAP_MESSAGE = "Osiągnięto limit odrzuceń w tej sesji. Naciśnij Generuj, aby zacząć od nowa.";

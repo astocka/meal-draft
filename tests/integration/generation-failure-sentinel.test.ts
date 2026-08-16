@@ -69,13 +69,14 @@ describe("generation failure sentinel persistence", () => {
     const result = await generateMeal(client, userId, {
       meal_type: mealType,
       max_prep_time_minutes: 30,
+      diet_type: "none",
     });
 
     expect(result.status).toBe("error");
 
     const { data: rows, error } = await client
       .from("generation_history")
-      .select("id, name, recipe, meal_type, generated_at")
+      .select("id, name, recipe, meal_type, diet_type, generated_at")
       .eq("user_id", userId)
       .eq("name", SENTINEL_NAME)
       .eq("meal_type", mealType)
@@ -84,5 +85,6 @@ describe("generation failure sentinel persistence", () => {
     expect(error).toBeNull();
     expect(rows).toHaveLength(1);
     expect(rows?.[0]?.recipe).toBeNull();
+    expect(rows?.[0]?.diet_type).toBe("none");
   });
 });

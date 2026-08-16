@@ -1,9 +1,9 @@
 ---
 project: MealDraft
 version: 1
-status: complete
+status: active
 created: 2026-05-27
-updated: 2026-07-04
+updated: 2026-08-14
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -39,6 +39,7 @@ Busy working adults waste time and food every day because opening the fridge tri
 | S-04 | try-another-suggestion        | tap Try another for a different non-repeating suggestion within the same session, with exhaustion messaging | S-03             | US-06, FR-010                         | done          |
 | S-05 | meal-favorites                | save a generated meal to favorites and browse the favorites list from navigation                            | S-03             | US-03, FR-011, FR-012                 | done          |
 | S-06 | generation-history            | browse the last N generated meals in reverse chronological order                                            | S-03             | US-04, FR-013                         | **cancelled** |
+| S-07 | diet-type-filter              | select a diet type (e.g. no restriction, vegetarian, vegan, gluten-free) before generating a meal           | S-03             | —                                     | pending       |
 
 **MVP v1 complete** (S-01–S-05 done). S-06 cancelled — favorites (S-05) already provide persistent recipe snapshots; separate history UI deferred post-MVP.
 
