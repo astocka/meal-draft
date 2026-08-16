@@ -423,7 +423,7 @@ Rollback: `ALTER TABLE generation_history DROP COLUMN diet_type;`
 
 - [x] 2.1 `pnpm run build` passes — 38e6631
 - [x] 2.2 Existing `generation-failure-sentinel.test.ts` still passes (with diet_type: "none" added — see Phase 2 change 2) — 38e6631
-- [x] 2.3 Unit tests (Phase 4) pass — check after Phase 4 completes, not a Phase 2 gate
+- [x] 2.3 Unit tests (Phase 4) pass — check after Phase 4 completes, not a Phase 2 gate — 75b9820
 
 #### Manual
 
@@ -453,7 +453,7 @@ Rollback: `ALTER TABLE generation_history DROP COLUMN diet_type;`
 
 #### Automated
 
-- [x] 4.1 `pnpm test` passes (all existing + new tests green)
+- [x] 4.1 `pnpm test` passes (all existing + new tests green) — 75b9820
 
 ### Phase 5: Context updates
 
