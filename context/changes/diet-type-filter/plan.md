@@ -355,6 +355,10 @@ Record roadmap traceability in the change folder and park the account-preference
 
 ---
 
+## Post-implementation notes
+
+**LLM model upgrade**: During Phase 2 the model was upgraded from `openai/gpt-4.1-nano` to `openai/gpt-4.1-mini`. The change was made because the diet constraint lines require the model to reliably respect multi-clause negative constraints ("no meat, poultry, fish, seafood, dairy, eggs, honey…"); `gpt-4.1-nano` was observed to occasionally miss them during manual testing. The upgrade affects all generations, not only diet-filtered ones, and increases per-call cost slightly. Accepted tradeoff.
+
 ## Testing Strategy
 
 ### Unit Tests

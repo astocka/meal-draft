@@ -1,7 +1,7 @@
 ---
 change_id: diet-type-filter
 title: Diet type filter for meal generation
-status: implemented
+status: impl_reviewed
 created: 2026-08-14
 updated: 2026-08-16
 archived_at: null
