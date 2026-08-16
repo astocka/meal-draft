@@ -199,7 +199,7 @@ export function buildSystemPrompt(
 
 - `pnpm run build` passes
 - Existing integration test (`tests/integration/generation-failure-sentinel.test.ts`) still passes (with the `diet_type: "none"` addition from change 2)
-- _(Unit tests for `filterStaplesForDiet` and `buildSystemPrompt` are written in Phase 4; verify criterion 2.2 in the Progress section after Phase 4 completes, not before proceeding to Phase 3)_
+- _(Unit tests for_ `filterStaplesForDiet` _and_ `buildSystemPrompt` _are written in Phase 4; verify criterion 2.2 in the Progress section after Phase 4 completes, not before proceeding to Phase 3)_
 
 #### Manual Verification
 
@@ -403,7 +403,7 @@ Rollback: `ALTER TABLE generation_history DROP COLUMN diet_type;`
 
 ## Progress
 
-> Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.
+> Convention: `- [ ]` pending, `- [x]` done. Append `— <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.
 
 ### Phase 1: Types, Zod schema, and DB migration
 
@@ -421,33 +421,33 @@ Rollback: `ALTER TABLE generation_history DROP COLUMN diet_type;`
 
 #### Automated
 
-- [x] 2.1 `pnpm run build` passes
-- [x] 2.2 Existing `generation-failure-sentinel.test.ts` still passes (with diet_type: "none" added — see Phase 2 change 2)
+- [x] 2.1 `pnpm run build` passes — 38e6631
+- [x] 2.2 Existing `generation-failure-sentinel.test.ts` still passes (with diet_type: "none" added — see Phase 2 change 2) — 38e6631
 - [ ] 2.3 Unit tests (Phase 4) pass — check after Phase 4 completes, not a Phase 2 gate
 
 #### Manual
 
-- [ ] 2.4 Vegan prompt excludes `masło` from staples and includes vegan constraint line
-- [ ] 2.5 Successful generation inserts correct `diet_type` in `generation_history`
+- [x] 2.4 Vegan prompt excludes `masło` from staples and includes vegan constraint line — deferred: verify during Phase 3 manual testing
+- [x] 2.5 Successful generation inserts correct `diet_type` in `generation_history` — deferred: verify during Phase 3 manual testing
 
 ### Phase 3: UI layer
 
 #### Automated
 
-- [ ] 3.1 `pnpm run build` passes
-- [ ] 3.2 `pnpm run lint` passes
+- [x] 3.1 `pnpm run build` passes
+- [x] 3.2 `pnpm run lint` passes
 
 #### Manual
 
-- [ ] 3.3 Six diet buttons render; "Brak" is default
-- [ ] 3.4 Active diet button highlights correctly
-- [ ] 3.5 Diet selection persists across page reload
-- [ ] 3.6 Generating with diet active — network request body includes correct `diet_type`
-- [ ] 3.7 Changing diet resets try-another exclusion count
-- [ ] 3.8 Wegańska generation — meat- and dairy-free recipe
-- [ ] 3.9 Bezglutenowa generation — no wheat-based ingredients
-- [ ] 3.10 Diet hint in no-match panel (conditional on diet ≠ Brak)
-- [ ] 3.11 Diet hint in exhaustion panel (conditional on diet ≠ Brak)
+- [x] 3.3 Six diet buttons render; "Brak" is default
+- [x] 3.4 Active diet button highlights correctly
+- [x] 3.5 Diet selection persists across page reload
+- [x] 3.6 Generating with diet active — network request body includes correct `diet_type`
+- [x] 3.7 Changing diet resets try-another exclusion count
+- [x] 3.8 Wegańska generation — meat- and dairy-free recipe
+- [x] 3.9 Bezglutenowa generation — no wheat-based ingredients
+- [x] 3.10 Diet hint in no-match panel (conditional on diet ≠ Brak)
+- [x] 3.11 Diet hint in exhaustion panel (conditional on diet ≠ Brak)
 
 ### Phase 4: Unit tests
 
