@@ -40,6 +40,9 @@ export function filterStaplesForDiet(dietType: DietType): ReadonlySet<string> {
   if (dietType === "gluten_free") {
     return new Set([...COOKING_STAPLES].filter((s) => !GLUTEN_STAPLES.has(s)));
   }
+  // none, vegetarian, anti_inflammatory: return staples unchanged.
+  // anti_inflammatory enforcement is prompt-only (DIET_TYPE_CONSTRAINT) — cukier is intentionally
+  // kept in the allowlist because the constraint is best-effort guidance, not verified exclusion.
   return COOKING_STAPLES;
 }
 
@@ -206,8 +209,9 @@ export async function generateMeal(
       return { status: "no_match" };
     }
 
-    // Step 3: Build normalised pantry name set
+    // Step 3: Build normalised pantry name set and diet-filtered staples allowlist
     const pantryNamesLower = new Set(pantryItems.map((item) => item.toLowerCase().trim()));
+    const allowedStaples = filterStaplesForDiet(input.diet_type);
 
     // Step 4: Build system prompt
     const systemPrompt = buildSystemPrompt(pantryItems, input.meal_type, input.max_prep_time_minutes, input.diet_type);
@@ -276,7 +280,7 @@ export async function generateMeal(
       const violatingIngredient = recipe.ingredients.find(
         (ingredient) =>
           !pantryNamesLower.has(ingredient.toLowerCase().trim()) &&
-          !COOKING_STAPLES.has(ingredient.toLowerCase().trim()),
+          !allowedStaples.has(ingredient.toLowerCase().trim()),
       );
 
       if (violatingIngredient !== undefined) {

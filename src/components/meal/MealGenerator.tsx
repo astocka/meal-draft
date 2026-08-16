@@ -37,8 +37,6 @@ const HINTS_HEADING = "Co możesz zrobić?";
 const HINT_ADD = "Dodaj więcej składników";
 const HINT_TIME = "Wydłuż czas przygotowania";
 const HINT_MEAL_TYPE = "Zmień typ posiłku";
-const HINT_DIET_TYPE = "Zmień typ diety";
-
 const SAVE_ARIA_LABEL = "Dodaj do ulubionych";
 const UNSAVE_ARIA_LABEL = "Usuń z ulubionych";
 const SAVE_SUCCESS_MESSAGE = "Dodano do ulubionych";
@@ -91,6 +89,7 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
   const [mealType, setMealType] = useState<MealType>("lunch");
   const [maxPrepMinutes, setMaxPrepMinutes] = useState<number | null>(null);
   const [dietType, setDietType] = useState<DietType>(() => {
+    if (typeof window === "undefined") return "none";
     const saved = localStorage.getItem("mealdraft:diet_type");
     const valid = DIET_TYPE_OPTIONS.map((o) => o.value);
     return saved !== null && valid.includes(saved as DietType) ? (saved as DietType) : "none";
@@ -530,7 +529,7 @@ export default function MealGenerator({ loadError, pantryCount }: MealGeneratorP
               {dietType !== "none" && (
                 <li className="flex items-start gap-2">
                   <span className="bg-primary/50 mt-1.5 size-1 shrink-0 rounded-full" />
-                  {HINT_DIET_TYPE}
+                  {EXHAUSTION_HINT_DIET_TYPE}
                 </li>
               )}
             </ul>
